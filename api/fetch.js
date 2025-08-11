@@ -1,38 +1,39 @@
-// Serverless proxy to fetch a remote URL (PDF/HTML) and report metadata.
-// Usage: GET /api/fetch?url=https%3A%2F%2Fwww.asurion.com%2Fpdf%2Fnw-consumer-vmp-25%2F
+// api/fetch.js — fetch remote URL (PDF/HTML) and return metadata
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   const url = req.query.url;
-  if (!url) {
-    res.status(400).json({ error: 'Missing ?url=' });
-    return;
-  }
+  if (!url) return res.status(400).json({ error: 'Missing url' });
+
   try {
-    const r = await fetch(url, {
+    const upstream = await fetch(url, {
       redirect: 'follow',
       headers: {
-        // A basic UA helps avoid some “bot” blocks
-        'User-Agent': 'Mozilla/5.0 (compatible; CST-SmartDesk/1.0; +https://example.invalid)'
+        // light header to look like a browser
+        'User-Agent': 'Mozilla/5.0 (compatible; CSTSmartDesk/1.0)',
+        'Accept': '*/*',
       }
     });
-    const ct = r.headers.get('content-type') || '';
-    const lm = r.headers.get('last-modified');
-    const buf = await r.arrayBuffer();
+
+    const contentType = upstream.headers.get('content-type') || '';
+    const lastModified = upstream.headers.get('last-modified') || null;
+    const buf = await upstream.arrayBuffer();
     const bytes = buf.byteLength;
 
-    // We only return metadata here (not the full PDF) to keep the response light.
-    res.status(200).json({
-      ok: r.ok,
-      status: r.status,
-      url: r.url,
-      contentType: ct,
-      lastModified: lm,
-      bytes
+    // sha256 (optional, small impl)
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    const arr = Array.from(new Uint8Array(hash));
+    const sha256 = arr.map(b=>b.toString(16).padStart(2,'0')).join('');
+
+    return res.status(200).json({
+      ok: upstream.ok,
+      url: upstream.url,
+      status: upstream.status,
+      contentType,
+      lastModified,
+      bytes,
+      sha256
     });
   } catch (e) {
-    res.status(500).json({ ok: false, error: String(e) });
+    return res.status(200).json({ ok:false, error: e.message });
   }
 }
