@@ -1,17 +1,45 @@
 // ===== helpers & state =====
 const $  = (s, c=document) => c.querySelector(s);
 const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 const state = {
   lang: localStorage.getItem('cst_lang') || 'en',
   bilingual: localStorage.getItem('cst_bilingual') === '1',
   collapseOnPhone: localStorage.getItem('cst_collapse_on_phone') === '1',
+  theme: localStorage.getItem('cst_theme') || 'auto', // auto|dark|light|glass|mac
   profile: JSON.parse(localStorage.getItem('cst_profile') || 'null'),
   nosplash: localStorage.getItem('cst_nosplash') === '1'
 };
-function setLang(v){ state.lang=v; localStorage.setItem('cst_lang',v); const el=$('#uiLang'); if(el) el.textContent=v.toUpperCase(); }
-setLang(state.lang);
 
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// ===== theming =====
+function applyTheme(){
+  const root = document.documentElement;
+  // clear any explicit theme data attr
+  root.removeAttribute('data-theme');
+  if(state.theme === 'auto'){
+    // respect prefers-color-scheme; nothing to set here
+  } else if(state.theme === 'dark'){
+    // default tokens already dark
+  } else if(state.theme === 'light'){
+    root.setAttribute('data-theme','light');
+  } else if(state.theme === 'glass'){
+    root.setAttribute('data-theme','glass');
+  } else if(state.theme === 'mac'){
+    root.setAttribute('data-theme','mac');
+  }
+}
+function setTheme(v){ state.theme=v; localStorage.setItem('cst_theme',v); applyTheme(); }
+
+// language
+function setLang(v){
+  state.lang=v;
+  localStorage.setItem('cst_lang',v);
+  const el=$('#uiLang'); if(el) el.textContent=v.toUpperCase();
+}
+setLang(state.lang);
+applyTheme();
+
 if (isMobile) document.body.classList.add('is-mobile');
 
 // ===== splash + first-run profile =====
@@ -27,7 +55,6 @@ if (isMobile) document.body.classList.add('is-mobile');
 })();
 function maybeOpenProfile(){
   if(!state.profile){ openProfile(); return; }
-  // hydrate language from profile if present
   if(state.profile.lang && state.profile.lang !== state.lang) setLang(state.profile.lang);
 }
 
@@ -76,19 +103,30 @@ $('#profileForm')?.addEventListener('submit', (e)=>{
 });
 
 // ===== settings modal =====
-function openSettings(){ const m=$('#settingsModal'); if(!m) return; m.style.display='flex'; m.setAttribute('aria-hidden','false'); $('#set_bilingual').checked = state.bilingual; $('#set_collapse').checked = state.collapseOnPhone; }
+function openSettings(){
+  const m=$('#settingsModal'); if(!m) return;
+  $('#set_theme').value = state.theme;
+  $('#set_lang').value  = state.lang;
+  $('#set_bilingual').checked = state.bilingual;
+  $('#set_collapse').checked  = state.collapseOnPhone;
+  m.style.display='flex'; m.setAttribute('aria-hidden','false');
+}
 function closeSettings(){ const m=$('#settingsModal'); if(!m) return; m.style.display='none'; m.setAttribute('aria-hidden','true'); }
 $('#openSettings')?.addEventListener('click', openSettings);
 $('#openSettingsFromAside')?.addEventListener('click', openSettings);
-$('#settingsClose')?.addEventListener('click', ()=>{
+$('#settingsReopenProfile')?.addEventListener('click', ()=>{ closeSettings(); openProfile(); });
+$('#settingsSave')?.addEventListener('click', ()=>{
+  setTheme($('#set_theme').value);
+  setLang($('#set_lang').value);
   state.bilingual = $('#set_bilingual').checked;
   state.collapseOnPhone = $('#set_collapse').checked;
   localStorage.setItem('cst_bilingual', state.bilingual ? '1' : '0');
   localStorage.setItem('cst_collapse_on_phone', state.collapseOnPhone ? '1' : '0');
   closeSettings();
 });
+$('#settingsClose')?.addEventListener('click', closeSettings);
 
-// ===== language toggle =====
+// ===== language toggle quick button =====
 $('#toggleLang')?.addEventListener('click', ()=> setLang(state.lang === 'en' ? 'es' : 'en'));
 
 // ===== output =====
@@ -97,10 +135,7 @@ function writeOut(obj){
   try{
     const text = (typeof obj === 'string') ? obj : JSON.stringify(obj, null, 2);
     out.textContent = text;
-    if(isMobile && state.collapseOnPhone){
-      // (Output is not in <details> now, so we just scroll to top)
-      out.scrollTop = 0;
-    }
+    if(isMobile && state.collapseOnPhone){ out.scrollTop = 0; }
   }catch(e){ out.textContent = String(obj); }
 }
 writeOut({status:'ready'});
@@ -152,7 +187,7 @@ function addFiles(fileList){
 }
 picker?.addEventListener('change', (e)=> addFiles(e.target.files));
 ['dragenter','dragover'].forEach(evt=>{
-  dz?.addEventListener(evt,(e)=>{ e.preventDefault(); dz.style.background='#0e1423'; });
+  dz?.addEventListener(evt,(e)=>{ e.preventDefault(); dz.style.background='var(--tile-hover)'; });
 });
 ['dragleave','drop'].forEach(evt=>{
   dz?.addEventListener(evt,(e)=>{ e.preventDefault(); dz.style.background=''; if(evt==='drop'){ addFiles(e.dataTransfer.files); } });
