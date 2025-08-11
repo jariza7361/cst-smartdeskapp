@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>CST SmartDesk</title>
-  <meta name="color-scheme" content="dark light" />
+  <meta name="color-scheme" content="dark light"/>
   <style>
     :root{
       --bg:#0d0f14; --panel:#0f172a; --panel-2:#0b1222; --ink:#e6eaff; --muted:#9aa7c7;
@@ -14,7 +14,9 @@
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font:15px/1.4 system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 
-    header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0b1222,#0b1222ee)}
+    /* App shell */
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    header.top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0b1222,#0b1222ee);position:sticky;top:0;z-index:50}
     .brand{display:flex;gap:10px;align-items:center;font-weight:600}
     .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#9245ff)}
     .actions{display:flex;gap:8px;align-items:center}
@@ -25,81 +27,216 @@
     select,input,textarea{width:100%;border:1px solid var(--border);background:var(--panel-2);color:var(--ink);border-radius:10px;padding:10px}
     textarea{min-height:120px}
 
-    main{max-width:1100px;margin:16px auto;padding:0 12px;display:grid;gap:14px}
+    aside.sidebar{
+      border-right:1px solid var(--border);background:var(--panel-2);padding:12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto
+    }
+    .side-title{color:var(--muted);font-size:12px;margin:10px 6px}
+    .nav{list-style:none;margin:0;padding:0}
+    .nav li{padding:10px 10px;border-radius:10px;cursor:pointer}
+    .nav li:hover{background:var(--tile-hover)}
+    .nav .muted{color:var(--muted)}
+
+    main{padding:16px;display:grid;gap:14px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
     .muted{color:var(--muted)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .list{max-height:240px;overflow:auto;border:1px dashed var(--border);border-radius:10px;padding:10px}
+    pre{white-space:pre-wrap}
 
-    /* ===== Mobile tweaks ===== */
-    @media (max-width: 640px) {
-      header { flex-wrap: wrap; gap: 8px }
-      main { padding: 0 10px }
-      .grid { grid-template-columns:1fr }
-      .card { padding: 12px; border-radius: 12px }
-      h2 { font-size: 16px }
-      label { font-size: 12px }
-      button, select, input[type="text"], textarea { font-size: 16px; } /* prevent iOS zoom */
-      .row { gap: 8px }
-      .list { max-height: 200px }
-      #dropText::after { content: ' (use the file picker on mobile)'; font-size: 12px; color: var(--muted); }
-      details.mobile-collapse > summary {
-        list-style: none; cursor: pointer; user-select: none;
-        padding: 10px; margin-bottom: 8px; border: 1px solid var(--border);
-        border-radius: 10px; background: #0e1423;
-      }
-      details.mobile-collapse > summary::-webkit-details-marker { display: none; }
+    /* Splash (first-run) */
+    #splash{position:fixed;inset:0;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;color:#24103a;z-index:100}
+    #splash .bar{width:min(520px,80vw);height:10px;background:#e6e6ef;border-radius:999px;overflow:hidden;margin-top:14px}
+    #splash .bar>div{height:100%;width:0%;background:#22c55e;transition:width .25s}
+
+    /* Modal (profile & settings) */
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:120}
+    .modal{width:min(920px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px}
+    .modal header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+    .modal .content{padding:14px}
+
+    /* Drawer for mobile sidebar */
+    .drawer{display:none}
+    .drawer.open{display:block;position:fixed;inset:0;z-index:140}
+    .drawer .scrim{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+    .drawer .panel{position:absolute;left:0;top:0;bottom:0;width:82vw;max-width:320px;background:var(--panel-2);border-right:1px solid var(--border);padding:12px;overflow:auto}
+
+    /* Mobile tweaks */
+    @media (max-width: 860px){
+      .app{grid-template-columns:1fr}
+      aside.sidebar{display:none}             /* hide static sidebar */
+      header.top{gap:8px}
+      .grid{grid-template-columns:1fr}        /* single column cards */
+      .card{padding:12px;border-radius:12px}
+      button, select, input, textarea { font-size:16px } /* prevent iOS zoom */
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand"><div class="logo"></div><div>CST SmartDesk</div></div>
-    <div class="actions">
-      <div class="pill"><span id="uiLang">EN</span><button id="toggleLang" class="ghost">Toggle</button></div>
-      <button id="openSettings" class="ghost">Settings</button>
-      <button id="openProfile" class="ghost">Profile</button>
+  <!-- Splash -->
+  <section id="splash" aria-label="Loading">
+    <h2 style="margin:0">CST SmartDesk</h2>
+    <div class="bar" aria-hidden="true"><div></div></div>
+  </section>
+
+  <!-- Mobile Drawer (sidebar) -->
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <div class="scrim" id="drawerClose"></div>
+    <aside class="panel">
+      <div class="side-title">Carrier Hub</div>
+      <ul class="nav">
+        <li>📡 Verizon – Terms</li>
+        <li>📞 AT&amp;T – Terms</li>
+        <li>📻 Cricket – Terms</li>
+        <li>🛰️ Liberty</li>
+        <li>📱 US Cellular</li>
+        <li>📡 Cox</li>
+        <li>📡 Optimum</li>
+        <li>👴 Consumer Cellular</li>
+      </ul>
+      <div class="side-title">Admin</div>
+      <ul class="nav">
+        <li id="openSettingsFromDrawer">⚙️ Settings</li>
+        <li id="openProfileFromDrawer">👤 Profile</li>
+      </ul>
+    </aside>
+  </div>
+
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <button id="openDrawer" class="ghost" aria-label="Open menu">☰</button>
+        <div class="logo"></div><div>CST SmartDesk</div>
+      </div>
+      <div class="actions">
+        <div class="pill"><span id="uiLang">EN</span><button id="toggleLang" class="ghost">Toggle</button></div>
+        <button id="openSettings" class="ghost">Settings</button>
+        <button id="openProfile" class="ghost">Profile</button>
+      </div>
+    </header>
+
+    <!-- Static desktop sidebar -->
+    <aside class="sidebar">
+      <div class="side-title">Dashboard</div>
+      <ul class="nav">
+        <li class="muted">🤖 Copilot Assistant</li>
+        <li class="muted">📥 SmartDrop Upload</li>
+        <li class="muted">🧾 Scripting Bank</li>
+        <li class="muted">💳 Deductible Helper</li>
+      </ul>
+
+      <div class="side-title">Carrier Hub</div>
+      <ul class="nav">
+        <li>📡 Verizon – Terms</li>
+        <li>📞 AT&amp;T – Terms</li>
+        <li>📻 Cricket – Terms</li>
+        <li>🛰️ Liberty</li>
+        <li>📱 US Cellular</li>
+        <li>📡 Cox</li>
+        <li>📡 Optimum</li>
+        <li>👴 Consumer Cellular</li>
+      </ul>
+
+      <div class="side-title">Admin</div>
+      <ul class="nav">
+        <li id="openSettingsFromAside">⚙️ Settings</li>
+        <li id="openProfileFromAside">👤 Profile</li>
+      </ul>
+    </aside>
+
+    <main>
+      <section class="grid">
+        <!-- Copilot -->
+        <article class="card">
+          <h2>🤖 Copilot Assistant</h2>
+          <label>Paste Expert Chat</label>
+          <textarea id="cp_in" placeholder="Paste chat (phone, zip, model, carrier, concern)…"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button id="cp_run" class="primary">Generate</button>
+            <button id="cp_suggest">Suggest</button>
+          </div>
+        </article>
+
+        <!-- SmartDrop -->
+        <article class="card">
+          <h2>📥 SmartDrop Upload</h2>
+          <p class="muted" id="dropSub">Drag & drop files here or use the picker.</p>
+          <input id="picker" type="file" multiple accept=".pdf,.doc,.docx,.eml,.xlsx,.xls,.ppt,.pptx,.png,.jpg,.jpeg,.txt"/>
+          <div id="dropZone" class="list" style="margin-top:8px"><em id="dropText">Drop files</em></div>
+          <label style="margin-top:10px">Routing Note</label>
+          <textarea id="sd_note" placeholder="e.g., Update Carrier &gt; AT&amp;T"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button id="sd_process" class="primary">Process</button>
+            <button id="sd_clear">Clear</button>
+          </div>
+        </article>
+      </section>
+
+      <!-- Output -->
+      <section class="card">
+        <h2>Output</h2>
+        <pre id="out" class="list" style="min-height:120px">{}</pre>
+      </section>
+    </main>
+  </div>
+
+  <!-- Profile Setup Modal -->
+  <div class="backdrop" id="profileModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <header>
+        <h3 id="profileTitle" style="margin:0">First‑Time Setup</h3>
+        <button class="ghost" id="profileClose">Close</button>
+      </header>
+      <div class="content">
+        <form id="profileForm">
+          <div class="row">
+            <div><label>First Name</label><input id="pf_first" required placeholder="e.g., Jesus"></div>
+            <div><label>Last Name</label><input id="pf_last" required placeholder="e.g., Ariza Jr."></div>
+          </div>
+          <div class="row">
+            <div><label>Employee ID</label><input id="pf_id" required placeholder="e.g., 407584"></div>
+            <div><label>Extension</label><input id="pf_ext" required placeholder="e.g., 2407" maxlength="5"></div>
+          </div>
+          <div class="row">
+            <div><label>Coach</label><input id="pf_coach" placeholder="e.g., Leticia Gaxiola"></div>
+            <div>
+              <label>Language</label>
+              <select id="pf_lang">
+                <option value="en">English</option>
+                <option value="es">Español (LatAm)</option>
+              </select>
+            </div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:8px">
+            <input type="checkbox" id="pf_nosplash"> Don’t show splash again
+          </label>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px">
+            <button class="primary" type="submit">Save Profile</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </header>
+  </div>
 
-  <main>
-    <section class="grid">
-      <!-- Copilot -->
-      <article class="card">
-        <h2>🤖 Copilot Assistant</h2>
-        <label>Paste Expert Chat</label>
-        <textarea id="cp_in" placeholder="Paste chat (phone, zip, model, carrier, concern)…"></textarea>
-        <div class="row" style="margin-top:8px">
-          <button id="cp_run" class="primary">Generate</button>
-          <button id="cp_suggest">Suggest</button>
+  <!-- Settings Modal -->
+  <div class="backdrop" id="settingsModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header>
+        <h3 id="settingsTitle" style="margin:0">Settings</h3>
+        <button class="ghost" id="settingsClose">Close</button>
+      </header>
+      <div class="content">
+        <div style="display:grid;gap:10px">
+          <label style="display:flex;gap:10px;align-items:center">
+            <input id="set_bilingual" type="checkbox"/> Bilingual output (append Spanish copy when UI language is EN)
+          </label>
+          <label style="display:flex;gap:10px;align-items:center">
+            <input id="set_collapse" type="checkbox"/> Collapse Output automatically on phones
+          </label>
         </div>
-      </article>
-
-      <!-- SmartDrop -->
-      <article class="card">
-        <h2>📥 SmartDrop Upload</h2>
-        <p class="muted" id="dropSub">Drag & drop files here or use the picker.</p>
-        <input id="picker" type="file" multiple accept=".pdf,.doc,.docx,.eml,.xlsx,.xls,.ppt,.pptx,.png,.jpg,.jpeg,.txt" />
-        <div id="dropZone" class="list" style="margin-top:8px"><em id="dropText">Drop files</em></div>
-        <label style="margin-top:10px">Routing Note</label>
-        <textarea id="sd_note" placeholder="e.g., Update Carrier > AT&amp;T"></textarea>
-        <div class="row" style="margin-top:8px">
-          <button id="sd_process" class="primary">Process</button>
-          <button id="sd_clear">Clear</button>
-        </div>
-      </article>
-    </section>
-
-    <!-- Output (collapsible on mobile) -->
-    <section class="card">
-      <h2 id="out_title" class="mobile-hide">Output</h2>
-      <details id="outWrap" class="mobile-collapse" open>
-        <summary id="outSummary" class="muted">Output (tap to expand)</summary>
-        <pre id="out" class="list" style="min-height:120px;white-space:pre-wrap">{}</pre>
-      </details>
-    </section>
-  </main>
+      </div>
+    </div>
+  </div>
 
   <script src="/app.js" defer></script>
 </body>
