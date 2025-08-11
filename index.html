@@ -1,13 +1,174 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CST SmartDesk</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <noscript>CST SmartDesk needs JavaScript enabled.</noscript>
-    <script src="app.js" defer></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CST SmartDesk – Minimal MVP</title>
+
+  <!-- CSP: safe defaults for now; Vercel will also set stronger CSP from vercel.json -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'">
+
+  <style>
+    :root{--bg:#0d0f14;--ink:#e7ebf3;--muted:#95a1b3;--accent:#6f4bd8;--panel:#131826;--border:#2a3142}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:#0e1422;position:sticky;top:0}
+    header .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+    header .brand .dot{width:18px;height:18px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#9155ff)}
+    main{padding:16px;display:grid;gap:16px;grid-template-columns: 1fr}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+    h2{margin:0 0 8px}
+    label{font-size:12px;color:var(--muted)}
+    select,input[type=checkbox],input[type=text],textarea{background:#101320;border:1px solid var(--border);color:var(--ink);border-radius:8px;padding:8px}
+    textarea{width:100%;min-height:80px}
+    button{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:8px 10px;cursor:pointer}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .muted{color:var(--muted)}
+    .right{justify-content:flex-end}
+
+    /* SmartDrop */
+    .drop{border:1px dashed #3a4661;border-radius:12px;padding:16px;text-align:center;background:#0e1526}
+    .drop.dragover{outline:2px solid var(--accent)}
+    .grid{display:grid;gap:10px}
+    .list{max-height:160px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:10px;background:#0e1423}
+    .item{display:flex;justify-content:space-between;gap:8px;border-top:1px dashed #2a3347;padding-top:8px;margin-top:8px}
+    .item:first-child{border-top:0;margin-top:0;padding-top:0}
+
+    /* Output */
+    pre{white-space:pre-wrap;background:#0d1320;border:1px solid var(--border);border-radius:10px;padding:10px}
+
+    /* Modal (Profile Setup / Settings) */
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center}
+    .modal{width:min(720px,92vw);background:#111727;border:1px solid var(--border);border-radius:14px}
+    .modal header,.modal footer{padding:10px 12px;border-bottom:1px solid var(--border)}
+    .modal footer{border-top:1px solid var(--border);border-bottom:0;display:flex;gap:8px;justify-content:flex-end}
+    .modal .content{padding:12px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="dot"></div><div>CST SmartDesk</div></div>
+    <div class="row">
+      <div>
+        <label id="lbl-ui-lang">UI Language</label><br/>
+        <select id="uiLang">
+          <option value="en">English</option>
+          <option value="es">Español (LatAm)</option>
+        </select>
+      </div>
+      <div>
+        <label id="lbl-bilingual">Bilingual scripting</label><br/>
+        <label class="row" style="gap:6px">
+          <input id="bilingual" type="checkbox"/>
+          <span class="muted" id="bilingualHint">Return EN + ES scripts</span>
+        </label>
+      </div>
+      <button id="openSettings">Settings</button>
+      <button id="pingApi">Ping API</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Note Generator (Bilingual aware) -->
+    <section class="card">
+      <h2 id="ng_title">Note Generator</h2>
+      <p class="muted" id="ng_hint">Type a brief summary; output is auto‑prefixed with greeting + agent name. If “Bilingual” is ON, you’ll get EN and ES.</p>
+      <div class="grid">
+        <div>
+          <label id="ng_in_lbl">Summary</label>
+          <textarea id="ng_in" placeholder="e.g., Customer accepted RPFR for iPhone 14 128GB; proceed per carrier terms."></textarea>
+        </div>
+        <div class="row right">
+          <button id="ng_gen">Generate</button>
+        </div>
+        <div>
+          <label id="ng_out_lbl">Output</label>
+          <pre id="ng_out"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SmartDrop MVP -->
+    <section class="card">
+      <h2 id="sd_title">SmartDrop Upload (MVP)</h2>
+      <p class="muted" id="sd_hint">Drop PDF/DOCX/EML/TXT/CSV/JSON here or use the picker.</p>
+      <div class="grid">
+        <div id="dropZone" class="drop" role="button" tabindex="0">
+          <div id="dropText">Drag & drop files here</div>
+          <div class="muted" id="dropSub">or</div>
+          <div style="margin-top:8px"><input id="filePicker" type="file" multiple accept=".pdf,.doc,.docx,.eml,.txt,.csv,.json,.md,.rtf"/></div>
+        </div>
+
+        <div>
+          <label id="sd_route_lbl">Routing note (optional)</label>
+          <input id="sdRoute" placeholder="e.g., Update Carrier > AT&T" style="width:100%"/>
+        </div>
+
+        <div class="list" id="sdList" aria-live="polite"></div>
+
+        <div class="row" style="justify-content:flex-end">
+          <button id="process">Process & Save</button>
+          <button id="clear">Clear List</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Output / Debug -->
+    <section class="card">
+      <h2 id="out_title">Output</h2>
+      <pre id="out">{}</pre>
+    </section>
+  </main>
+
+  <!-- Profile Setup / Settings Modal -->
+  <div class="backdrop" id="profileBack">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <header><strong id="profileTitle">Profile Setup</strong></header>
+      <div class="content">
+        <div class="grid2">
+          <div>
+            <label>First Name</label><br/>
+            <input id="p_first" placeholder="e.g., Jesus"/>
+          </div>
+          <div>
+            <label>Last Name</label><br/>
+            <input id="p_last" placeholder="e.g., Ariza Jr."/>
+          </div>
+          <div>
+            <label>Employee ID</label><br/>
+            <input id="p_id" placeholder="e.g., 407584"/>
+          </div>
+          <div>
+            <label>Extension</label><br/>
+            <input id="p_ext" placeholder="e.g., 2407" maxlength="5"/>
+          </div>
+          <div>
+            <label>Coach</label><br/>
+            <input id="p_coach" placeholder="e.g., Leticia Gaxiola"/>
+          </div>
+          <div>
+            <label>Preferred UI</label><br/>
+            <select id="p_lang">
+              <option value="en">English</option>
+              <option value="es">Español (LatAm)</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <label class="row" style="gap:6px">
+            <input type="checkbox" id="p_nosplash"/>
+            <span class="muted">Don’t show again at startup</span>
+          </label>
+        </div>
+      </div>
+      <footer>
+        <button id="profileCancel" style="background:#283246">Cancel</button>
+        <button id="profileSave">Save Profile</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
 </html>
