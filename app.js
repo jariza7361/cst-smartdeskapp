@@ -1,229 +1,191 @@
-// ===== Utilities & State =====
-const $ = (s, c = document) => c.querySelector(s);
-const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
-const state = {
-  lang: localStorage.getItem('cst_lang') || 'en',
-  bilingual: localStorage.getItem('cst_bilingual') === 'on' ? 'on' : 'off',
-  theme: localStorage.getItem('cst_theme') || 'dark',
-  profile: JSON.parse(localStorage.getItem('cst_profile') || 'null'),
-  nosplash: localStorage.getItem('cst_nosplash') === '1'
-};
+// app.js — deep-audit baseline + working UI + denial copilot + T&C fetch test
+(function () {
+  const $ = (s, c=document) => c.querySelector(s);
+  const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+  let toastTimer;
 
-function saveProfile(p) {
-  localStorage.setItem('cst_profile', JSON.stringify(p));
-  state.profile = p;
-}
-function setLang(v) {
-  state.lang = v; localStorage.setItem('cst_lang', v);
-  const lbl = $('#langLabel'); if (lbl) lbl.textContent = v.toUpperCase();
-}
-function setBilingual(v) {
-  state.bilingual = v; localStorage.setItem('cst_bilingual', v);
-  const sel = $('#cp_bilingual'); if (sel) sel.value = v;
-}
-function setTheme(v) {
-  state.theme = v; localStorage.setItem('cst_theme', v);
-  document.documentElement.dataset.theme = v;
-  // simple theme switches
-  if (v === 'light') document.documentElement.style.setProperty('--bg', '#f7f8fc');
-  else document.documentElement.style.setProperty('--bg', '#0d0d0f');
-  if (v === 'glass') {
-    document.body.style.backdropFilter = 'saturate(120%) blur(8px)';
-  } else {
-    document.body.style.backdropFilter = '';
+  // ---- Toast & QA log
+  function showToast(msg, type='success'){
+    const t = $('#toast'); if(!t) return;
+    t.textContent = msg; t.className = ''; t.classList.add(type);
+    requestAnimationFrame(()=>t.classList.add('show'));
+    clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
   }
-}
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-}
-function showToast(msg) {
-  const t = $('#toast'); if (!t) return;
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1600);
-}
-function writeTray(text) {
-  const tray = $('#tray'); const out = $('#trayOut');
-  if (out) out.value = text || '';
-  tray?.classList.remove('collapsed');
-}
+  function logQA(line){
+    const log = $('#qaLog'); if(!log) return;
+    log.textContent = (line + '\n' + (log.textContent||'')).slice(0, 7000);
+  }
 
-// ===== Splash =====
-const QUOTES = [
-  "Small steps done consistently beat big plans undone.",
-  "Clarity first, then speed. You’ve got this.",
-  "Serve → Solve → Sell: lead with empathy, finish with options.",
-  "Measure twice. Paste once. Ship often."
-];
-function startSplash() {
-  const s = $('#splash'); if (!s) return;
-  if (state.nosplash) { s.style.display = 'none'; afterSplash(); return; }
-  const q = $('#splashQuote'); if (q) q.textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-  const bar = $('#splash .bar>div'); let p = 0;
-  const timer = setInterval(() => {
-    p = Math.min(100, p + 7 + Math.random() * 8);
-    if (bar) bar.style.width = p + '%';
-    if (p >= 100) { clearInterval(timer); s.style.display = 'none'; afterSplash(); }
-  }, 180);
-}
-function afterSplash() {
-  hydrateProfile();
-  setTheme(state.theme);
-  setLang(state.lang);
-  setBilingual(state.bilingual);
-}
-
-// ===== Profile & Settings =====
-function hydrateProfile() {
-  const p = state.profile;
-  const badge = $('#profileBadge');
-  const name = p ? `${p.first || ''} ${p.last || ''}`.trim() : '';
-  if (badge) badge.textContent = `👤 ${name || 'Agent'}${p ? ' | 🆔 '+(p.id||'—')+' | ☎️ '+(p.ext||'—') : ''}`;
-  const wn = $('#welcomeName'); if (wn) wn.textContent = name ? ', ' + name.split(' ')[0] : '';
-}
-
-// Open/close modals
-function openModal(id){ const m = document.getElementById(`modal-${id}`); if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; } }
-function closeModal(el){ const b = el?.closest('.modal-b'); if(b){ b.style.display='none'; document.body.style.overflow=''; } }
-$$('[data-close]').forEach(b=> b.addEventListener('click', e => closeModal(e.target)));
-$('#openSettings')?.addEventListener('click', ()=> openModal('settings'));
-$('#openProfile')?.addEventListener('click', ()=> openModal('profile'));
-$('#openProfile2')?.addEventListener('click', ()=> openModal('profile'));
-
-// Drawer
-const drawer = $('#drawer'), scrim = $('#scrim');
-$('#openDrawer')?.addEventListener('click', ()=>{ drawer?.classList.add('open'); scrim?.classList.add('show'); });
-scrim?.addEventListener('click', ()=>{ drawer?.classList.remove('open'); scrim?.classList.remove('show'); });
-
-// Sidebar tiles
-$$('.tile[data-open]').forEach(t => t.addEventListener('click', () => {
-  const key = t.getAttribute('data-open');
-  if (key) openModal(key);
-}));
-
-// Carrier Hub clicks (logo tiles)
-$$('.logo-tile').forEach(el=>{
-  el.addEventListener('click', ()=>{
-    const c = el.getAttribute('data-carrier');
-    // For now: run a T&C test fetch when Verizon is clicked, otherwise info
-    if (c === 'VZW') runTncTest();
-    showToast((c==='VZW'?'Verizon':c==='ATT'?'AT&T':c==='CRK'?'Cricket':c)+' selected');
-  });
-});
-
-// Settings bindings
-$('#themeSel')?.addEventListener('change', e => setTheme(e.target.value));
-$('#bilingualDefault')?.addEventListener('change', e => setBilingual(e.target.value));
-$('#langToggle')?.addEventListener('click', ()=> { setLang(state.lang==='en'?'es':'en'); showToast('Language: '+state.lang.toUpperCase()); });
-
-// Profile form
-$('#profileForm')?.addEventListener('submit', (e)=>{
-  e.preventDefault();
-  const p = {
-    first: $('#p_first').value.trim(),
-    last: $('#p_last').value.trim(),
-    id: $('#p_id').value.trim(),
-    ext: $('#p_ext').value.trim(),
-    coach: $('#p_coach').value.trim(),
-    lang: $('#p_lang').value,
-    nosplash: $('#p_nosplash').checked
+  // ---- State & profile
+  const state = {
+    lang: localStorage.getItem('cst_lang') || 'en',
+    profile: JSON.parse(localStorage.getItem('cst_profile')||'null'),
+    bilingual: (localStorage.getItem('cst_bilingual') ?? '1') === '1', // default ON
+    nosplash: localStorage.getItem('cst_nosplash') === '1'
   };
-  if (!p.first || !p.last || !p.id || !p.ext) { showToast('Fill required fields'); return; }
-  saveProfile(p); setLang(p.lang || state.lang); hydrateProfile();
-  if (p.nosplash) localStorage.setItem('cst_nosplash','1');
-  showToast('Profile saved');
-  closeModal($('#modal-profile .btn.secondary'));
-});
+  function setLang(v){ state.lang=v; localStorage.setItem('cst_lang',v); const l=$('#langLabel'); if(l) l.textContent=v.toUpperCase(); }
+  function greeting(){ const h=(new Date()).getHours(); return h<12? 'Good morning' : h<18? 'Good afternoon' : 'Good evening'; }
+  function hydrateProfile(){
+    const p=state.profile; if(!p) return;
+    const full = p.first && p.last ? `${p.first} ${p.last}` : (p.full||'Agent');
+    const badge = $('#profileBadge'); if(badge){ badge.textContent = `👤 ${full} | 🆔 ${p.id||'—'} | ☎️ ${p.ext||'—'} | ${state.lang.toUpperCase()}`; }
+    const wn = $('#welcomeName'); if(wn) wn.textContent = full ? ', '+full.split(' ')[0] : '';
+  }
 
-// ===== Output tray =====
-$('#trayToggle')?.addEventListener('click', ()=> $('#tray')?.classList.toggle('collapsed'));
-$('#trayCopy')?.addEventListener('click', async ()=> {
-  try { await navigator.clipboard.writeText($('#trayOut')?.value || ''); showToast('Copied'); }
-  catch { showToast('Copy failed'); }
-});
-
-// ===== Copilot (Denials) =====
-function parseDenialPrompt(input){
-  // Try quick pattern: "denial: code (carrier)"
-  const m = /denial:\s*([a-z0-9_ ]+)(?:\s*\((vzw|att|crk)\))?/i.exec(input);
-  if (m) return { type:'denial', code: m[1].trim().replace(/\s+/g,'_'), carrier: (m[2]||'').toUpperCase() };
-  // loose guesses
-  const low = input.toLowerCase();
-  const map = [
-    ['no_airtime', /(no\s*air\s*time|no\s*usage)/],
-    ['no_enrollment', /(no\s*enroll|not\s*enrolled)/],
-    ['no_ins_at_tol', /(no\s*(ins|coverage).*(tol|time\s*of\s*loss))/],
-    ['preexisting_damage', /(pre.?existing)/],
-    ['active_imei_after_loss', /(active.*imei|used.*after.*loss)/],
-    ['model_not_in_use_at_tol', /(model.*not.*in.*use|wrong.*model)/],
-    ['eopa', /(eopa|program\s*abuse|evidence\s*of\s*program)/]
+  // ---- Splash (with quotes)
+  const QUOTES = [
+    "Small steps stack into big wins.",
+    "Clarity first, speed second, quality always.",
+    "We don’t guess— we verify, then ship.",
+    "Every escalation is solvable with patience and facts."
   ];
-  for (const [code, rx] of map) if (rx.test(low)) return { type:'denial', code };
-  return { type:'text', text: input };
-}
-async function callCopilot(payload){
-  try{
-    const res = await fetch('/api/copilot', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    return await res.json();
-  }catch(err){
-    return { error: String(err) };
+  function startSplash(){
+    const splash = $('#splash'); if(!splash){ afterSplash(); return; }
+    if(state.nosplash){ splash.style.display='none'; return afterSplash(); }
+    const quote = $('#splashQuote'); if(quote){ quote.textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)]; }
+    const bar = $('#splash .bar>div');
+    let p=0; const t = setInterval(()=>{ p=Math.min(100, p+8+Math.random()*7); if(bar) bar.style.width = p+'%'; if(p>=100){clearInterval(t); finish();}},180);
+    $('#splashSkip')?.addEventListener('click', ()=>{ clearInterval(t); finish(); });
+    setTimeout(()=>{ clearInterval(t); finish(); logQA('Splash forced complete (timeout)'); }, 5000);
+    function finish(){ splash.style.display='none'; afterSplash(); }
   }
-}
-$('#cp_run')?.addEventListener('click', async ()=>{
-  const raw = $('#cp_in').value.trim();
-  const bilingual = $('#cp_bilingual').value || state.bilingual;
-  const profName = state.profile ? (state.profile.first || 'Agent') : 'Agent';
-  const parsed = parseDenialPrompt(raw);
-  if (parsed.type !== 'denial') {
-    writeTray(`${greeting()}, this is ${profName} with CST.\n\n${raw || 'Please enter a denial: <code>'}`);
-    return;
+  function afterSplash(){ if(!state.profile){ openModal('setup'); } else { hydrateProfile(); } }
+
+  // ---- Modals
+  const MODALS = {
+    setup: $('#modal-setup'),
+    copilot: $('#modal-copilot'),
+    tests: $('#modal-tests'),
+    settings: $('#modal-settings'),
+  };
+  function openModal(key){ const m=MODALS[key]; if(!m) return; m.style.display='flex'; document.body.style.overflow='hidden'; }
+  function closeModal(el){ const mb = el?.closest?.('.modal-backdrop'); if(mb){ mb.style.display='none'; document.body.style.overflow=''; } }
+  $$('[data-close]').forEach(b=> b.addEventListener('click', e=> closeModal(e.target)));
+
+  // ---- Mobile navigation
+  const sidebar = $('#sidebar');
+  const navToggle = $('#navToggle');
+  function setSidebar(open){
+    if(!sidebar || !navToggle) return;
+    if(open){ sidebar.classList.add('open'); navToggle.setAttribute('aria-expanded','true'); }
+    else { sidebar.classList.remove('open'); navToggle.setAttribute('aria-expanded','false'); }
   }
-  const resp = await callCopilot({ type:'denial', code: parsed.code, carrier: parsed.carrier || '', bilingual, agent: profName });
-  if (resp.error) { writeTray('Error: '+resp.error); return; }
-  writeTray(resp.text || '');
-});
+  navToggle?.addEventListener('click', ()=> setSidebar(!sidebar.classList.contains('open')));
+  $$('[data-open]').forEach(li=> li.addEventListener('click', ()=> setSidebar(false)));
 
-// ===== Tests =====
-$('#t_clipboard')?.addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText('clipboard-ok'); showToast('Clipboard OK'); }catch{ showToast('Clipboard blocked'); }
-});
-$('#t_denials')?.addEventListener('click', async ()=>{
-  const samples = ['denial: no_enrollment','denial: no_airtime (att)','denial: eopa (vzw)','denial: model_not_in_use_at_tol (crk)'];
-  const outputs = [];
-  for (const s of samples){
-    const p = parseDenialPrompt(s);
-    const r = await callCopilot({ type:'denial', code:p.code, carrier:p.carrier||'', bilingual:'off', agent: (state.profile?.first||'Agent') });
-    outputs.push(`> ${s}\n${r.text}\n`);
+  // ---- Setup form
+  const setupForm = $('#setupForm');
+  setupForm?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const profile={ first:$('#f_first').value.trim(), last:$('#f_last').value.trim(), id:$('#f_id').value.trim(), ext:$('#f_ext').value.trim(), coach:$('#f_coach').value.trim() };
+    if(!profile.first||!profile.last||!profile.id||!profile.ext){ showToast('Please complete required fields.','warn'); return; }
+    localStorage.setItem('cst_profile', JSON.stringify(profile));
+    if($('#f_nosplash').checked){ localStorage.setItem('cst_nosplash','1'); state.nosplash=true; }
+    state.profile = profile; hydrateProfile(); showToast('Profile saved.'); closeModal($('#modal-setup [data-close]'));
+  });
+
+  // ---- Settings
+  $('#langToggle')?.addEventListener('click', ()=>{ setLang(state.lang==='en'?'es':'en'); showToast('Language: '+state.lang.toUpperCase()); hydrateProfile(); });
+  const optBi = $('#opt_bilingual'); if(optBi){ optBi.checked = !!state.bilingual; optBi.onchange = ()=>{ state.bilingual=optBi.checked; localStorage.setItem('cst_bilingual', state.bilingual?'1':'0'); showToast('Bilingual '+(state.bilingual?'ON':'OFF')); }; }
+  $('#btn_reopen_setup')?.addEventListener('click', ()=> openModal('setup'));
+
+  // ---- Openers
+  $$('[data-open]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const key = el.getAttribute('data-open');
+      if(key==='copilot') openModal('copilot');
+      else if(key==='tests') openModal('tests');
+      else if(key==='settings') openModal('settings');
+    });
+  });
+
+  // ---- Copilot (serve/solve/sell denial skeletons)
+  const DENIAL = {
+    NO_ENROLL: {
+      en: { reason:`Your number isn’t enrolled in a protection plan, so we can’t approve the claim.`,
+            rebuttal:`If you think there’s been an error, your carrier can verify why coverage wasn’t added and review options.` },
+      es: { reason:`Su número no está inscrito en un plan de protección, por lo que no podemos aprobar la reclamación.`,
+            rebuttal:`Si cree que hubo un error, su proveedor puede verificar por qué no se agregó la cobertura y revisar opciones.` }
+    },
+    NO_AIRTIME: {
+      en: { reason:`We found no airtime—no calls, texts, or data—since enrollment. Coverage requires usage after enrollment.`,
+            rebuttal:`Airtime after enrollment confirms the device was in working order. Your carrier can review alternatives.` },
+      es: { reason:`No se encontró uso (llamadas, mensajes o datos) desde la inscripción. La cobertura requiere uso posterior a la inscripción.`,
+            rebuttal:`El uso posterior confirma que el equipo funcionaba correctamente. Su proveedor puede revisar alternativas.` }
+    },
+    PRE_EXISTING: {
+      en: { reason:`The device had pre‑existing damage or the loss happened before coverage started.`,
+            rebuttal:`Coverage applies only if the device was in good condition before insurance was added.` },
+      es: { reason:`El dispositivo tenía daños preexistentes o la pérdida ocurrió antes del inicio de la cobertura.`,
+            rebuttal:`La cobertura aplica solo si el equipo estaba en buen estado antes de añadir el seguro.` }
+    },
+    ACTIVE_IMEI: {
+      en: { reason:`The device shows activity after the provided date of loss; lost/stolen devices shouldn’t be active.`,
+            rebuttal:`Suspend the line and block the device with the carrier, then refile using the last activity date.` },
+      es: { reason:`El dispositivo muestra actividad posterior a la fecha de pérdida; un equipo perdido/robado no debe estar activo.`,
+            rebuttal:`Suspenda la línea y bloquee el equipo con el proveedor; luego presente de nuevo usando la última fecha de uso.` }
+    }
+  };
+  function intro(){ const who = state.profile?.first || 'Agent'; return `${greeting()}, this is ${who} with CST.`; }
+  function buildDenial(reasonKey){
+    const pack = DENIAL[reasonKey]; if(!pack) return 'Unknown reason.';
+    const en = `SERVE: ${intro()}\n\nSOLVE: ${pack.en.reason}\n\nSELL: ${pack.en.rebuttal}`;
+    if(!state.bilingual) return en;
+    const es = `\n\n—\n\nSERVIR: ${intro().replace('This','Este')}\n\nRESOLVER: ${pack.es.reason}\n\nVALOR: ${pack.es.rebuttal}`;
+    return en + es;
   }
-  $('#test_out').textContent = outputs.join('\n');
-});
-async function runTncTest(){
-  const url = 'https://www.asurion.com/pdf/nw-consumer-vmp-25/';
-  const res = await fetch(`/api/tnc-fetch?url=${encodeURIComponent(url)}`);
-  const out = await res.json().catch(()=>({error:'parse failed'}));
-  $('#test_out').textContent = JSON.stringify(out, null, 2);
-  openModal('tests');
-}
-$('#t_tnc')?.addEventListener('click', runTncTest);
+  $('#cp_run')?.addEventListener('click', ()=>{
+    const q = ($('#cp_in').value||'').trim();
+    let out;
+    if(/no\s*airtime/i.test(q)) out = buildDenial('NO_AIRTIME');
+    else if(/no\s*enroll|not\s*enrolled/i.test(q)) out = buildDenial('NO_ENROLL');
+    else if(/pre.?existing/i.test(q)) out = buildDenial('PRE_EXISTING');
+    else if(/active\s*imei/i.test(q)) out = buildDenial('ACTIVE_IMEI');
+    else out = intro() + '\n\nPlease provide a specific denial reason (e.g., "No Airtime").';
+    $('#cp_out').value = out;
+  });
+  $('#cp_copy')?.addEventListener('click', async ()=>{
+    try{ await navigator.clipboard.writeText($('#cp_out').value||''); showToast('Copied'); }catch{ showToast('Copy failed','warn');}
+  });
 
-// ===== SmartDrop (stub) =====
-$('#sd_queue')?.addEventListener('click', async ()=>{
-  const files = $('#sd_files').files;
-  const text = $('#sd_text').value.trim();
-  const names = files ? Array.from(files).map(f=>f.name) : [];
-  const res = await fetch('/api/smartdrop-queue', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ names, text, when: Date.now() }) });
-  const data = await res.json().catch(()=>({error:'parse'}));
-  $('#sd_status').textContent = data.error ? 'Error: '+data.error : `Queued id=${data.id}`;
-});
+  // ---- Tests
+  $('#t_fetch_vzw_pdf')?.addEventListener('click', async ()=>{
+    const url = 'https://www.asurion.com/pdf/nw-consumer-vmp-25/';
+    const log = $('#testLog'); if(log) log.textContent = 'Fetching… '+url;
+    try{
+      const res = await fetch('/api/fetch?url='+encodeURIComponent(url));
+      const data = await res.json();
+      if(log) log.textContent = JSON.stringify(data,null,2);
+      if(!data.ok) logQA('NOTE: contentType '+data.contentType+' (may be landing page).');
+    }catch(e){ if(log) log.textContent = 'Error: '+e.message; }
+  });
+  $('#t_deep_audit')?.addEventListener('click', runQA);
+  $('#t_validate_csp')?.addEventListener('click', ()=>{
+    fetch('/api/fetch?url=https://www.asurion.com').then(r=>r.json()).then(()=>showToast('CSP OK (connect-src)')).catch(()=>showToast('CSP blocked','warn'));
+  });
+  $('#t_sim_error')?.addEventListener('click',()=>{ try{ throw new Error('Simulated init error'); }catch(e){ window.dispatchEvent(new ErrorEvent('error',{message:e.message})); } });
 
-// ===== Init =====
-window.addEventListener('DOMContentLoaded', ()=>{
-  // populate settings with saved values
-  $('#themeSel') && ($('#themeSel').value = state.theme);
-  $('#bilingualDefault') && ($('#bilingualDefault').value = state.bilingual);
-  $('#cp_bilingual') && ($('#cp_bilingual').value = state.bilingual);
-  setTheme(state.theme);
-  setLang(state.lang);
-  startSplash();
-});
+  // ---- Error handling
+  window.addEventListener('error', (e)=>{ logQA('Boot error: '+(e.message||e.error)); $('#splash')?.remove(); });
+
+  // ---- Deep audit
+  function runQA(){
+    const issues=[];
+    if(!$('script[src="./app.js"]')) issues.push('Missing ./app.js include');
+    ['modal-setup','modal-copilot','modal-tests','modal-settings','sidebar','toast','qaLog'].forEach(id=>{ if(!document.getElementById(id)) issues.push('Missing node: '+id); });
+    const hasPublicRef = /\/public\//i.test(document.documentElement.outerHTML);
+    if(hasPublicRef) issues.push('Found reference to /public/ (should be ./assets or ./app.js)');
+    const dot=$('#qaDot'); if(dot) dot.style.background = issues.length? (issues.length>2? 'var(--bad)':'var(--warn)') : 'var(--ok)';
+    logQA(issues.length? ('Deep Audit:\n- '+issues.join('\n- ')) : 'Deep Audit: OK');
+    showToast(issues.length? 'Audit found '+issues.length+' issue(s)' : 'Audit OK');
+  }
+
+  // ---- Boot
+  window.addEventListener('DOMContentLoaded', ()=>{
+    setLang(state.lang);
+    const bi = $('#opt_bilingual'); if(bi){ bi.checked = state.bilingual; }
+    startSplash();
+    hydrateProfile();
+    runQA();
+  });
+})();
