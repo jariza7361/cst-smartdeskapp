@@ -1,207 +1,229 @@
-// ===== helpers & state =====
-const $  = (s, c=document) => c.querySelector(s);
-const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
+// ===== Utilities & State =====
+const $ = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
 const state = {
   lang: localStorage.getItem('cst_lang') || 'en',
-  bilingual: localStorage.getItem('cst_bilingual') === '1',
-  collapseOnPhone: localStorage.getItem('cst_collapse_on_phone') === '1',
-  theme: localStorage.getItem('cst_theme') || 'auto', // auto|dark|light|glass|mac
+  bilingual: localStorage.getItem('cst_bilingual') === 'on' ? 'on' : 'off',
+  theme: localStorage.getItem('cst_theme') || 'dark',
   profile: JSON.parse(localStorage.getItem('cst_profile') || 'null'),
   nosplash: localStorage.getItem('cst_nosplash') === '1'
 };
 
-// ===== theming =====
-function applyTheme(){
-  const root = document.documentElement;
-  // clear any explicit theme data attr
-  root.removeAttribute('data-theme');
-  if(state.theme === 'auto'){
-    // respect prefers-color-scheme; nothing to set here
-  } else if(state.theme === 'dark'){
-    // default tokens already dark
-  } else if(state.theme === 'light'){
-    root.setAttribute('data-theme','light');
-  } else if(state.theme === 'glass'){
-    root.setAttribute('data-theme','glass');
-  } else if(state.theme === 'mac'){
-    root.setAttribute('data-theme','mac');
+function saveProfile(p) {
+  localStorage.setItem('cst_profile', JSON.stringify(p));
+  state.profile = p;
+}
+function setLang(v) {
+  state.lang = v; localStorage.setItem('cst_lang', v);
+  const lbl = $('#langLabel'); if (lbl) lbl.textContent = v.toUpperCase();
+}
+function setBilingual(v) {
+  state.bilingual = v; localStorage.setItem('cst_bilingual', v);
+  const sel = $('#cp_bilingual'); if (sel) sel.value = v;
+}
+function setTheme(v) {
+  state.theme = v; localStorage.setItem('cst_theme', v);
+  document.documentElement.dataset.theme = v;
+  // simple theme switches
+  if (v === 'light') document.documentElement.style.setProperty('--bg', '#f7f8fc');
+  else document.documentElement.style.setProperty('--bg', '#0d0d0f');
+  if (v === 'glass') {
+    document.body.style.backdropFilter = 'saturate(120%) blur(8px)';
+  } else {
+    document.body.style.backdropFilter = '';
   }
 }
-function setTheme(v){ state.theme=v; localStorage.setItem('cst_theme',v); applyTheme(); }
-
-// language
-function setLang(v){
-  state.lang=v;
-  localStorage.setItem('cst_lang',v);
-  const el=$('#uiLang'); if(el) el.textContent=v.toUpperCase();
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 }
-setLang(state.lang);
-applyTheme();
-
-if (isMobile) document.body.classList.add('is-mobile');
-
-// ===== splash + first-run profile =====
-(function bootSplash(){
-  const splash = $('#splash');
-  if(!splash) return;
-  const bar = splash.querySelector('.bar > div');
-  function done(){ splash.style.display='none'; maybeOpenProfile(); }
-  if(state.nosplash) return done();
-  splash.style.display='flex';
-  let p=0;
-  const t=setInterval(()=>{ p=Math.min(100,p+12+Math.random()*10); if(bar) bar.style.width=p+'%'; if(p>=100){clearInterval(t); setTimeout(done,200);} },180);
-})();
-function maybeOpenProfile(){
-  if(!state.profile){ openProfile(); return; }
-  if(state.profile.lang && state.profile.lang !== state.lang) setLang(state.profile.lang);
+function showToast(msg) {
+  const t = $('#toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
+}
+function writeTray(text) {
+  const tray = $('#tray'); const out = $('#trayOut');
+  if (out) out.value = text || '';
+  tray?.classList.remove('collapsed');
 }
 
-// ===== drawer (mobile sidebar) =====
-const drawer = $('#drawer');
-$('#openDrawer')?.addEventListener('click', ()=>{ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); });
-$('#drawerClose')?.addEventListener('click', ()=>{ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); });
-$('#openSettingsFromDrawer')?.addEventListener('click', ()=>{ drawer.classList.remove('open'); openSettings(); });
-$('#openProfileFromDrawer')?.addEventListener('click', ()=>{ drawer.classList.remove('open'); openProfile(); });
-
-// ===== profile modal =====
-function openProfile(){ const m=$('#profileModal'); if(!m) return; m.style.display='flex'; m.setAttribute('aria-hidden','false'); fillProfileForm(); }
-function closeProfile(){ const m=$('#profileModal'); if(!m) return; m.style.display='none'; m.setAttribute('aria-hidden','true'); }
-$('#openProfile')?.addEventListener('click', openProfile);
-$('#openProfileFromAside')?.addEventListener('click', openProfile);
-$('#profileClose')?.addEventListener('click', closeProfile);
-
-function fillProfileForm(){
-  const p = state.profile || {};
-  $('#pf_first').value = p.first || '';
-  $('#pf_last').value  = p.last  || '';
-  $('#pf_id').value    = p.id    || '';
-  $('#pf_ext').value   = p.ext   || '';
-  $('#pf_coach').value = p.coach || '';
-  $('#pf_lang').value  = p.lang  || state.lang;
-  $('#pf_nosplash').checked = state.nosplash;
+// ===== Splash =====
+const QUOTES = [
+  "Small steps done consistently beat big plans undone.",
+  "Clarity first, then speed. You’ve got this.",
+  "Serve → Solve → Sell: lead with empathy, finish with options.",
+  "Measure twice. Paste once. Ship often."
+];
+function startSplash() {
+  const s = $('#splash'); if (!s) return;
+  if (state.nosplash) { s.style.display = 'none'; afterSplash(); return; }
+  const q = $('#splashQuote'); if (q) q.textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  const bar = $('#splash .bar>div'); let p = 0;
+  const timer = setInterval(() => {
+    p = Math.min(100, p + 7 + Math.random() * 8);
+    if (bar) bar.style.width = p + '%';
+    if (p >= 100) { clearInterval(timer); s.style.display = 'none'; afterSplash(); }
+  }, 180);
 }
+function afterSplash() {
+  hydrateProfile();
+  setTheme(state.theme);
+  setLang(state.lang);
+  setBilingual(state.bilingual);
+}
+
+// ===== Profile & Settings =====
+function hydrateProfile() {
+  const p = state.profile;
+  const badge = $('#profileBadge');
+  const name = p ? `${p.first || ''} ${p.last || ''}`.trim() : '';
+  if (badge) badge.textContent = `👤 ${name || 'Agent'}${p ? ' | 🆔 '+(p.id||'—')+' | ☎️ '+(p.ext||'—') : ''}`;
+  const wn = $('#welcomeName'); if (wn) wn.textContent = name ? ', ' + name.split(' ')[0] : '';
+}
+
+// Open/close modals
+function openModal(id){ const m = document.getElementById(`modal-${id}`); if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; } }
+function closeModal(el){ const b = el?.closest('.modal-b'); if(b){ b.style.display='none'; document.body.style.overflow=''; } }
+$$('[data-close]').forEach(b=> b.addEventListener('click', e => closeModal(e.target)));
+$('#openSettings')?.addEventListener('click', ()=> openModal('settings'));
+$('#openProfile')?.addEventListener('click', ()=> openModal('profile'));
+$('#openProfile2')?.addEventListener('click', ()=> openModal('profile'));
+
+// Drawer
+const drawer = $('#drawer'), scrim = $('#scrim');
+$('#openDrawer')?.addEventListener('click', ()=>{ drawer?.classList.add('open'); scrim?.classList.add('show'); });
+scrim?.addEventListener('click', ()=>{ drawer?.classList.remove('open'); scrim?.classList.remove('show'); });
+
+// Sidebar tiles
+$$('.tile[data-open]').forEach(t => t.addEventListener('click', () => {
+  const key = t.getAttribute('data-open');
+  if (key) openModal(key);
+}));
+
+// Carrier Hub clicks (logo tiles)
+$$('.logo-tile').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const c = el.getAttribute('data-carrier');
+    // For now: run a T&C test fetch when Verizon is clicked, otherwise info
+    if (c === 'VZW') runTncTest();
+    showToast((c==='VZW'?'Verizon':c==='ATT'?'AT&T':c==='CRK'?'Cricket':c)+' selected');
+  });
+});
+
+// Settings bindings
+$('#themeSel')?.addEventListener('change', e => setTheme(e.target.value));
+$('#bilingualDefault')?.addEventListener('change', e => setBilingual(e.target.value));
+$('#langToggle')?.addEventListener('click', ()=> { setLang(state.lang==='en'?'es':'en'); showToast('Language: '+state.lang.toUpperCase()); });
+
+// Profile form
 $('#profileForm')?.addEventListener('submit', (e)=>{
   e.preventDefault();
-  const profile = {
-    first: $('#pf_first').value.trim(),
-    last:  $('#pf_last').value.trim(),
-    id:    $('#pf_id').value.trim(),
-    ext:   $('#pf_ext').value.trim(),
-    coach: $('#pf_coach').value.trim(),
-    lang:  $('#pf_lang').value
+  const p = {
+    first: $('#p_first').value.trim(),
+    last: $('#p_last').value.trim(),
+    id: $('#p_id').value.trim(),
+    ext: $('#p_ext').value.trim(),
+    coach: $('#p_coach').value.trim(),
+    lang: $('#p_lang').value,
+    nosplash: $('#p_nosplash').checked
   };
-  if(!profile.first || !profile.last || !profile.id || !profile.ext){ alert('Please complete required fields.'); return; }
-  localStorage.setItem('cst_profile', JSON.stringify(profile));
-  state.profile = profile;
-  setLang(profile.lang);
-  const nosplash = $('#pf_nosplash').checked;
-  localStorage.setItem('cst_nosplash', nosplash ? '1' : '0');
-  state.nosplash = nosplash;
-  closeProfile();
+  if (!p.first || !p.last || !p.id || !p.ext) { showToast('Fill required fields'); return; }
+  saveProfile(p); setLang(p.lang || state.lang); hydrateProfile();
+  if (p.nosplash) localStorage.setItem('cst_nosplash','1');
+  showToast('Profile saved');
+  closeModal($('#modal-profile .btn.secondary'));
 });
 
-// ===== settings modal =====
-function openSettings(){
-  const m=$('#settingsModal'); if(!m) return;
-  $('#set_theme').value = state.theme;
-  $('#set_lang').value  = state.lang;
-  $('#set_bilingual').checked = state.bilingual;
-  $('#set_collapse').checked  = state.collapseOnPhone;
-  m.style.display='flex'; m.setAttribute('aria-hidden','false');
-}
-function closeSettings(){ const m=$('#settingsModal'); if(!m) return; m.style.display='none'; m.setAttribute('aria-hidden','true'); }
-$('#openSettings')?.addEventListener('click', openSettings);
-$('#openSettingsFromAside')?.addEventListener('click', openSettings);
-$('#settingsReopenProfile')?.addEventListener('click', ()=>{ closeSettings(); openProfile(); });
-$('#settingsSave')?.addEventListener('click', ()=>{
-  setTheme($('#set_theme').value);
-  setLang($('#set_lang').value);
-  state.bilingual = $('#set_bilingual').checked;
-  state.collapseOnPhone = $('#set_collapse').checked;
-  localStorage.setItem('cst_bilingual', state.bilingual ? '1' : '0');
-  localStorage.setItem('cst_collapse_on_phone', state.collapseOnPhone ? '1' : '0');
-  closeSettings();
+// ===== Output tray =====
+$('#trayToggle')?.addEventListener('click', ()=> $('#tray')?.classList.toggle('collapsed'));
+$('#trayCopy')?.addEventListener('click', async ()=> {
+  try { await navigator.clipboard.writeText($('#trayOut')?.value || ''); showToast('Copied'); }
+  catch { showToast('Copy failed'); }
 });
-$('#settingsClose')?.addEventListener('click', closeSettings);
 
-// ===== language toggle quick button =====
-$('#toggleLang')?.addEventListener('click', ()=> setLang(state.lang === 'en' ? 'es' : 'en'));
-
-// ===== output =====
-const out = $('#out');
-function writeOut(obj){
-  try{
-    const text = (typeof obj === 'string') ? obj : JSON.stringify(obj, null, 2);
-    out.textContent = text;
-    if(isMobile && state.collapseOnPhone){ out.scrollTop = 0; }
-  }catch(e){ out.textContent = String(obj); }
-}
-writeOut({status:'ready'});
-
-// ===== Copilot (stub) =====
-function greeting(){
-  const h=(new Date()).getHours();
-  return h<12? 'Good morning' : h<18? 'Good afternoon' : 'Good evening';
-}
-function bilingualNote(enText){
-  if(!state.bilingual || state.lang!=='en') return enText;
-  const esText = enText
-    .replace('Good morning','Buenos días')
-    .replace('Good afternoon','Buenas tardes')
-    .replace('Good evening','Buenas noches')
-    .replace('This is','Soy')
-    .replace('with CST.','de CST.');
-  return enText + '\n\n' + esText;
-}
-$('#cp_suggest')?.addEventListener('click', ()=>{
-  const samples = [
-    'Script for FMIP override – Cricket',
-    'Repair delay escalation note – AT&T',
-    'RPFR Alpha note – iPhone 14',
-    'PL1 note – damage claim'
+// ===== Copilot (Denials) =====
+function parseDenialPrompt(input){
+  // Try quick pattern: "denial: code (carrier)"
+  const m = /denial:\s*([a-z0-9_ ]+)(?:\s*\((vzw|att|crk)\))?/i.exec(input);
+  if (m) return { type:'denial', code: m[1].trim().replace(/\s+/g,'_'), carrier: (m[2]||'').toUpperCase() };
+  // loose guesses
+  const low = input.toLowerCase();
+  const map = [
+    ['no_airtime', /(no\s*air\s*time|no\s*usage)/],
+    ['no_enrollment', /(no\s*enroll|not\s*enrolled)/],
+    ['no_ins_at_tol', /(no\s*(ins|coverage).*(tol|time\s*of\s*loss))/],
+    ['preexisting_damage', /(pre.?existing)/],
+    ['active_imei_after_loss', /(active.*imei|used.*after.*loss)/],
+    ['model_not_in_use_at_tol', /(model.*not.*in.*use|wrong.*model)/],
+    ['eopa', /(eopa|program\s*abuse|evidence\s*of\s*program)/]
   ];
-  writeOut(samples.join('\n'));
-});
+  for (const [code, rx] of map) if (rx.test(low)) return { type:'denial', code };
+  return { type:'text', text: input };
+}
+async function callCopilot(payload){
+  try{
+    const res = await fetch('/api/copilot', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  }catch(err){
+    return { error: String(err) };
+  }
+}
 $('#cp_run')?.addEventListener('click', async ()=>{
-  const q = $('#cp_in')?.value?.trim();
-  if(!q) return;
-  const agent = state.profile?.first ? state.profile.first : 'Agent';
-  const base = `${greeting()}, this is ${agent} with CST.\n\n[EN] Draft response for: ${q}`;
-  writeOut(bilingualNote(base));
+  const raw = $('#cp_in').value.trim();
+  const bilingual = $('#cp_bilingual').value || state.bilingual;
+  const profName = state.profile ? (state.profile.first || 'Agent') : 'Agent';
+  const parsed = parseDenialPrompt(raw);
+  if (parsed.type !== 'denial') {
+    writeTray(`${greeting()}, this is ${profName} with CST.\n\n${raw || 'Please enter a denial: <code>'}`);
+    return;
+  }
+  const resp = await callCopilot({ type:'denial', code: parsed.code, carrier: parsed.carrier || '', bilingual, agent: profName });
+  if (resp.error) { writeTray('Error: '+resp.error); return; }
+  writeTray(resp.text || '');
 });
 
-// ===== SmartDrop (client-side queue demo) =====
-const files = [];
-const dz = $('#dropZone');
-const picker = $('#picker');
-function renderList(){
-  if(!dz) return;
-  if(!files.length){ dz.innerHTML = '<em id="dropText">Drop files</em>'; return; }
-  dz.textContent = files.map(f=>`• ${f.name} (${Math.round(f.size/1024)} KB)`).join('\n');
-}
-function addFiles(fileList){
-  for (const f of fileList) files.push(f);
-  renderList();
-}
-picker?.addEventListener('change', (e)=> addFiles(e.target.files));
-['dragenter','dragover'].forEach(evt=>{
-  dz?.addEventListener(evt,(e)=>{ e.preventDefault(); dz.style.background='var(--tile-hover)'; });
+// ===== Tests =====
+$('#t_clipboard')?.addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText('clipboard-ok'); showToast('Clipboard OK'); }catch{ showToast('Clipboard blocked'); }
 });
-['dragleave','drop'].forEach(evt=>{
-  dz?.addEventListener(evt,(e)=>{ e.preventDefault(); dz.style.background=''; if(evt==='drop'){ addFiles(e.dataTransfer.files); } });
+$('#t_denials')?.addEventListener('click', async ()=>{
+  const samples = ['denial: no_enrollment','denial: no_airtime (att)','denial: eopa (vzw)','denial: model_not_in_use_at_tol (crk)'];
+  const outputs = [];
+  for (const s of samples){
+    const p = parseDenialPrompt(s);
+    const r = await callCopilot({ type:'denial', code:p.code, carrier:p.carrier||'', bilingual:'off', agent: (state.profile?.first||'Agent') });
+    outputs.push(`> ${s}\n${r.text}\n`);
+  }
+  $('#test_out').textContent = outputs.join('\n');
 });
-// mobile hint
-if (isMobile) {
-  const dropText = document.getElementById('dropText');
-  const dropSub  = document.getElementById('dropSub');
-  if (dropText) dropText.textContent = 'Select files';
-  if (dropSub)  dropSub.textContent  = '';
+async function runTncTest(){
+  const url = 'https://www.asurion.com/pdf/nw-consumer-vmp-25/';
+  const res = await fetch(`/api/tnc-fetch?url=${encodeURIComponent(url)}`);
+  const out = await res.json().catch(()=>({error:'parse failed'}));
+  $('#test_out').textContent = JSON.stringify(out, null, 2);
+  openModal('tests');
 }
-$('#sd_clear')?.addEventListener('click', ()=>{ files.length = 0; renderList(); writeOut({status:'cleared'}); });
-$('#sd_process')?.addEventListener('click', async ()=>{
-  if(!files.length){ writeOut({error:'no_files'}); return; }
-  const note = $('#sd_note')?.value?.trim() || '';
-  writeOut({queued:true, note, files: files.map(f=>({name:f.name, size:f.size}))});
+$('#t_tnc')?.addEventListener('click', runTncTest);
+
+// ===== SmartDrop (stub) =====
+$('#sd_queue')?.addEventListener('click', async ()=>{
+  const files = $('#sd_files').files;
+  const text = $('#sd_text').value.trim();
+  const names = files ? Array.from(files).map(f=>f.name) : [];
+  const res = await fetch('/api/smartdrop-queue', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ names, text, when: Date.now() }) });
+  const data = await res.json().catch(()=>({error:'parse'}));
+  $('#sd_status').textContent = data.error ? 'Error: '+data.error : `Queued id=${data.id}`;
+});
+
+// ===== Init =====
+window.addEventListener('DOMContentLoaded', ()=>{
+  // populate settings with saved values
+  $('#themeSel') && ($('#themeSel').value = state.theme);
+  $('#bilingualDefault') && ($('#bilingualDefault').value = state.bilingual);
+  $('#cp_bilingual') && ($('#cp_bilingual').value = state.bilingual);
+  setTheme(state.theme);
+  setLang(state.lang);
+  startSplash();
 });
