@@ -1,8 +1,8 @@
-// public/app.js — boot + quick “fetch T&C” test UI
+// public/app.js — baseline boot + status panel + setup + test fetch
 (function () {
   console.log("CST SmartDesk app boot");
 
-  // --- Ensure a status panel exists
+  // ----- status panel
   var status = document.getElementById('qaLog');
   if (!status) {
     status = document.createElement('pre');
@@ -17,16 +17,46 @@
     status.style.border = '1px solid #26314d';
     status.style.borderRadius = '10px';
     status.style.background = '#0f172a';
-    status.style.color = '#e6eaff';
+    status.style.color = '#e6e6ff';
     status.style.zIndex = 9999;
     document.body.appendChild(status);
   }
-  function log(line) {
-    status.textContent = (line + "\n" + (status.textContent || "")).slice(0, 4000);
-  }
-  status.textContent = "Status: Ready (app.js loaded)";
+  function log(line){ status.textContent = (line + "\n" + (status.textContent || "")).slice(0, 6000); }
+  log("Status: Ready (app.js loaded)");
 
-  // --- Add a small test button to call /api/fetch for the Verizon PDF
+  // ----- setup dialog
+  var dlg = document.getElementById('setupDialog');
+  var openBtn = document.getElementById('openSetup');
+  if (dlg && openBtn) {
+    openBtn.addEventListener('click', () => dlg.showModal());
+    var save = document.getElementById('saveProfile');
+    if (save) {
+      save.addEventListener('click', (e) => {
+        // very light persistence
+        var profile = {
+          first: document.getElementById('f_first').value.trim(),
+          last:  document.getElementById('f_last').value.trim(),
+          id:    document.getElementById('f_id').value.trim(),
+          ext:   document.getElementById('f_ext').value.trim()
+        };
+        if (!profile.first || !profile.last || !profile.id || !profile.ext) {
+          e.preventDefault();
+          log("Setup: please complete all fields.");
+          return;
+        }
+        localStorage.setItem('cst_profile', JSON.stringify(profile));
+        var wn = document.getElementById('welcomeName');
+        if (wn) wn.textContent = ", " + profile.first;
+        log("Setup: profile saved.");
+      });
+    }
+    // auto-open once if no profile
+    try {
+      if (!localStorage.getItem('cst_profile')) dlg.showModal();
+    } catch(_){}
+  }
+
+  // ----- mini tester: Verizon T&C
   var panel = document.getElementById('cst-mini-panel');
   if (!panel) {
     panel = document.createElement('div');
@@ -45,7 +75,7 @@
     btn.style.borderRadius = '10px';
     btn.style.border = '1px solid #26314d';
     btn.style.background = '#1e293b';
-    btn.style.color = '#e6eaff';
+    btn.style.color = '#e6e6ff';
     btn.style.cursor = 'pointer';
     btn.onclick = async function () {
       const url = 'https://www.asurion.com/pdf/nw-consumer-vmp-25/';
@@ -53,10 +83,8 @@
       try {
         const res = await fetch('/api/fetch?url=' + encodeURIComponent(url));
         const data = await res.json();
-        log('Result: ' + JSON.stringify(data, null, 2));
-        if (!data.ok) {
-          log('NOTE: If contentType is text/html, the URL might redirect to a landing page.');
-        }
+        log('Result:\n' + JSON.stringify(data, null, 2));
+        if (!data.ok) log('Note: If contentType is text/html, upstream might be a landing or redirect.');
       } catch (e) {
         log('Error: ' + e.message);
       }
@@ -64,14 +92,11 @@
     panel.appendChild(btn);
   }
 
-  // --- (Optional) Replace sidebar carrier labels with clean names (no emojis)
-  try {
-    document.querySelectorAll('.sidebar .nav li[data-open^="carrier:"]').forEach(li => {
-      const key = li.getAttribute('data-open'); // e.g., "carrier:VZW"
-      const map = { 'carrier:VZW':'Verizon', 'carrier:ATT':'AT&T', 'carrier:CRK':'Cricket',
-                    'carrier:LIB':'Liberty', 'carrier:USC':'US Cellular',
-                    'carrier:COX':'Cox', 'carrier:OPT':'Optimum', 'carrier:CSC':'Consumer Cellular' };
-      if (map[key]) li.textContent = map[key];
+  // ----- carriers click (future hook)
+  document.querySelectorAll('#carrierNav [data-open]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const key = el.getAttribute('data-open');
+      log('Open: ' + key);
     });
-  } catch(_) {}
+  });
 })();
