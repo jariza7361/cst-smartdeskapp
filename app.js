@@ -16,7 +16,11 @@ const dict = {
     ngInLbl: 'Summary',
     ngOutLbl: 'Output',
     settings: 'Settings',
-    profileSetup: 'Profile Setup'
+    profileSetup: 'Profile Setup',
+    stTitle: 'Settings',
+    stTheme: 'Theme',
+    stBiDefault: 'Bilingual default',
+    stBiHint: 'Keep bilingual ON by default'
   },
   es: {
     uiLanguage: 'Idioma de la interfaz',
@@ -34,7 +38,11 @@ const dict = {
     ngInLbl: 'Resumen',
     ngOutLbl: 'Salida',
     settings: 'Ajustes',
-    profileSetup: 'Configuración de perfil'
+    profileSetup: 'Configuración de perfil',
+    stTitle: 'Ajustes',
+    stTheme: 'Tema',
+    stBiDefault: 'Predeterminar bilingüe',
+    stBiHint: 'Mantener bilingüe activado por defecto'
   }
 };
 
@@ -42,8 +50,10 @@ const dict = {
 const state = {
   uiLang: localStorage.getItem('uiLang') || 'en',
   bilingual: localStorage.getItem('bilingual') === '1',
+  biDefault: localStorage.getItem('biDefault') === '1',
+  theme: localStorage.getItem('theme') || 'dark', // dark|light|glass
   files: [],
-  profile: JSON.parse(localStorage.getItem('cst_profile') || 'null'), // {first,last,id,ext,coach,lang,nosplash}
+  profile: JSON.parse(localStorage.getItem('cst_profile') || 'null'),
 };
 
 const $ = (sel, ctx=document) => ctx.querySelector(sel);
@@ -60,27 +70,41 @@ function saludo() {
   return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
 }
 
-// ========================= UI language & header =========================
+// ========================= UI language & labels =========================
 function applyLang() {
   $('#lbl-ui-lang').textContent = t().uiLanguage;
   $('#lbl-bilingual').textContent = t().bilingual;
   $('#bilingualHint').textContent = t().bilingualHint;
+
   $('#sd_title').textContent = t().sdTitle;
   $('#sd_hint').textContent = t().sdHint;
   $('#dropText').textContent = t().drop;
   $('#dropSub').textContent = t().or;
   $('#sd_route_lbl').textContent = t().routeLbl;
+
   $('#out_title').textContent = t().output;
+
   $('#ng_title').textContent = t().ngTitle;
   $('#ng_hint').textContent = t().ngHint;
   $('#ng_in_lbl').textContent = t().ngInLbl;
   $('#ng_out_lbl').textContent = t().ngOutLbl;
+
+  $('#st_title').textContent = t().stTitle;
+  $('#st_theme_lbl').textContent = t().stTheme;
+  $('#st_bi_lbl').textContent = t().stBiDefault;
+  $('#st_bi_hint').textContent = t().stBiHint;
+
   $('#openSettings').textContent = t().settings;
   $('#profileTitle').textContent = t().profileSetup;
 }
+function applyTheme() {
+  document.body.classList.remove('theme-dark','theme-light','theme-glass');
+  document.body.classList.add(`theme-${state.theme}`);
+}
 applyLang();
+applyTheme();
 
-// controls
+// header controls
 const uiLang = $('#uiLang');
 const bilingual = $('#bilingual');
 uiLang.value = state.uiLang;
@@ -97,14 +121,36 @@ bilingual.addEventListener('change', () => {
   localStorage.setItem('bilingual', state.bilingual ? '1' : '0');
 });
 
-// ========================= Profile Setup / Settings =========================
+// ========================= Settings (theme + bilingual default) =========================
+const themeSel = $('#theme');
+const biDefault = $('#st_bi_default');
+themeSel.value = state.theme;
+biDefault.checked = state.biDefault;
+
+themeSel.addEventListener('change', ()=>{
+  state.theme = themeSel.value;
+  localStorage.setItem('theme', state.theme);
+  applyTheme();
+});
+biDefault.addEventListener('change', ()=>{
+  state.biDefault = biDefault.checked;
+  localStorage.setItem('biDefault', state.biDefault ? '1' : '0');
+  // optionally sync the header bilingual toggle to match default
+  if (state.biDefault) {
+    state.bilingual = true;
+    localStorage.setItem('bilingual','1');
+    $('#bilingual').checked = true;
+  }
+});
+
+// ========================= Profile Setup / Settings modal =========================
 const back = $('#profileBack');
 const openSettings = $('#openSettings');
+const reopenProfile = $('#reopenProfile');
 const btnSave = $('#profileSave');
 const btnCancel = $('#profileCancel');
 
 function showProfileModal() {
-  // hydrate fields from state
   const p = state.profile || {};
   $('#p_first').value = p.first || '';
   $('#p_last').value  = p.last  || '';
@@ -118,6 +164,7 @@ function showProfileModal() {
 function hideProfileModal() { back.style.display = 'none'; }
 
 openSettings.addEventListener('click', showProfileModal);
+reopenProfile.addEventListener('click', showProfileModal);
 btnCancel.addEventListener('click', hideProfileModal);
 back.addEventListener('click', (e)=>{ if(e.target === back) hideProfileModal(); });
 
@@ -133,7 +180,6 @@ btnSave.addEventListener('click', ()=>{
   };
   state.profile = profile;
   localStorage.setItem('cst_profile', JSON.stringify(profile));
-  // sync UI language to preferred
   state.uiLang = profile.lang || state.uiLang;
   localStorage.setItem('uiLang', state.uiLang);
   uiLang.value = state.uiLang;
@@ -154,16 +200,16 @@ $('#ng_gen').addEventListener('click', ()=>{
   const base = ($('#ng_in').value || '').trim();
   const agent = state.profile?.first ? `${state.profile.first}` : 'Agent';
   const en = `${greeting()}, this is ${agent} with CST.\n\n${base}`;
-  if (!state.bilingual) {
+  if (!(state.bilingual || state.biDefault)) {
     $('#ng_out').textContent = en;
     return;
   }
-  // Simple ES rendering; can be replaced with proper translation later
+  // Simple ES rendering; can swap for real translation later
   const es = `${saludo()}, soy ${agent} de CST.\n\n${base}`;
   $('#ng_out').textContent = `EN:\n${en}\n\nES:\n${es}`;
 });
 
-// ========================= SmartDrop MVP =========================
+// ========================= SmartDrop (client + server queue) =========================
 const dropZone = $('#dropZone');
 const picker = $('#filePicker');
 const list = $('#sdList');
@@ -219,14 +265,9 @@ $('#process').addEventListener('click', async ()=>{
   const route = $('#sdRoute').value.trim();
   const results = [];
   for (const item of state.files) {
-    const text = await extractText(item._file, item.ext);
+    const text = await extractText(item._file, item.ext); // now calls server for PDF/Office
     results.push({
-      name: item.name,
-      ext: item.ext,
-      size: item.size,
-      type: item.type,
-      route,
-      text: text || null
+      name: item.name, ext: item.ext, size: item.size, type: item.type, route, text
     });
   }
   saveLibrary(results);
@@ -235,22 +276,47 @@ $('#process').addEventListener('click', async ()=>{
   renderList();
 });
 
-// extraction – client-only placeholder
+// extraction – uses server queue for PDF/Office, client for texty files
 async function extractText(file, ext) {
   try {
     if (['txt','csv','json','md','eml','rtf','log'].includes(ext)) {
       return await file.text();
     }
-    if (ext === 'pdf') {
-      return '[PDF uploaded – text extraction pending (server-side).]';
-    }
-    if (['doc','docx','xlsx','pptx'].includes(ext)) {
-      return '[Office doc uploaded – text extraction pending (server-side).]';
+    // Use server extractor (queue)
+    if (['pdf','doc','docx','xlsx','pptx'].includes(ext)) {
+      const base64 = await fileToBase64(file);
+      const res = await fetch('/api/enqueue', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name: file.name, ext, data: base64 })
+      });
+      const job = await res.json(); // {jobId}
+      // poll until done (simple MVP)
+      const text = await pollJob(job.jobId, 30, 400); // up to ~12s
+      return text;
     }
     return await file.text(); // fallback
   } catch (e) {
     return `[Extraction error: ${e?.message||e}]`;
   }
+}
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=> resolve(String(r.result).split(',').pop());
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+async function pollJob(jobId, tries, delayMs){
+  for(let i=0;i<tries;i++){
+    const r = await fetch(`/api/job?id=${encodeURIComponent(jobId)}`);
+    const j = await r.json(); // {status:'queued'|'processing'|'done'|'error', result?}
+    if (j.status === 'done') return j.result || '';
+    if (j.status === 'error') return `[Server extractor error: ${j.error}]`;
+    await new Promise(res=> setTimeout(res, delayMs));
+  }
+  return '[Server extractor timed out; try again.]';
 }
 
 // local library store
