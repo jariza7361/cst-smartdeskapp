@@ -4,295 +4,84 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CST SmartDesk – Escalation Toolkit</title>
+  <link rel="preload" href="/styles.css" as="style">
+  <link rel="stylesheet" href="/styles.css">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="/assets/favicon.svg">
-  <style>
-    :root{
-      --bg:#0d0d0f; --panel:#171722; --panel-2:#1e1e2f; --ink:#f2f3f5; --muted:#a9b0bd;
-      --accent:#6f4bd8; --accent-2:#00e676; --danger:#ff5d5d; --ok:#00d48a; --warn:#ffb020;
-      --tile:#25253a; --tile-hover:#2e2e4a; --glass:rgba(255,255,255,.06);
-      --border:#2b2b3a; --shadow:0 10px 30px rgba(0,0,0,.35);
-      --mac-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Arial, sans-serif;
-    }
-    html,body{height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 var(--mac-font);margin:0}
-    .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#12121a;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40}
-    .brand{display:flex;gap:10px;align-items:center;font-weight:600}
-    .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#9245ff)}
-    .actions{display:flex;align-items:center;gap:8px}
-    .pill{background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:6px 10px;display:flex;gap:8px;align-items:center}
-    .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--ink)}
-    .qa-dot{width:10px;height:10px;border-radius:50%;background:var(--warn);border:1px solid #00000040}
-
-    /* Layout */
-    .layout{display:grid;grid-template-columns:220px 1fr}
-    aside.sidebar{border-right:1px solid var(--border);background:#111119;min-height:calc(100vh - 56px);padding:12px;position:sticky;top:56px}
-    .side-title{color:var(--muted);font-size:12px;margin:8px 8px 6px}
-    .logo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .logo-tile{display:flex;align-items:center;justify-content:center;background:var(--tile);border:1px solid var(--border);border-radius:12px;padding:10px;cursor:pointer}
-    .logo-tile img{height:22px}
-    .logo-tile:hover{background:var(--tile-hover)}
-    main.main{padding:16px}
-    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-    .tile{background:var(--tile);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);cursor:pointer}
-    .muted{color:var(--muted)}
-
-    /* Mobile drawer */
-    .hamburger{display:none}
-    .drawer{position:fixed;inset:0 30% 0 0;background:#0b0b12;border-right:1px solid var(--border);transform:translateX(-100%);transition:.2s transform;z-index:60;padding:12px;overflow:auto}
-    .drawer.open{transform:translateX(0)}
-    .scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:none;z-index:50}
-    .scrim.show{display:block}
-
-    /* Output tray (anchored) */
-    .tray{position:fixed;left:0;right:0;bottom:0;background:#0f172a;border-top:1px solid #223052;padding:10px;z-index:45}
-    .tray header{display:flex;justify-content:space-between;align-items:center}
-    .tray textarea{width:100%;min-height:120px;max-height:50vh;background:#0b1120;color:#e6efff;border:1px solid #223052;border-radius:10px;padding:10px}
-    .tray.collapsed textarea{display:none}
-
-    /* Splash */
-    #splash{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#24103a;z-index:100}
-    #splash .bar{width:min(520px,80vw);height:10px;background:#e6e6ef;border-radius:999px;overflow:hidden;margin-top:14px}
-    #splash .bar>div{height:100%;width:0%;background:#22c55e;transition:width .25s}
-    #splash .quote{margin-top:10px;color:#555;text-align:center;max-width:60ch;font-size:13px}
-
-    /* Modals */
-    .modal-b{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:70}
-    .modal{width:min(980px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-    .modal header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
-    .modal .content{padding:14px}
-    .modal footer{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-
-    /* QA */
-    #qa{position:fixed;right:14px;bottom:64px;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;z-index:60}
-    #qa .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-    #qa .ok{background:var(--ok)} #qa .warn{background:var(--warn)} #qa .bad{background:var(--danger)}
-    #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#e6eaff;border:1px solid #26314d;box-shadow:var(--shadow);border-radius:10px;padding:10px 14px;opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:90}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
-
-    /* Settings page quick styles */
-    .form{display:grid;gap:10px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-    /* Mobile tweaks */
-    @media (max-width: 860px){
-      .layout{display:block}
-      aside.sidebar{display:none}
-      .hamburger{display:inline-flex;align-items:center;gap:8px}
-    }
-  </style>
 </head>
 <body>
   <!-- Splash -->
   <section id="splash" aria-label="Loading">
-    <h2 style="margin:0">CST SmartDesk</h2>
+    <div class="logo"></div>
+    <h2 class="brand">CST SmartDesk</h2>
     <div class="bar" aria-hidden="true"><div></div></div>
-    <div class="quote" id="splashQuote"></div>
+    <div class="quote" id="motivation"></div>
+    <div class="skip" id="splashSkip">Skip</div>
   </section>
 
-  <header class="topbar">
-    <div class="brand">
-      <button class="btn secondary hamburger" id="openDrawer">☰ Menu</button>
-      <div class="logo"></div>
-      <div>CST SmartDesk</div>
+  <!-- App frame -->
+  <header class="topbar" role="banner">
+    <div class="brand-row">
+      <button id="hamburger" aria-label="Open menu">☰</button>
+      <div class="brandmark"><span class="dot"></span> CST SmartDesk</div>
     </div>
     <div class="actions">
-      <div title="QA status" class="qa-dot" id="qaDotTop"></div>
-      <button class="btn secondary" id="openSettings">Settings</button>
-      <div class="pill">
-        <span id="langLabel">EN</span>
-        <button class="btn secondary" id="langToggle">Toggle</button>
-      </div>
-      <div class="pill" id="profileBadge">👤 Guest</div>
+      <span class="pill" id="profileBadge">👤 Guest</span>
+      <button class="pill" id="openCmd">⚙️ Commands</button>
+      <span class="pill" title="Language"><span id="langLabel">EN</span><button id="langToggle" class="btn-link">Toggle</button></span>
     </div>
   </header>
 
-  <div class="layout">
-    <!-- Sidebar (desktop) -->
-    <aside class="sidebar">
-      <div class="side-title">Carrier Hub</div>
-      <div class="logo-grid">
-        <div class="logo-tile" data-carrier="VZW" title="Verizon"><img src="/assets/verizon.svg" alt="Verizon"></div>
-        <div class="logo-tile" data-carrier="ATT" title="AT&amp;T"><img src="/assets/att.svg" alt="AT&T"></div>
-        <div class="logo-tile" data-carrier="CRK" title="Cricket"><img src="/assets/cricket.svg" alt="Cricket"></div>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Primary">
+      <div class="side-section">
+        <h4>Dashboard</h4>
+        <ul class="nav">
+          <li data-open="copilot">Copilot Assistant</li>
+          <li data-open="smartdrop">SmartDrop Upload</li>
+          <li data-open="tests">Developer Tests</li>
+          <li data-open="export">Export Split Files</li>
+          <li data-open="settings">Settings</li>
+        </ul>
       </div>
 
-      <div class="side-title" style="margin-top:14px">Tools</div>
-      <div class="tiles">
-        <div class="tile" data-open="copilot">🤖 Copilot</div>
-        <div class="tile" data-open="smartdrop">📥 SmartDrop</div>
-        <div class="tile" data-open="tests">🧪 Tests</div>
+      <div class="side-section">
+        <h4>Carrier Hub</h4>
+        <ul class="nav logo-list" id="carrierMenu">
+          <!-- Filled by app.js with names + logos -->
+          <li data-open="carrier:VZW"><img alt="" /><span>Verizon</span></li>
+          <li data-open="carrier:ATT"><img alt="" /><span>AT&amp;T</span></li>
+          <li data-open="carrier:CRK"><img alt="" /><span>Cricket</span></li>
+          <li data-open="carrier:USC"><img alt="" /><span>US Cellular</span></li>
+          <li data-open="carrier:COX"><img alt="" /><span>Cox</span></li>
+          <li data-open="carrier:OPT"><img alt="" /><span>Optimum</span></li>
+          <li data-open="carrier:CSC"><img alt="" /><span>Consumer Cellular</span></li>
+        </ul>
       </div>
     </aside>
 
-    <!-- Main -->
-    <main class="main">
-      <h2 style="margin:4px 0 12px">Welcome back<span id="welcomeName"></span> 👋</h2>
-      <p class="muted" style="margin-top:-8px">Desktop shows sidebar; mobile uses a drawer. Denials + bilingual outputs are in Copilot.</p>
+    <main class="main" id="main" role="main">
+      <h2>Welcome back<span id="welcomeName"></span> 👋</h2>
+      <p class="muted">Fast, bilingual, and auditable. Mobile‑friendly UI with self‑healing commands.</p>
 
-      <section class="tiles" aria-label="Quick tiles">
-        <article class="tile" data-open="copilot">
-          <h3>🤖 Copilot – Denials</h3>
-          <p class="muted">Serve → Solve → Sell (+ Rebuttal). Bilingual optional.</p>
-        </article>
-        <article class="tile" data-open="smartdrop">
-          <h3>📥 SmartDrop</h3>
-          <p class="muted">Drop PDFs/DOCX/Notes → queue (server stub).</p>
-        </article>
-        <article class="tile" data-open="tests">
-          <h3>🧪 Developer Tests</h3>
-          <p class="muted">Clipboard, T&C fetch test, denials samples.</p>
-        </article>
+      <section class="tiles">
+        <article class="tile" data-open="copilot"><h3>🤖 Copilot Assistant</h3><p class="muted">Serve → Solve → Sell, EN/ES/Bilingual output.</p></article>
+        <article class="tile" data-open="smartdrop"><h3>📥 SmartDrop Upload</h3><p class="muted">Drop PDF/DOCX/EML → OCR/Extract → Route.</p></article>
+        <article class="tile" data-open="tests"><h3>🧪 Developer Tests</h3><p class="muted">QA, clipboard, proxy ping, T&C fetch.</p></article>
+        <article class="tile" data-open="settings"><h3>⚙️ Settings</h3><p class="muted">Themes, bilingual defaults, reopen profile.</p></article>
       </section>
     </main>
   </div>
 
-  <!-- Drawer (mobile) -->
-  <div class="scrim" id="scrim"></div>
-  <aside class="drawer" id="drawer">
-    <div class="side-title">Carrier Hub</div>
-    <div class="logo-grid" style="margin-bottom:12px">
-      <div class="logo-tile" data-carrier="VZW"><img src="/assets/verizon.svg" alt="Verizon"></div>
-      <div class="logo-tile" data-carrier="ATT"><img src="/assets/att.svg" alt="AT&T"></div>
-      <div class="logo-tile" data-carrier="CRK"><img src="/assets/cricket.svg" alt="Cricket"></div>
-    </div>
-    <div class="side-title">Tools</div>
-    <div class="tiles">
-      <div class="tile" data-open="copilot">🤖 Copilot</div>
-      <div class="tile" data-open="smartdrop">📥 SmartDrop</div>
-      <div class="tile" data-open="tests">🧪 Tests</div>
-      <div class="tile" id="openProfile">👤 Reopen Profile</div>
-    </div>
-  </aside>
+  <!-- Output status (anchored) -->
+  <pre id="qaLog" aria-live="polite">Status: booting…</pre>
 
-  <!-- Copilot Modal -->
-  <div class="modal-b" id="modal-copilot">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copilotTitle">
-      <header><h3 id="copilotTitle" style="margin:0">Copilot – Denials</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <div class="form">
-          <div class="row">
-            <div>
-              <label>Prompt</label>
-              <input id="cp_in" placeholder="e.g., denial: no_airtime (att) or free text" />
-            </div>
-            <div>
-              <label>Bilingual</label>
-              <select id="cp_bilingual"><option value="off">Off (EN only)</option><option value="on">On (EN + ES)</option></select>
-            </div>
-          </div>
-          <button class="btn" id="cp_run">Generate</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SmartDrop Modal -->
-  <div class="modal-b" id="modal-smartdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
-      <header><h3 id="sdTitle" style="margin:0">SmartDrop</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <div class="form">
-          <label>Files (PDF/DOCX/EML/TXT)</label>
-          <input id="sd_files" type="file" multiple />
-          <label>Or paste text</label>
-          <textarea id="sd_text" rows="4" placeholder="Paste any relevant text…"></textarea>
-          <button class="btn" id="sd_queue">Queue Extract (stub)</button>
-          <div class="muted" id="sd_status"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tests Modal -->
-  <div class="modal-b" id="modal-tests">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="testsTitle">
-      <header><h3 id="testsTitle" style="margin:0">Developer Tests</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <div class="form">
-          <button class="btn" id="t_denials">Generate sample denials</button>
-          <button class="btn secondary" id="t_tnc">Fetch Verizon T&C (test)</button>
-          <button class="btn secondary" id="t_clipboard">Clipboard test</button>
-          <pre id="test_out" style="white-space:pre-wrap;background:#0b1120;color:#cde3ff;border:1px solid #223052;border-radius:10px;padding:10px;min-height:90px"></pre>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings Modal -->
-  <div class="modal-b" id="modal-settings">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
-      <header><h3 id="setTitle" style="margin:0">Settings</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <div class="form">
-          <div class="row">
-            <div>
-              <label>Theme</label>
-              <select id="themeSel">
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="glass">Glass</option>
-                <option value="macos">macOS</option>
-                <option value="contrast">High Contrast</option>
-              </select>
-            </div>
-            <div>
-              <label>Bilingual default</label>
-              <select id="bilingualDefault"><option value="off">Off</option><option value="on">On</option></select>
-            </div>
-          </div>
-          <button class="btn" id="openProfile2">Reopen Profile</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profile Modal -->
-  <div class="modal-b" id="modal-profile">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profTitle">
-      <header><h3 id="profTitle" style="margin:0">Profile</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <form class="form" id="profileForm">
-          <div class="row">
-            <div><label>First Name</label><input id="p_first" required></div>
-            <div><label>Last Name</label><input id="p_last" required></div>
-          </div>
-          <div class="row">
-            <div><label>Employee ID</label><input id="p_id" required></div>
-            <div><label>Extension</label><input id="p_ext" required></div>
-          </div>
-          <div class="row">
-            <div><label>Coach</label><input id="p_coach"></div>
-            <div><label>Language</label><select id="p_lang"><option value="en">English</option><option value="es">Español</option></select></div>
-          </div>
-          <label><input type="checkbox" id="p_nosplash"> Don’t show splash again</label>
-          <button class="btn" type="submit">Save</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Output tray -->
-  <section class="tray collapsed" id="tray">
-    <header>
-      <strong>Output</strong>
-      <div style="display:flex;gap:8px">
-        <button class="btn secondary" id="trayCopy">Copy</button>
-        <button class="btn secondary" id="trayToggle">Collapse</button>
-      </div>
-    </header>
-    <textarea id="trayOut" readonly>status: ready</textarea>
-  </section>
-
-  <!-- QA & Toast -->
-  <div id="qa" aria-live="polite">
-    <div><span class="dot warn" id="qaDot"></span><strong>QA:</strong> Ready</div>
-    <div id="qaLog" class="muted" style="max-width:48ch;white-space:pre-wrap"></div>
-  </div>
+  <!-- Toast -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <footer class="muted" style="text-align:center;padding:10px 0 80px">CST SmartDesk • v0.4.0</footer>
+  <!-- Modals (created/filled by app.js) -->
+  <div id="modals"></div>
 
+  <!-- App script -->
   <script src="/app.js" defer></script>
 </body>
 </html>
