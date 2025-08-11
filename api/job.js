@@ -1,10 +1,4 @@
-// api/job.js
-globalThis.__JOBS ||= new Map();
-
 export default async function handler(req, res){
-  const id = String(req.query.id || '');
-  if (!id) return res.status(400).json({ error:'id required' });
-  const job = __JOBS.get(id);
-  if (!job) return res.status(404).json({ error:'not found', status:'error' });
-  return res.status(200).json(job);
+  if (req.method !== 'POST') return res.status(405).json({ ok:false, error:'Method not allowed' });
+  return res.status(200).json({ ok:true, processed:true });
 }
