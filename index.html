@@ -6,22 +6,40 @@
   <title>CST SmartDesk</title>
   <meta name="color-scheme" content="dark light"/>
   <style>
+    /* ===== base tokens (dark default) ===== */
     :root{
       --bg:#0d0f14; --panel:#0f172a; --panel-2:#0b1222; --ink:#e6eaff; --muted:#9aa7c7;
       --accent:#6f4bd8; --ok:#00d48a; --warn:#ffb020; --danger:#ff5d5d;
       --border:#24304b; --tile:#101a33; --tile-hover:#0f1a38;
+      --glass:rgba(255,255,255,.06); --shadow:0 10px 30px rgba(0,0,0,.35);
     }
+    /* light theme */
+    :root[data-theme="light"]{
+      --bg:#ffffff; --panel:#f7f8fb; --panel-2:#f0f2f7; --ink:#0c1a33; --muted:#506286;
+      --accent:#6f4bd8; --border:#d7dcef; --tile:#fff; --tile-hover:#f2f4fb; --shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    /* glass theme (dark with translucency) */
+    :root[data-theme="glass"]{
+      --panel:rgba(15,23,42,.7); --panel-2:rgba(11,18,34,.55); --border:rgba(36,48,75,.6); --tile:rgba(16,26,51,.55); --tile-hover:rgba(16,26,56,.65);
+      backdrop-filter:saturate(1.2) blur(8px);
+    }
+    /* macOS-like: slightly lighter dark */
+    :root[data-theme="mac"]{
+      --bg:#0f1115; --panel:#161922; --panel-2:#131724; --ink:#e9ecf6; --muted:#a4b0cc;
+      --border:#2a3350; --tile:#171b2a; --tile-hover:#1d2233;
+    }
+
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font:15px/1.4 system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 
     /* App shell */
     .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-    header.top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0b1222,#0b1222ee);position:sticky;top:0;z-index:50}
+    header.top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--panel-2),var(--panel-2));position:sticky;top:0;z-index:50}
     .brand{display:flex;gap:10px;align-items:center;font-weight:600}
     .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#9245ff)}
     .actions{display:flex;gap:8px;align-items:center}
     .pill{display:flex;gap:8px;align-items:center;border:1px solid var(--border);background:var(--panel-2);border-radius:999px;padding:6px 10px}
-    button{cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:10px}
+    button{cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:10px;box-shadow:var(--shadow,none)}
     button.primary{background:var(--accent);border-color:#6940d9;color:white}
     button.ghost{background:transparent}
     select,input,textarea{width:100%;border:1px solid var(--border);background:var(--panel-2);color:var(--ink);border-radius:10px;padding:10px}
@@ -64,9 +82,9 @@
     /* Mobile tweaks */
     @media (max-width: 860px){
       .app{grid-template-columns:1fr}
-      aside.sidebar{display:none}             /* hide static sidebar */
+      aside.sidebar{display:none}
       header.top{gap:8px}
-      .grid{grid-template-columns:1fr}        /* single column cards */
+      .grid{grid-template-columns:1fr}
       .card{padding:12px;border-radius:12px}
       button, select, input, textarea { font-size:16px } /* prevent iOS zoom */
     }
@@ -226,13 +244,36 @@
         <button class="ghost" id="settingsClose">Close</button>
       </header>
       <div class="content">
-        <div style="display:grid;gap:10px">
-          <label style="display:flex;gap:10px;align-items:center">
-            <input id="set_bilingual" type="checkbox"/> Bilingual output (append Spanish copy when UI language is EN)
-          </label>
-          <label style="display:flex;gap:10px;align-items:center">
-            <input id="set_collapse" type="checkbox"/> Collapse Output automatically on phones
-          </label>
+        <div class="row">
+          <div>
+            <label>Theme</label>
+            <select id="set_theme">
+              <option value="auto">Auto (system)</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="glass">Glass (translucent)</option>
+              <option value="mac">macOS‑style</option>
+            </select>
+          </div>
+          <div>
+            <label>Language UI</label>
+            <select id="set_lang">
+              <option value="en">English</option>
+              <option value="es">Español (LatAm)</option>
+            </select>
+          </div>
+        </div>
+
+        <label style="display:flex;gap:10px;align-items:center;margin-top:8px">
+          <input id="set_bilingual" type="checkbox"/> Bilingual output (append Spanish when UI language is EN)
+        </label>
+        <label style="display:flex;gap:10px;align-items:center;margin-top:8px">
+          <input id="set_collapse" type="checkbox"/> Collapse Output automatically on phones
+        </label>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+          <button id="settingsReopenProfile" class="ghost">Reopen Profile</button>
+          <button id="settingsSave" class="primary">Save</button>
         </div>
       </div>
     </div>
