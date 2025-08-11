@@ -3,85 +3,81 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CST SmartDesk – Escalation Toolkit</title>
-  <link rel="preload" href="/styles.css" as="style">
-  <link rel="stylesheet" href="/styles.css">
+  <title>CST SmartDesk</title>
   <meta name="color-scheme" content="dark light">
+  <style>
+    :root{
+      --bg:#0d0d0f; --ink:#e6e6ea; --muted:#a9b0bd; --border:#2b2b3a;
+    }
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+    header{padding:14px 16px;border-bottom:1px solid var(--border);background:#12121a;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px}
+    header .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#6f4bd8,#9245ff)}
+    header .sub{color:var(--muted);font-size:12px}
+    main{padding:16px}
+    .grid{display:grid;grid-template-columns:220px 1fr;gap:0}
+    aside{border-right:1px solid var(--border);padding:12px}
+    .nav{list-style:none;margin:0;padding:0}
+    .nav li{padding:8px 10px;border-radius:8px;cursor:pointer}
+    .nav li:hover{background:#1b1b2a}
+    .carrier{display:flex;align-items:center;gap:8px}
+    .carrier img{width:18px;height:18px;object-fit:contain}
+    /* mobile */
+    @media (max-width: 860px){
+      .grid{grid-template-columns:1fr}
+      aside{display:none}
+    }
+    /* floating status + tester is added by app.js */
+  </style>
 </head>
 <body>
-  <!-- Splash -->
-  <section id="splash" aria-label="Loading">
+  <header>
     <div class="logo"></div>
-    <h2 class="brand">CST SmartDesk</h2>
-    <div class="bar" aria-hidden="true"><div></div></div>
-    <div class="quote" id="motivation"></div>
-    <div class="skip" id="splashSkip">Skip</div>
-  </section>
-
-  <!-- App frame -->
-  <header class="topbar" role="banner">
-    <div class="brand-row">
-      <button id="hamburger" aria-label="Open menu">☰</button>
-      <div class="brandmark"><span class="dot"></span> CST SmartDesk</div>
-    </div>
-    <div class="actions">
-      <span class="pill" id="profileBadge">👤 Guest</span>
-      <button class="pill" id="openCmd">⚙️ Commands</button>
-      <span class="pill" title="Language"><span id="langLabel">EN</span><button id="langToggle" class="btn-link">Toggle</button></span>
-    </div>
+    <div><strong>CST SmartDesk</strong> <span class="sub">Escalation Toolkit</span></div>
   </header>
 
-  <div class="shell">
-    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Primary">
-      <div class="side-section">
-        <h4>Dashboard</h4>
-        <ul class="nav">
-          <li data-open="copilot">Copilot Assistant</li>
-          <li data-open="smartdrop">SmartDrop Upload</li>
-          <li data-open="tests">Developer Tests</li>
-          <li data-open="export">Export Split Files</li>
-          <li data-open="settings">Settings</li>
-        </ul>
-      </div>
-
-      <div class="side-section">
-        <h4>Carrier Hub</h4>
-        <ul class="nav logo-list" id="carrierMenu">
-          <!-- Filled by app.js with names + logos -->
-          <li data-open="carrier:VZW"><img alt="" /><span>Verizon</span></li>
-          <li data-open="carrier:ATT"><img alt="" /><span>AT&amp;T</span></li>
-          <li data-open="carrier:CRK"><img alt="" /><span>Cricket</span></li>
-          <li data-open="carrier:USC"><img alt="" /><span>US Cellular</span></li>
-          <li data-open="carrier:COX"><img alt="" /><span>Cox</span></li>
-          <li data-open="carrier:OPT"><img alt="" /><span>Optimum</span></li>
-          <li data-open="carrier:CSC"><img alt="" /><span>Consumer Cellular</span></li>
-        </ul>
-      </div>
+  <div class="grid">
+    <aside>
+      <div style="font-size:12px;color:var(--muted);margin:6px 6px 8px">Carrier Hub</div>
+      <ul class="nav" id="carrierNav">
+        <li class="carrier" data-open="carrier:VZW"><img alt="Verizon" src="/logos/verizon.svg"><span>Verizon</span></li>
+        <li class="carrier" data-open="carrier:ATT"><img alt="AT&T" src="/logos/att.svg"><span>AT&amp;T</span></li>
+        <li class="carrier" data-open="carrier:CRK"><img alt="Cricket" src="/logos/cricket.svg"><span>Cricket</span></li>
+        <li class="carrier" data-open="carrier:USC"><img alt="US Cellular" src="/logos/uscellular.svg"><span>US Cellular</span></li>
+        <li class="carrier" data-open="carrier:COX"><img alt="Cox" src="/logos/cox.svg"><span>Cox</span></li>
+        <li class="carrier" data-open="carrier:OPT"><img alt="Optimum" src="/logos/optimum.svg"><span>Optimum</span></li>
+        <li class="carrier" data-open="carrier:CSC"><img alt="Consumer Cellular" src="/logos/consumercellular.svg"><span>Consumer Cellular</span></li>
+      </ul>
     </aside>
 
-    <main class="main" id="main" role="main">
-      <h2>Welcome back<span id="welcomeName"></span> 👋</h2>
-      <p class="muted">Fast, bilingual, and auditable. Mobile‑friendly UI with self‑healing commands.</p>
+    <main>
+      <h2 style="margin:0 0 10px">Welcome<span id="welcomeName"></span> 👋</h2>
+      <p style="margin-top:0;color:var(--muted)">Mobile‑friendly baseline. Use the “Test Verizon T&amp;C” button in the lower‑right to verify serverless fetch.</p>
 
-      <section class="tiles">
-        <article class="tile" data-open="copilot"><h3>🤖 Copilot Assistant</h3><p class="muted">Serve → Solve → Sell, EN/ES/Bilingual output.</p></article>
-        <article class="tile" data-open="smartdrop"><h3>📥 SmartDrop Upload</h3><p class="muted">Drop PDF/DOCX/EML → OCR/Extract → Route.</p></article>
-        <article class="tile" data-open="tests"><h3>🧪 Developer Tests</h3><p class="muted">QA, clipboard, proxy ping, T&C fetch.</p></article>
-        <article class="tile" data-open="settings"><h3>⚙️ Settings</h3><p class="muted">Themes, bilingual defaults, reopen profile.</p></article>
-      </section>
+      <!-- Setup trigger -->
+      <button id="openSetup" style="background:#2a2a3c;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer">
+        Open Setup
+      </button>
     </main>
   </div>
 
-  <!-- Output status (anchored) -->
-  <pre id="qaLog" aria-live="polite">Status: booting…</pre>
+  <!-- Minimal Setup Modal preserved -->
+  <dialog id="setupDialog">
+    <form method="dialog" style="min-width: min(520px, 92vw);background:#171722;border:1px solid var(--border);border-radius:14px;color:var(--ink);padding:14px">
+      <h3 style="margin:0 0 10px">First‑Time Setup</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label>First Name <input id="f_first" required style="width:100%"></label>
+        <label>Last Name <input id="f_last" required style="width:100%"></label>
+        <label>Employee ID <input id="f_id" required style="width:100%"></label>
+        <label>Extension <input id="f_ext" required maxlength="5" style="width:100%"></label>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+        <button value="cancel" style="background:transparent;border:1px solid var(--border);color:var(--ink);border-radius:8px;padding:6px 10px">Cancel</button>
+        <button id="saveProfile" value="default" style="background:#6f4bd8;border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer">Save</button>
+      </div>
+    </form>
+  </dialog>
 
-  <!-- Toast -->
-  <div id="toast" role="status" aria-live="polite"></div>
-
-  <!-- Modals (created/filled by app.js) -->
-  <div id="modals"></div>
-
-  <!-- App script -->
+  <!-- IMPORTANT: on Vercel, /public/app.js is served as /app.js -->
   <script src="/app.js" defer></script>
 </body>
 </html>
