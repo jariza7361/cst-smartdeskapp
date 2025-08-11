@@ -1,126 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>CST SmartDesk – Escalation Toolkit</title>
-  <meta name="color-scheme" content="dark light"/>
-
+  <title>CST SmartDesk</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"/>
   <style>
     :root{
-      --bg:#0d0d0f; --panel:#171722; --panel-2:#1e1e2f; --ink:#f2f3f5; --muted:#a9b0bd;
-      --accent:#6f4bd8; --accent-2:#00e676; --danger:#ff5d5d; --ok:#00d48a; --warn:#ffb020;
-      --tile:#25253a; --tile-hover:#2e2e4a; --border:#2b2b3a; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --bg:#0d0f14; --panel:#151823; --panel-2:#1c2030; --ink:#e8ecf3; --muted:#9aa4b2;
+      --accent:#6f4bd8; --ok:#00d48a; --warn:#ffb020; --bad:#ff5d5d; --border:#2a3344; --tile:#1b2030;
     }
-    html,body{height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,Segoe UI,Arial,sans-serif;margin:0}
-    .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#12121a;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:30}
-    .brand{display:flex;gap:10px;align-items:center;font-weight:600}
-    .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#9245ff)}
-    .actions{display:flex;align-items:center;gap:10px}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,Segoe UI,Arial,sans-serif}
+    .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#0f1320;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40}
+    .brand{display:flex;gap:10px;align-items:center}
+    .brand img{width:22px;height:22px}
+    .actions{display:flex;gap:8px;align-items:center}
     .pill{background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:6px 10px;display:flex;gap:8px;align-items:center}
-    .nav-toggle{display:none; border:1px solid var(--border); background:var(--panel-2); color:var(--ink); border-radius:8px; padding:6px 10px}
-    .layout{display:grid;grid-template-columns:220px 1fr}
-    .sidebar{border-right:1px solid var(--border);background:#111119;min-height:calc(100vh - 56px);padding:14px;position:sticky;top:56px}
+    .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 12px;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--ink)}
+    .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 56px)}
+    aside#sidebar{border-right:1px solid var(--border);background:#0f1422;padding:12px}
     .side-title{color:var(--muted);font-size:12px;margin:8px 8px 6px}
-    .nav{list-style:none;margin:0;padding:0}
-    .nav li{padding:10px 12px;border-radius:10px;cursor:pointer;color:#d6daf0}
-    .nav li:hover{background:var(--tile-hover)}
-    .main{padding:18px}
-    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-    .tile{background:var(--tile);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);cursor:pointer;transition:.15s transform}
-    .tile:hover{transform:translateY(-2px)}
+    .nav{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .nav li{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;background:transparent;cursor:pointer}
+    .nav li:hover{background:#162034}
+    .nav img{width:18px;height:18px}
+    main{padding:14px}
+    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .tile{background:var(--tile);border:1px solid var(--border);border-radius:14px;padding:14px}
     .muted{color:var(--muted)}
-
-    /* Splash */
-    #splash{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#24103a;z-index:100}
+    /* mobile */
+    #navToggle{display:none}
+    @media (max-width: 880px){
+      .layout{grid-template-columns:1fr}
+      #navToggle{display:inline-flex;align-items:center;gap:6px}
+      aside#sidebar{position:fixed;inset:56px 0 auto -300px;width:260px;transition:transform .2s ease;transform:translateX(0)}
+      aside#sidebar.open{left:0;transform:translateX(300px)}
+    }
+    /* splash */
+    #splash{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#222;z-index:100}
     #splash .bar{width:min(520px,80vw);height:10px;background:#e6e6ef;border-radius:999px;overflow:hidden;margin-top:14px}
     #splash .bar>div{height:100%;width:0%;background:#22c55e;transition:width .25s}
-    #splash .skip{margin-top:12px;font-size:12px;color:#666;cursor:pointer}
-
-    /* Modals (generic) */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:50}
-    .modal{width:min(980px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+    #splash .skip{margin-top:10px;font-size:12px;color:#555;cursor:pointer}
+    #splash .quote{margin-top:12px;color:#444;text-align:center;max-width:70ch}
+    /* modals */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:80}
+    .modal{width:min(980px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:16px}
     .modal header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
     .modal .content{padding:14px}
     .modal footer{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-    .btn{background:var(--accent);border:none;color:white;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--ink)}
-
-    /* QA Ribbon & Toast */
-    #qa{position:fixed;right:14px;bottom:14px;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;z-index:60}
-    #qa .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-    #qa .ok{background:var(--ok)} #qa .warn{background:var(--warn)} #qa .bad{background:var(--danger)}
-    #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#e6eaff;border:1px solid #26314d;box-shadow:var(--shadow);border-radius:10px;padding:10px 14px;opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:70}
+    .form{display:grid;gap:10px}
+    .form label{font-size:12px;color:var(--muted)}
+    .form input,.form select,.form textarea{background:var(--panel-2);border:1px solid var(--border);color:var(--ink);padding:10px;border-radius:10px;width:100%}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    /* QA + toast */
+    #qa{position:fixed;right:14px;bottom:14px;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;z-index:90}
+    #qa .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--ok)}
+    #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#e6eaff;border:1px solid #26314d;border-radius:10px;padding:10px 14px;opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:95}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
-
-    /* Mobile */
-    @media (max-width: 900px){
-      .layout{grid-template-columns:1fr}
-      .sidebar{position:fixed;left:0;top:56px;bottom:0;width:280px;transform:translateX(-100%);transition:transform .2s}
-      .sidebar.open{transform:translateX(0)}
-      .nav-toggle{display:inline-block}
-      .tiles{grid-template-columns:1fr}
-    }
   </style>
 </head>
 <body>
   <!-- Splash -->
   <section id="splash" aria-label="Loading">
     <h2 style="margin:0">CST SmartDesk</h2>
-    <div class="bar" aria-hidden="true"><div></div></div>
+    <div class="bar"><div></div></div>
+    <div class="quote" id="splashQuote"></div>
     <div class="skip" id="splashSkip">Skip</div>
   </section>
 
-  <!-- Topbar -->
   <header class="topbar">
-    <div class="brand"><div class="logo"></div><div>CST SmartDesk</div></div>
+    <div class="brand">
+      <button id="navToggle" class="btn secondary" aria-expanded="false">☰ Menu</button>
+      <img src="./assets/favicon.svg" alt="">
+      <div>CST SmartDesk</div>
+    </div>
     <div class="actions">
-      <button id="navToggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
       <div class="pill"><span id="langLabel">EN</span><button id="langToggle" class="btn secondary">Toggle</button></div>
       <div class="pill" id="profileBadge">👤 Guest</div>
     </div>
   </header>
 
   <div class="layout">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar" role="navigation">
+    <aside id="sidebar">
       <div class="side-title">Dashboard</div>
       <ul class="nav">
-        <li data-open="copilot">Copilot Assistant</li>
-        <li data-open="scripts">Scripting Bank</li>
-        <li data-open="deductible">Deductible Helper</li>
-        <li data-open="tests">Developer Tests</li>
+        <li data-open="copilot">🤖 Copilot</li>
+        <li data-open="tests">🧪 Tests</li>
+        <li data-open="settings">⚙️ Settings</li>
       </ul>
       <div class="side-title">Carrier Hub</div>
-      <ul class="nav">
-        <li data-open="carrier:VZW">Verizon</li>
-        <li data-open="carrier:ATT">AT&amp;T</li>
-        <li data-open="carrier:CRK">Cricket</li>
-      </ul>
-      <div class="side-title">Admin</div>
-      <ul class="nav">
-        <li data-open="settings">Settings</li>
+      <ul class="nav" id="carrierNav">
+        <li data-open="carrier:VZW"><img src="./assets/verizon.svg" alt=""> <span>Verizon</span></li>
+        <li data-open="carrier:ATT"><img src="./assets/att.svg" alt=""> <span>AT&amp;T</span></li>
+        <li data-open="carrier:CRK"><img src="./assets/cricket.svg" alt=""> <span>Cricket</span></li>
       </ul>
     </aside>
 
-    <!-- Main -->
-    <main class="main">
-      <h2 style="margin:4px 0 12px">Welcome back<span id="welcomeName"></span> 👋</h2>
-      <p class="muted" style="margin-top:-8px">Dark mode · Responsive · Sidebar toggle on mobile</p>
-
-      <section class="tiles" aria-label="Tool tiles">
-        <article class="tile" data-open="copilot">
-          <h3>🤖 Copilot Assistant</h3>
-          <p class="muted">Serve‑Solve‑Sell drafts · EN/ES</p>
-        </article>
-        <article class="tile" data-open="deductible">
-          <h3>💳 Deductible Helper</h3>
-          <p class="muted">Assist mode + offline estimator</p>
-        </article>
-        <article class="tile" data-open="tests">
-          <h3>🧪 Developer Tests</h3>
-          <p class="muted">Fetch / T&C sanity checks</p>
-        </article>
+    <main>
+      <h2 style="margin:6px 0 10px">Welcome back<span id="welcomeName"></span> 👋</h2>
+      <p class="muted" style="margin-top:-6px">Mobile‑friendly · Logos in Carrier Hub · CSP hardened</p>
+      <section class="tiles">
+        <article class="tile" data-open="copilot"><h3>🤖 Copilot</h3><p class="muted">Denial serve/solve/sell (EN/ES)</p></article>
+        <article class="tile" data-open="tests"><h3>🧪 Tests</h3><p class="muted">Deep audit · T&C fetch</p></article>
+        <article class="tile" data-open="settings"><h3>⚙️ Settings</h3><p class="muted">Bilingual, reopen setup</p></article>
       </section>
     </main>
   </div>
@@ -130,23 +113,20 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
       <header><h3 id="setupTitle" style="margin:0">First‑Time Setup</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
-        <form class="form" id="setupForm" style="display:grid;gap:10px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <form class="form" id="setupForm">
+          <div class="row">
             <div><label>First Name</label><input id="f_first" required></div>
             <div><label>Last Name</label><input id="f_last" required></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="row">
             <div><label>Employee ID</label><input id="f_id" required></div>
-            <div><label>Extension</label><input id="f_ext" required maxlength="5"></div>
+            <div><label>Extension</label><input id="f_ext" required maxlength="6"></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="row">
             <div><label>Coach</label><input id="f_coach"></div>
-            <div><label>Language</label>
-              <select id="f_lang"><option value="en">English</option><option value="es">Español</option></select>
-            </div>
+            <div style="display:flex;align-items:flex-end"><label style="visibility:hidden">.</label><button class="btn" type="submit">Save</button></div>
           </div>
           <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_nosplash"> Don’t show splash again</label>
-          <div style="display:flex;justify-content:flex-end"><button class="btn" type="submit">Save Profile</button></div>
         </form>
       </div>
     </div>
@@ -155,14 +135,14 @@
   <!-- Copilot Modal -->
   <div class="modal-backdrop" id="modal-copilot">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copilotTitle">
-      <header><h3 id="copilotTitle" style="margin:0">Copilot Assistant</h3><button class="btn secondary" data-close>Close</button></header>
+      <header><h3 id="copilotTitle" style="margin:0">Copilot</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
-        <div style="display:grid;gap:10px">
-          <label>Paste Expert Chat or ask a question</label>
-          <textarea id="cp_in" rows="5" placeholder="e.g., Why was claim denied (No Airtime)?"></textarea>
+        <div class="form">
+          <label>Enter denial reason (e.g., “No Airtime”)</label>
+          <textarea id="cp_in" rows="4" placeholder="Paste chat or type a reason…"></textarea>
           <div><button class="btn" id="cp_run">Generate</button></div>
           <label>Output</label>
-          <textarea id="cp_out" rows="7" placeholder="Response will appear here…"></textarea>
+          <textarea id="cp_out" rows="8" placeholder="Response will appear here…"></textarea>
           <div><button class="btn secondary" id="cp_copy">Copy</button></div>
         </div>
       </div>
@@ -174,36 +154,38 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="testsTitle">
       <header><h3 id="testsTitle" style="margin:0">Developer Tests</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
-        <div style="display:grid;gap:10px">
-          <button class="btn" id="t_fetch_vzw_pdf">Test Fetch Verizon T&C PDF</button>
-          <pre id="testLog" style="white-space:pre-wrap;background:var(--panel-2);border:1px solid var(--border);padding:10px;border-radius:10px"></pre>
+        <div class="form">
+          <button class="btn" id="t_deep_audit">Run Deep Audit</button>
+          <button class="btn secondary" id="t_fetch_vzw_pdf">Fetch Verizon T&C (test)</button>
+          <button class="btn secondary" id="t_validate_csp">Validate CSP</button>
+          <button class="btn" id="t_sim_error">Simulate Init Error</button>
+          <pre id="testLog" style="white-space:pre-wrap;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:10px;max-height:220px;overflow:auto"></pre>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Settings Modal (themes / reopen profile / bilingual defaults) -->
+  <!-- Settings Modal -->
   <div class="modal-backdrop" id="modal-settings">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <header><h3 id="settingsTitle" style="margin:0">Settings</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
-        <div style="display:grid;gap:10px">
-          <button class="btn" id="openProfile">Reopen Profile Setup</button>
-          <label>Bilingual scripting by default <input type="checkbox" id="opt_bilingual"></label>
-          <div class="muted">Themes coming next pass (macOS / Glass / Light).</div>
+        <div class="form">
+          <label style="display:flex;gap:8px;align-items:center">
+            <input type="checkbox" id="opt_bilingual" checked> Bilingual (append Spanish)
+          </label>
+          <button class="btn secondary" id="btn_reopen_setup">Reopen Setup</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- QA Ribbon + Toast -->
-  <div id="qa" aria-live="polite">
-    <div><span class="dot warn" id="qaDot"></span><strong>QA:</strong> Ready</div>
+  <!-- QA ribbon + toast -->
+  <div id="qa"><span class="dot" id="qaDot"></span><strong>QA</strong> · <span class="muted">Ready</span>
     <div id="qaLog" class="muted" style="max-width:48ch;white-space:pre-wrap"></div>
   </div>
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- App boot -->
-  <script src="/app.js" defer></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>
