@@ -15,7 +15,6 @@
     .pill{border:1px solid var(--border);background:#12192a;border-radius:999px;padding:6px 10px;display:flex;gap:8px;align-items:center}
     .layout{display:grid;grid-template-columns:240px 1fr}
     @media (max-width:900px){.layout{grid-template-columns:1fr}}
-    /* sidebar */
     #sidebar{border-right:1px solid var(--border);background:#0f1422;min-height:calc(100vh - 56px);padding:12px}
     #sidebar .group{margin-bottom:14px}
     #sidebar h4{margin:8px 6px;color:var(--muted);font-size:12px}
@@ -75,6 +74,7 @@
         <input id="opt_bilingual" type="checkbox"> Bilingual
       </label>
       <button id="openCopilot" class="btn secondary">Copilot</button>
+      <button id="openStatus" class="btn secondary">Status</button>
       <div id="profileBadge" class="pill">👤 Guest</div>
     </div>
   </header>
@@ -105,7 +105,14 @@
     <!-- main -->
     <main>
       <h2>Welcome back<span id="welcomeName"></span> 👋</h2>
-      <p class="muted">Mobile‑friendly · Bilingual output · Carrier logos</p>
+      <p class="muted">Mobile-friendly · Bilingual output · Carrier logos</p>
+      <div class="form" style="max-width:720px;margin-top:12px">
+        <label>Drop TXT/PDF here or paste text below (parser demo)</label>
+        <div id="dropZone" style="border:1px dashed var(--border);border-radius:10px;padding:12px">Drop file here…</div>
+        <textarea id="pasteIn" rows="4" placeholder="Paste text…"></textarea>
+        <button id="parseBtn" class="btn secondary">Parse</button>
+        <pre id="parseOut" class="muted" style="white-space:pre-wrap;margin-top:10px"></pre>
+      </div>
       <pre id="qaLog" class="muted" style="white-space:pre-wrap"></pre>
     </main>
   </div>
@@ -113,7 +120,7 @@
   <!-- modals -->
   <div class="modal-backdrop" id="modal-setup">
     <div class="modal" role="dialog" aria-modal="true">
-      <header><strong>First‑Time Setup</strong><button class="btn secondary" data-close>Close</button></header>
+      <header><strong>First-Time Setup</strong><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
         <form class="form" id="setupForm">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -168,11 +175,37 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="modal-status">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header><strong>System Status</strong><button class="btn secondary" data-close>Close</button></header>
+      <div class="content">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
+            <div class="text-xs muted">Build</div><div id="st_build" class="font-mono text-sm">—</div>
+          </div>
+          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
+            <div class="text-xs muted">Node</div><div id="st_node" class="font-mono text-sm">—</div>
+          </div>
+          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
+            <div class="text-xs muted">Runtime</div><div id="st_runtime" class="font-mono text-sm">—</div>
+          </div>
+          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
+            <div class="text-xs muted">Server Time</div><div id="st_time" class="font-mono text-sm">—</div>
+          </div>
+        </div>
+        <h3 style="margin:14px 0 6px 0">Environment Checks</h3>
+        <ul id="st_checks" class="muted" style="list-style:none;padding:0;margin:0"></ul>
+        <h3 style="margin:14px 0 6px 0">Browser Checks</h3>
+        <ul id="st_browser" class="muted" style="list-style:none;padding:0;margin:0"></ul>
+      </div>
+    </div>
+  </div>
+
   <!-- qa + toast -->
   <div id="qa"><span id="qaDot" class="dot"></span><strong>QA</strong></div>
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- Always load from /public -->
+  <!-- single script, path stays /app.js thanks to rewrites -->
   <script src="/app.js" defer></script>
 </body>
 </html>
