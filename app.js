@@ -1,4 +1,4 @@
-// public/app.js — deep-audit baseline + mobile UX + denial skeletons + fetch test
+// app.js — deep-audit baseline + mobile UX + denial skeletons + fetch test
 (function () {
   const $ = (s, c=document) => c.querySelector(s);
   const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));

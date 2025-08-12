@@ -2,8 +2,8 @@
 
 **Single clean deploy rules:**
 - `index.html` at repo root
-- Client JS at `/public/app.js` (referenced as `<script src="/app.js" defer>`)
-- Logos in `/public/assets`
+- Client JS at `/app.js` (referenced as `<script src="app.js" defer>`)
+- Logos in `/assets`
 - Serverless endpoints in `/api` (Node on Vercel)
 
 ## Deploy steps
@@ -16,10 +16,10 @@
    - `/api/fetch?url=https%3A%2F%2Fwww.asurion.com%2Fpdf%2Fnw-consumer-vmp-25%2F` returns JSON with `"ok": true` or a clear error
 
 ## Why 404 happened before
-- The page asked for `/app.js`, but the file wasn’t in `/public/app.js`. Vercel serves `/public` at `/`.
-- Having `app.js` in root or another folder won’t satisfy `/app.js`.
+- The page asked for `/app.js`, but the file lived in a `public` folder that wasn’t served at the domain root.
+- Moving `app.js` next to `index.html` and referencing it relatively ensures the script loads.
 
 ## Editing policy
 - Always update whole files when requested (no piecemeal).
-- Keep inline HTML/CSS; all JS in `/public/app.js`.
+- Keep inline HTML/CSS; all JS in `app.js`.
 - API code only under `/api`.
