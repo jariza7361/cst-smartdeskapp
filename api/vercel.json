@@ -1,15 +1,15 @@
 {
-{
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "clipboard-read=(self), clipboard-write=(self)" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://www.asurion.com; frame-ancestors 'self'; base-uri 'self';"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://www.asurion.com; frame-src 'none'; object-src 'none'"
         }
       ]
     }
