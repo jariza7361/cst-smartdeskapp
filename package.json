@@ -1,0 +1,20 @@
+{
+  "name": "cst-smartdeskapp",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier -w .",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "serve": "http-server . -p 4173 -c-1"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.11.1",
+    "@playwright/test": "1.46.1",
+    "eslint": "9.11.1",
+    "http-server": "14.1.1",
+    "prettier": "3.3.3",
+    "vitest": "2.0.5"
+  }
+}
