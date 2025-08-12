@@ -1,211 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CST SmartDesk</title>
-  <link rel="icon" href="/assets/favicon.svg">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CST SmartDesk — Escalation Toolkit</title>
+  <meta name="color-scheme" content="dark light"/>
   <style>
-    :root{--bg:#0d0f12;--ink:#e9eef6;--muted:#9aa3b2;--panel:#141827;--accent:#6f4bd8;
-          --ok:#00d48a;--warn:#ffb020;--bad:#ff5d5d;--border:#26314d;}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,Segoe UI,Arial}
-    header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--border);background:#0f1422;position:sticky;top:0;z-index:10}
-    .brand{display:flex;align-items:center;gap:10px}
-    .brand img{height:22px}
-    .pill{border:1px solid var(--border);background:#12192a;border-radius:999px;padding:6px 10px;display:flex;gap:8px;align-items:center}
-    .layout{display:grid;grid-template-columns:240px 1fr}
-    @media (max-width:900px){.layout{grid-template-columns:1fr}}
-    #sidebar{border-right:1px solid var(--border);background:#0f1422;min-height:calc(100vh - 56px);padding:12px}
-    #sidebar .group{margin-bottom:14px}
-    #sidebar h4{margin:8px 6px;color:var(--muted);font-size:12px}
-    #sidebar ul{list-style:none;margin:0;padding:0}
-    #sidebar li{padding:10px 12px;border-radius:10px;cursor:pointer}
-    #sidebar li:hover{background:#1a2035}
-    #navToggle{display:none;margin-left:10px}
-    @media (max-width:900px){
-      #sidebar{position:fixed;inset:56px 0 0 auto;width:280px;transform:translateX(-100%);transition:.2s;z-index:12}
+    :root{
+      --bg:#0d0d0f; --panel:#171722; --panel-2:#1e1e2f; --ink:#f2f3f5; --muted:#a9b0bd;
+      --accent:#6f4bd8; --ok:#00d48a; --warn:#ffb020; --danger:#ff5d5d; --border:#2b2b3a;
+    }
+    html,body{height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,"Segoe UI",Arial,sans-serif;margin:0}
+    .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#12121a;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+    .brand{display:flex;gap:10px;align-items:center;font-weight:600}
+    .brand img{height:22px;width:auto}
+    .actions{display:flex;gap:8px;align-items:center}
+    .pill{background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:6px 10px;display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--ink)}
+    .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 56px)}
+    #sidebar{border-right:1px solid var(--border);background:#111119;padding:12px}
+    .side-title{color:var(--muted);font-size:12px;margin:8px 8px 6px}
+    .nav{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+    .nav li{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:#171722;border:1px solid var(--border);cursor:pointer}
+    .nav img{height:18px;width:auto}
+    .main{padding:14px}
+    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .tile{background:#1b1b28;border:1px solid var(--border);border-radius:12px;padding:14px}
+    .muted{color:var(--muted)}
+    /* Splash */
+    #splash{position:fixed;inset:0;background:#fff;color:#24103a;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:100}
+    #splash .bar{width:min(520px,80vw);height:10px;background:#e6e6ef;border-radius:999px;overflow:hidden;margin-top:12px}
+    #splash .bar>div{height:100%;width:0%;background:#22c55e;transition:width .25s}
+    #quote{margin-top:10px;font-size:13px;color:#555;text-align:center;padding:0 16px}
+    /* Modals */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{width:min(980px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:16px}
+    .modal header,.modal footer{padding:10px 12px;border-bottom:1px solid var(--border)}
+    .modal footer{border-bottom:none;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+    .modal .content{padding:12px}
+    .form{display:grid;gap:8px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .form input,.form select,.form textarea{background:var(--panel-2);border:1px solid var(--border);color:var(--ink);padding:10px;border-radius:10px}
+    /* QA + Toast */
+    #qa{position:fixed;right:12px;bottom:12px;background:#0f172a;color:#e6eaff;border:1px solid #26314d;border-radius:10px;padding:10px;z-index:80}
+    #qaLog{white-space:pre-wrap;max-width:46ch;max-height:28vh;overflow:auto;margin-top:6px}
+    #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#e6eaff;border:1px solid #26314d;border-radius:10px;padding:10px 14px;opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:90}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+    /* Mobile */
+    #navToggle{display:none}
+    @media (max-width: 900px){
+      .layout{grid-template-columns:1fr}
+      #sidebar{position:fixed;left:0;top:56px;bottom:0;width:min(82vw,320px);transform:translateX(-105%);transition:transform .2s;z-index:30;overflow:auto}
       #sidebar.open{transform:translateX(0)}
       #navToggle{display:inline-flex}
-      .scrim{display:none}
-      .scrim.show{display:block;position:fixed;inset:56px 0 0 0;background:rgba(0,0,0,.4);z-index:11}
     }
-    main{padding:16px}
-    .muted{color:var(--muted)}
-    /* splash */
-    #splash{position:fixed;inset:0;background:#fff;color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
-    #splash .bar{width:min(520px,80vw);height:10px;background:#e9ecf3;border-radius:999px;overflow:hidden;margin-top:14px}
-    #splash .bar>div{height:100%;width:0%;background:#22c55e;transition:width .25s}
-    #splash .skip{margin-top:12px;font-size:12px;color:#666;cursor:pointer}
-    /* modals */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50}
-    .modal{width:min(960px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px}
-    .modal header,.modal footer{padding:12px;border-bottom:1px solid var(--border)}
-    .modal footer{border-top:1px solid var(--border);border-bottom:none;display:flex;gap:10px;justify-content:flex-end}
-    .content{padding:12px}
-    .btn{background:var(--accent);color:white;border:0;border-radius:10px;padding:8px 12px;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--ink)}
-    .form{display:grid;gap:10px}
-    .form input,.form select,.form textarea{background:#12192a;border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--ink)}
-    /* qa + toast */
-    #qa{position:fixed;right:12px;bottom:12px;padding:8px 10px;background:#0f172a;border:1px solid var(--border);border-radius:10px}
-    #qa .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--warn)}
-    #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#e6eaff;border:1px solid #26314d;border-radius:10px;padding:8px 12px;opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:80}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
   </style>
 </head>
 <body>
-  <!-- splash -->
+  <!-- Splash -->
   <section id="splash" aria-label="Loading">
     <h2 style="margin:0">CST SmartDesk</h2>
-    <div class="bar"><div></div></div>
-    <div class="skip" id="splashSkip">Skip</div>
+    <div class="bar" aria-hidden="true"><div></div></div>
+    <div id="quote">Loading…</div>
   </section>
 
-  <!-- topbar -->
-  <header>
+  <!-- Topbar -->
+  <header class="topbar">
     <div class="brand">
-      <button id="navToggle" class="btn secondary" aria-expanded="false" aria-controls="sidebar">☰</button>
-      <img src="/assets/favicon.svg" alt="logo"/>
-      <strong>CST SmartDesk</strong>
+      <img src="/assets/favicon.svg" alt="CST"/>
+      <div>CST SmartDesk</div>
     </div>
-    <div class="pill">
-      <span id="langLabel">EN</span>
-      <label style="display:flex;align-items:center;gap:6px">
-        <input id="opt_bilingual" type="checkbox"> Bilingual
-      </label>
-      <button id="openCopilot" class="btn secondary">Copilot</button>
-      <button id="openStatus" class="btn secondary">Status</button>
-      <div id="profileBadge" class="pill">👤 Guest</div>
+    <div class="actions">
+      <button id="navToggle" class="btn secondary" aria-expanded="false">☰</button>
+      <div class="pill"><span id="langLabel">EN</span><button id="langToggle" class="btn secondary">Toggle</button></div>
+      <div class="pill" id="profileBadge">👤 Guest</div>
     </div>
   </header>
 
   <div class="layout">
-    <!-- sidebar -->
-    <aside id="sidebar" aria-label="Carrier Hub">
-      <div class="group">
-        <h4>Carrier Hub</h4>
-        <ul class="nav">
-          <li data-open="carrier:VZW"><img src="/assets/verizon.svg" alt="" style="height:14px;vertical-align:-2px;margin-right:8px">Verizon</li>
-          <li data-open="carrier:ATT"><img src="/assets/att.svg" alt="" style="height:14px;vertical-align:-2px;margin-right:8px">AT&amp;T</li>
-          <li data-open="carrier:CRK"><img src="/assets/cricket.svg" alt="" style="height:14px;vertical-align:-2px;margin-right:8px">Cricket</li>
-        </ul>
-      </div>
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="side-title">Carrier Hub</div>
+      <ul class="nav">
+        <li data-open="carrier:VZW"><img src="/assets/verizon.svg" alt="Verizon"/><span>Verizon</span></li>
+        <li data-open="carrier:ATT"><img src="/assets/att.svg" alt="AT&T"/><span>AT&amp;T</span></li>
+        <li data-open="carrier:CRK"><img src="/assets/cricket.svg" alt="Cricket"/><span>Cricket</span></li>
+      </ul>
 
-      <div class="group">
-        <h4>Tools</h4>
-        <ul class="nav">
-          <li data-open="copilot">🤖 Copilot</li>
-          <li data-open="tests">🧪 Tests</li>
-          <li data-open="settings">⚙️ Settings</li>
-        </ul>
-      </div>
+      <div class="side-title" style="margin-top:12px">Tools</div>
+      <ul class="nav">
+        <li data-open="copilot">🤖 Copilot</li>
+        <li data-open="tests">🧪 Tests</li>
+        <li data-open="settings">⚙️ Settings</li>
+      </ul>
     </aside>
-    <div class="scrim" id="scrim"></div>
 
-    <!-- main -->
-    <main>
-      <h2>Welcome back<span id="welcomeName"></span> 👋</h2>
-      <p class="muted">Mobile-friendly · Bilingual output · Carrier logos</p>
-      <div class="form" style="max-width:720px;margin-top:12px">
-        <label>Drop TXT/PDF here or paste text below (parser demo)</label>
-        <div id="dropZone" style="border:1px dashed var(--border);border-radius:10px;padding:12px">Drop file here…</div>
-        <textarea id="pasteIn" rows="4" placeholder="Paste text…"></textarea>
-        <button id="parseBtn" class="btn secondary">Parse</button>
-        <pre id="parseOut" class="muted" style="white-space:pre-wrap;margin-top:10px"></pre>
-      </div>
-      <pre id="qaLog" class="muted" style="white-space:pre-wrap"></pre>
+    <!-- Main -->
+    <main class="main">
+      <h2 style="margin:4px 0 10px">Welcome back<span id="welcomeName"></span> 👋</h2>
+      <p class="muted" style="margin-top:-6px">Dark mode · Mobile-friendly · Bilingual toggle</p>
+      <section class="tiles">
+        <article class="tile"><h3>🤖 Copilot</h3><p class="muted">Serve • Solve • Sell denial skeletons</p></article>
+        <article class="tile"><h3>📄 T&C Quick Test</h3><p class="muted">Fetch Verizon PDF headers via /api/fetch</p></article>
+      </section>
     </main>
   </div>
 
-  <!-- modals -->
+  <!-- Setup Modal -->
   <div class="modal-backdrop" id="modal-setup">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header><strong>First-Time Setup</strong><button class="btn secondary" data-close>Close</button></header>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+      <header><h3 id="setupTitle" style="margin:0">First-Time Setup</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
         <form class="form" id="setupForm">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div><label>First</label><input id="f_first" required></div>
-            <div><label>Last</label><input id="f_last" required></div>
+          <div class="row">
+            <div><label>First Name</label><input id="f_first" required></div>
+            <div><label>Last Name</label><input id="f_last" required></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="row">
             <div><label>Employee ID</label><input id="f_id" required></div>
-            <div><label>Extension</label><input id="f_ext" required></div>
+            <div><label>Extension</label><input id="f_ext" required maxlength="5"></div>
           </div>
-          <label style="display:flex;gap:8px;align-items:center;margin-top:6px">
-            <input type="checkbox" id="f_nosplash"> Don’t show splash again
-          </label>
-          <div style="margin-top:8px"><button class="btn" type="submit">Save</button></div>
+          <div class="row">
+            <div><label>Coach</label><input id="f_coach"></div>
+            <div style="display:flex;align-items:flex-end"><button class="btn" type="submit">Save</button></div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_nosplash"> Don’t show splash again</label>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Copilot Modal -->
   <div class="modal-backdrop" id="modal-copilot">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header><strong>Copilot</strong><button class="btn secondary" data-close>Close</button></header>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+      <header><h3 id="cpTitle" style="margin:0">Copilot</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
         <div class="form">
-          <label>Question / Denial reason</label>
-          <textarea id="cp_in" rows="4" placeholder='e.g., "No Airtime" or paste chat'></textarea>
-          <div><button id="cp_run" class="btn">Generate</button></div>
+          <label>Ask (e.g., “No Airtime”):</label>
+          <textarea id="cp_in" rows="4" placeholder="Type a denial reason…"></textarea>
+          <div><button class="btn" id="cp_run">Generate</button></div>
           <label>Output</label>
-          <textarea id="cp_out" rows="6"></textarea>
-          <div><button id="cp_copy" class="btn secondary">Copy</button></div>
+          <textarea id="cp_out" rows="7" placeholder="Response will appear here…"></textarea>
+          <div><button class="btn secondary" id="cp_copy">Copy</button></div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Tests Modal -->
   <div class="modal-backdrop" id="modal-tests">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header><strong>Tests</strong><button class="btn secondary" data-close>Close</button></header>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="testsTitle">
+      <header><h3 id="testsTitle" style="margin:0">Developer Tests</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
-        <button id="t_fetch_vzw_pdf" class="btn">Fetch Verizon T&amp;C PDF</button>
-        <pre id="testLog" class="muted" style="white-space:pre-wrap;margin-top:8px"></pre>
+        <button class="btn" id="t_fetch_vzw_pdf">Test Fetch: Verizon VMP PDF</button>
+        <pre id="testLog" style="margin-top:8px;white-space:pre-wrap"></pre>
       </div>
     </div>
   </div>
 
+  <!-- Settings Modal -->
   <div class="modal-backdrop" id="modal-settings">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header><strong>Settings</strong><button class="btn secondary" data-close>Close</button></header>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header><h3 id="settingsTitle" style="margin:0">Settings</h3><button class="btn secondary" data-close>Close</button></header>
       <div class="content">
-        <label style="display:flex;gap:8px;align-items:center"><input id="opt_bilingual_settings" type="checkbox"> Bilingual by default</label>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="opt_bilingual"> Bilingual output (EN+ES)</label>
+        <div style="margin-top:8px"><button id="reopen_profile" class="btn secondary">Reopen profile setup</button></div>
       </div>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="modal-status">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header><strong>System Status</strong><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
-            <div class="text-xs muted">Build</div><div id="st_build" class="font-mono text-sm">—</div>
-          </div>
-          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
-            <div class="text-xs muted">Node</div><div id="st_node" class="font-mono text-sm">—</div>
-          </div>
-          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
-            <div class="text-xs muted">Runtime</div><div id="st_runtime" class="font-mono text-sm">—</div>
-          </div>
-          <div class="border rounded p-4" style="border:1px solid var(--border);border-radius:10px;padding:10px">
-            <div class="text-xs muted">Server Time</div><div id="st_time" class="font-mono text-sm">—</div>
-          </div>
-        </div>
-        <h3 style="margin:14px 0 6px 0">Environment Checks</h3>
-        <ul id="st_checks" class="muted" style="list-style:none;padding:0;margin:0"></ul>
-        <h3 style="margin:14px 0 6px 0">Browser Checks</h3>
-        <ul id="st_browser" class="muted" style="list-style:none;padding:0;margin:0"></ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- qa + toast -->
-  <div id="qa"><span id="qaDot" class="dot"></span><strong>QA</strong></div>
+  <!-- QA Ribbon + Toast -->
+  <div id="qa"><strong>Output</strong><div id="qaLog" class="muted">Status: Booting…</div></div>
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- single script, path stays /app.js thanks to rewrites -->
+  <!-- One single script include (must be EXACT path) -->
   <script src="/app.js" defer></script>
 </body>
 </html>
