@@ -1,21 +1,37 @@
-export default async function handler(req, res){
-  if(req.method !== 'GET'){
+// GET /api/fetch?url=...
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'Method not allowed' });
   }
-  const url = req.query.url;
-  if(!url) return res.status(400).json({ error: 'Missing url' });
+  const target = req.query.url;
+  if (!target) return res.status(400).json({ ok:false, error: 'Missing url param' });
 
-  try{
-    const r = await fetch(url, { redirect: 'follow' });
+  // Basic allowlist (extend as needed)
+  try {
+    const u = new URL(target);
+    const host = u.hostname.toLowerCase();
+    const allowed = ['www.asurion.com','asurion.com','www.phoneclaim.com','phoneclaim.com'];
+    if (!allowed.includes(host)) {
+      return res.status(400).json({ ok:false, error: 'Host not allowed', host });
+    }
+  } catch {
+    return res.status(400).json({ ok:false, error: 'Invalid URL' });
+  }
+
+  try {
+    const r = await fetch(target, { method:'GET', redirect:'follow' });
     const buf = await r.arrayBuffer();
-    const ct = r.headers.get('content-type') || 'application/octet-stream';
-    res.status(200).json({
-      ok: r.ok, status: r.status, contentType: ct,
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.status(200).json({
+      ok: true,
+      url: r.url || target,
+      status: r.status,
+      contentType: r.headers.get('content-type'),
       lastModified: r.headers.get('last-modified'),
       bytes: buf.byteLength
     });
-  }catch(e){
-    res.status(500).json({ error: String(e.message || e) });
+  } catch (e) {
+    return res.status(500).json({ ok:false, error: e.message || String(e) });
   }
 }
