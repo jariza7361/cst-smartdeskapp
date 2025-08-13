@@ -1,0 +1,14 @@
+{
+  "name": "cst-smartdeskapp",
+  "version": "1.0.0",
+  "description": "**Single clean deploy rules:** - `index.html` at repo root - Client JS at `/public/app.js` (referenced as `<script src=\"/app.js\" defer>`) - Logos in `/public/assets` - Serverless endpoints in `/api` (Node on Vercel)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "private": true
+}
