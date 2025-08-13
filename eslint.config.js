@@ -21,5 +21,13 @@ export default [
       "no-implied-eval": "error",
       "no-alert": "error"
     }
+  },
+  {
+    files: ['e2e/**/*.{js,ts}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        paths: ['vitest', '@jest/globals', 'expect', '@vitest/expect']
+      }]
+    }
   }
 ];
