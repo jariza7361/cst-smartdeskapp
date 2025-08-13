@@ -2,5 +2,16 @@
   "Drop PDF/TXT here or paste text (Ctrl+V).": "Drop PDF/TXT here or paste text (Ctrl+V).",
   "System Status": "System Status",
   "First-Run Setup": "First-Run Setup",
-  "Tests": "Tests"
+  "Tests": "Tests",
+  "Copilot": "Copilot",
+  "Sample prompt": "Sample prompt",
+  "Additional instructions": "Additional instructions",
+  "Generate": "Generate",
+  "English": "English",
+  "Spanish": "Spanish",
+  "Copy EN": "Copy EN",
+  "Copy ES": "Copy ES",
+  "Loading...": "Loading...",
+  "Set OPENAI_API_KEY in Vercel to enable Copilot.": "Set OPENAI_API_KEY in Vercel to enable Copilot.",
+  "Copilot reachable": "Copilot reachable"
 }
