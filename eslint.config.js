@@ -6,7 +6,7 @@ export default [
     ignores: ["node_modules", "dist", ".vercel", "playwright-report", "test-results"],
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.{js,mjs}"],
     languageOptions: {
       globals: {
         ...globals.browser,
