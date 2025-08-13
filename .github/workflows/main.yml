@@ -1,7 +1,1 @@
-2) CI that runs tests (so Vercel stays lean)
-Task T1 — Add GitHub Actions CI
 
-Goal: Run Lint/Vitest/Playwright in CI (not on Vercel).
-Add: .github/workflows/ci.yml that uses Node 20, runs npm ci, npx playwright install --with-deps, then npm run lint && npm run test && npm run e2e.
-Keep: No changes to CSP or /public/app.js.
-Verify: CI job passes on the PR. Open/Update Draft PR ci: add lint+unit+e2e.
