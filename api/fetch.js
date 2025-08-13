@@ -1,40 +1,42 @@
-// Vercel Serverless Function: GET /api/fetch
+// GET /api/fetch?url=...
 export default async function handler(req, res) {
+  // set CORS header for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    res.setHeader('Allow', 'GET');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  // Optional: fetch real T&C from env URL (self-curated)
-  const url = process.env.TOS_URL;
+  const target = req.query.url;
+  if (!target) {
+    return res.status(400).json({ ok: false, error: 'Missing url param' });
+  }
+
+  // Basic allowlist (extend as needed)
   try {
-    let payload;
-    if (url) {
-      const r = await fetch(url);
-      const text = await r.text();
-      payload = normalize(text);
-    } else {
-      payload = normalize(`Verizon Wireless Terms
-Effective: 2025-01-01
-Fees: activation, upgrade, recovery surcharge
-Prohibited: fraud, reselling service
-Link: https://www.verizon.com/terms/`);
+    const u = new URL(target);
+    const host = u.hostname.toLowerCase();
+    const allowed = ['www.asurion.com', 'asurion.com', 'www.phoneclaim.com', 'phoneclaim.com'];
+    if (!allowed.includes(host)) {
+      return res.status(400).json({ ok: false, error: 'Host not allowed', host });
     }
-    res.status(200).json({ ok: true, carrier: payload.carrier, normalized: payload });
+  } catch {
+    return res.status(400).json({ ok: false, error: 'Invalid URL' });
+  }
+
+  try {
+    const r = await fetch(target, { method: 'GET', redirect: 'follow' });
+    const buf = await r.arrayBuffer();
+    return res.status(200).json({
+      ok: true,
+      url: r.url || target,
+      status: r.status,
+      contentType: r.headers.get('content-type'),
+      lastModified: r.headers.get('last-modified'),
+      bytes: buf.byteLength,
+    });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    return res.status(500).json({ ok: false, error: e.message || String(e) });
   }
 }
-
-function normalize(text) {
-  const lower = text.toLowerCase();
-  return {
-    carrier: (/verizon|at&t|cricket/.exec(lower)||['unknown'])[0],
-    effectiveDate: (text.match(/(\d{4}-\d{2}-\d{2})/)||[])[1] || null,
-    fees: snippet(lower, /(fee|charge|surcharge)/g),
-    prohibited: snippet(lower, /(prohibit|forbid|not allowed|fraud)/g),
-    links: Array.from(text.matchAll(/https?:\/\/\S+/g)).map(m=>m[0]),
-    length: text.length
-  };
-}
-function snippet(t, rx){ const i = t.search(rx); return i<0?null:t.slice(i, i+240); }
