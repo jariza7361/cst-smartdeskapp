@@ -6,6 +6,12 @@
 - Bilingual scaffolding: `/i18n/en.json`, `/i18n/es.json`
 - Serverless: `GET /api/fetch`, `POST /api/copilot`
 
+## Copilot panel
+
+- Prompts combine a selected sample, free-form text, and optional `CONTEXT_JSON` from the preview panel.
+- Samples live in `/public/copilot-prompts.json`; add new entries with `{ id, label, prompt }`.
+- Requires server-side `OPENAI_API_KEY`; when missing, the UI stays visible and hints about the key.
+
 ## Dev
 ```bash
 npm i

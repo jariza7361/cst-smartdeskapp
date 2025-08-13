@@ -6,7 +6,7 @@ export default defineConfig({
     command: 'npm run serve',
     port: 4173,
     timeout: 60_000,
-    reuseExistingServer: !process.env.CI
+    reuseExistingServer: !process.env.CI,
   },
-  use: { headless: true }
+  use: { headless: true },
 });

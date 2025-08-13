@@ -1,10 +1,14 @@
 import { createI18n } from '/utils/i18n.js';
+import { buildPrompt } from '/utils/copilot.js';
 
 const state = {
   settings: null,
   i18n: null,
   cspViolations: [],
   lastFetchRun: null,
+  copilotSamples: [],
+  copilotReachable: null,
+  lang: 'en',
 };
 
 // --- Init ---
@@ -12,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // language
   const lang = localStorage.getItem('lang') || 'en';
   state.i18n = await createI18n(lang);
+  state.lang = lang;
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
   // setup wizard
@@ -28,6 +33,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('openTests').addEventListener('click', () => testsModal.showModal());
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
+
+  // copilot setup
+  try {
+    state.copilotSamples = await fetch('/copilot-prompts.json').then((r) => r.json());
+  } catch {
+    state.copilotSamples = [];
+  }
+  initCopilot();
+  renderCopilotUI();
+  checkCopilot();
 
   // drag & drop / paste
   const dz = document.getElementById('dropzone');
@@ -56,6 +71,8 @@ async function toggleLang() {
   const next = current === 'en' ? 'es' : 'en';
   localStorage.setItem('lang', next);
   state.i18n = await createI18n(next);
+  state.lang = next;
+  renderCopilotUI();
   renderStatus();
 }
 
@@ -150,6 +167,115 @@ function findSection(text, rx) {
   return text.slice(idx, idx + 240);
 }
 
+// --- Copilot ---
+function initCopilot() {
+  const main = document.querySelector('main.content');
+  const sec = document.createElement('section');
+  sec.id = 'copilotSection';
+  sec.innerHTML = `
+    <h2 id="copilotTitle"></h2>
+    <label><span id="copilotSampleLabel"></span><select id="copilotSample"></select></label>
+    <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
+    <button id="copilotRun"></button>
+    <div id="copilotOutput" style="display:flex;gap:1rem">
+      <div style="flex:1">
+        <h3 id="copilotEnLabel"></h3>
+        <pre id="copilotEn" class="preview"></pre>
+        <button id="copilotCopyEn"></button>
+      </div>
+      <div style="flex:1">
+        <h3 id="copilotEsLabel"></h3>
+        <pre id="copilotEs" class="preview"></pre>
+        <button id="copilotCopyEs"></button>
+      </div>
+    </div>
+    <p id="copilotMsg" class="warn" hidden></p>
+  `;
+  main.insertBefore(sec, document.getElementById('systemStatus'));
+  document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
+  document
+    .getElementById('copilotCopyEn')
+    .addEventListener('click', () => copyText('copilotEn'));
+  document
+    .getElementById('copilotCopyEs')
+    .addEventListener('click', () => copyText('copilotEs'));
+}
+function renderCopilotUI() {
+  if (!document.getElementById('copilotSection')) return;
+  const t = (s) => state.i18n.t(s);
+  document.getElementById('copilotTitle').textContent = t('Copilot');
+  document.getElementById('copilotSampleLabel').textContent = t('Sample prompt');
+  document.getElementById('copilotInputLabel').textContent = t('Additional instructions');
+  document.getElementById('copilotRun').textContent = t('Generate');
+  document.getElementById('copilotEnLabel').textContent = t('English');
+  document.getElementById('copilotEsLabel').textContent = t('Spanish');
+  document.getElementById('copilotCopyEn').textContent = t('Copy EN');
+  document.getElementById('copilotCopyEs').textContent = t('Copy ES');
+  const sel = document.getElementById('copilotSample');
+  sel.innerHTML = '';
+  state.copilotSamples.forEach((p) => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.label[state.lang] || p.label.en;
+    sel.appendChild(opt);
+  });
+}
+async function onCopilotRun() {
+  const sel = document.getElementById('copilotSample');
+  const sample = state.copilotSamples.find((p) => p.id === sel.value);
+  const user = document.getElementById('copilotInput').value;
+  let context = null;
+  try {
+    const txt = document.getElementById('preview').textContent;
+    if (txt) context = JSON.parse(txt);
+  } catch {
+    /* noop */
+  }
+  const prompt = buildPrompt(sample?.prompt || '', user, context);
+  const outEn = document.getElementById('copilotEn');
+  const outEs = document.getElementById('copilotEs');
+  const msg = document.getElementById('copilotMsg');
+  outEn.textContent = outEs.textContent = '';
+  msg.textContent = state.i18n.t('Loading...');
+  msg.hidden = false;
+  try {
+    const res = await fetch('/api/copilot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error();
+    outEn.textContent = data.en || '';
+    outEs.textContent = data.es || '';
+    msg.hidden = true;
+  } catch {
+    msg.textContent = state.i18n.t('Set OPENAI_API_KEY in Vercel to enable Copilot.');
+  }
+  await checkCopilot();
+}
+async function copyText(id) {
+  try {
+    await navigator.clipboard.writeText(document.getElementById(id).textContent);
+  } catch {
+    /* noop */
+  }
+}
+async function checkCopilot() {
+  try {
+    const r = await fetch('/api/copilot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: 'ping' }),
+    });
+    await r.json();
+    state.copilotReachable = true;
+  } catch {
+    state.copilotReachable = false;
+  }
+  renderStatus();
+}
+
 // --- System Status ---
 async function run4PointUrlTest() {
   const list = ['/app.js', '/assets/logo.svg', '/api/fetch'];
@@ -214,6 +340,16 @@ function renderStatus() {
       !!(state.settings && state.settings.name),
     ),
   );
+
+  if (state.copilotReachable !== null) {
+    items.push(
+      mark(
+        state.i18n.t('Copilot reachable'),
+        state.copilotReachable ? 'OK' : 'Fail',
+        state.copilotReachable,
+      ),
+    );
+  }
 
   document.getElementById('statusList').innerHTML = items
     .map(
