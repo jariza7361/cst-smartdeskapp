@@ -12,6 +12,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
+      - run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
       - run: npx playwright install --with-deps
       - run: npm run lint && npm run test && npm run e2e
