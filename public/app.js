@@ -25,7 +25,9 @@
 
   // Splash
   function startSplash(){
-    const splash = $('#splash'); if(!splash) return afterSplash();
+    const skip = localStorage.getItem('cst_nosplash') === '1';
+    const splash = $('#splash');
+    if (!splash || skip) { splash?.remove(); return afterSplash(); }
     const bar = $('#splash .bar>div'); const quote=$('#quote');
     if(quote){ quote.textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)]; }
     let p=0; const t = setInterval(()=>{
@@ -85,6 +87,7 @@
     localStorage.setItem('cst_profile', JSON.stringify(profile));
     state.profile = profile; hydrateProfile();
     if($('#f_nosplash')?.checked){ localStorage.setItem('cst_nosplash','1'); }
+    else { localStorage.removeItem('cst_nosplash'); }
     showToast('Profile saved.');
     closeModal($('#modal-setup [data-close]'));
   });
