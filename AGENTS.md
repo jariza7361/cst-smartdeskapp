@@ -21,10 +21,12 @@
 - **Dev server (local smoke):** `npm run serve`
 
 ## Verification (run before finishing any task)
-1) `npm run lint && npm run test && npm run e2e:codex` → **PASS** (lint 0 warnings; E2E may skip if browsers unavailable; CI runs `npm run e2e`).
-2) **4-point URL smoke:** `/`, `/app.js`, `/assets/logo.svg`, `/api/fetch` reachable locally.
-3) **i18n coverage:** All added strings exist in both `i18n/en.json` and `i18n/es.json`.
-4) **CSP:** No `securitypolicyviolation` events during a basic route tour.
+1) `npm run lint` → **PASS with 0 warnings**.  
+2) `npm run test` → **PASS**.  
+3) `npm run e2e:codex` → **PASS**, or print note when browsers unavailable (CI runs `npm run e2e`).  
+4) **4-point URL smoke:** `/`, `/app.js`, `/assets/logo.svg`, `/api/fetch` reachable locally.  
+5) **i18n coverage:** All added strings exist in both `i18n/en.json` and `i18n/es.json`.  
+6) **CSP:** No `securitypolicyviolation` events during a basic route tour.
 
 ## Task Splitting
 - Break large work into atomic subtasks: **UI → API → tests → i18n → docs**.
