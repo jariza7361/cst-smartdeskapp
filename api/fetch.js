@@ -8,9 +8,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const target = req.query.url;
+  const target = process.env.TOS_URL || req.query?.url;
   if (!target) {
-    return res.status(400).json({ ok: false, error: 'Missing url param' });
+    return res.status(200).json({ ok: true, carrier: null, normalized: null });
   }
 
   // Basic allowlist (extend as needed)
@@ -30,6 +30,8 @@ export default async function handler(req, res) {
     const buf = await r.arrayBuffer();
     return res.status(200).json({
       ok: true,
+      carrier: null,
+      normalized: null,
       url: r.url || target,
       status: r.status,
       contentType: r.headers.get('content-type'),
