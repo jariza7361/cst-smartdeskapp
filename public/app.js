@@ -31,7 +31,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // drag & drop / paste
   const dz = document.getElementById('dropzone');
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('hover'); });
+  dz.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dz.classList.add('hover');
+  });
   dz.addEventListener('dragleave', () => dz.classList.remove('hover'));
   dz.addEventListener('drop', onDrop);
   document.addEventListener('paste', onPaste);
@@ -57,7 +60,7 @@ async function toggleLang() {
 }
 
 // --- Setup Wizard ---
-function onSaveWizard(ev) {
+function onSaveWizard() {
   // dialog value is "save"
   const s = {
     name: val('#wName'),
@@ -73,14 +76,19 @@ function onSaveWizard(ev) {
   document.getElementById('setupWizard').close();
   renderStatus();
 }
-function val(sel){ return document.querySelector(sel).value?.trim(); }
-function saveSettings(s){
+function val(sel) {
+  return document.querySelector(sel).value?.trim();
+}
+function saveSettings(s) {
   localStorage.setItem('cst.settings', JSON.stringify(s));
   state.settings = s;
 }
-function loadSettings(){
-  try { return JSON.parse(localStorage.getItem('cst.settings') || '{}'); }
-  catch { return {}; }
+function loadSettings() {
+  try {
+    return JSON.parse(localStorage.getItem('cst.settings') || '{}');
+  } catch {
+    return {};
+  }
 }
 
 // --- Tests Modal action ---
@@ -100,7 +108,7 @@ async function runFetchTest() {
 }
 
 // --- Drag & Drop / Paste ---
-async function onDrop(e){
+async function onDrop(e) {
   e.preventDefault();
   e.currentTarget.classList.remove('hover');
   const file = e.dataTransfer.files?.[0];
@@ -114,70 +122,112 @@ async function onDrop(e){
     preview({ error: `Unsupported type: ${file.type || file.name}` });
   }
 }
-function onPaste(e){
+function onPaste(e) {
   const text = e.clipboardData?.getData('text');
   if (text && text.length > 5) {
     preview(parseToNormalizedRecord(text));
   }
 }
-function preview(obj){
+function preview(obj) {
   document.getElementById('preview').textContent = JSON.stringify(obj, null, 2);
 }
-function parseToNormalizedRecord(text){
+function parseToNormalizedRecord(text) {
   // naive extractor demo; refine in Codex task D
   const lower = text.toLowerCase();
   return {
-    carrier: (/verizon|at&t|cricket/.exec(lower)||['unknown'])[0],
+    carrier: (/verizon|at&t|cricket/.exec(lower) || ['unknown'])[0],
     fees: findSection(lower, /(fee|charge|surcharge)/g),
     dates: findSection(lower, /(effective|date|updated)/g),
     prohibited: findSection(lower, /(prohibit|not allowed|forbidden)/g),
-    links: Array.from(text.matchAll(/https?:\/\/\S+/g)).map(m => m[0]),
+    links: Array.from(text.matchAll(/https?:\/\/\S+/g)).map((m) => m[0]),
     rawLength: text.length,
-    lang: localStorage.getItem('lang') || 'en'
+    lang: localStorage.getItem('lang') || 'en',
   };
 }
-function findSection(text, rx){
+function findSection(text, rx) {
   const idx = text.search(rx);
   if (idx < 0) return null;
-  return text.slice(idx, idx+240);
+  return text.slice(idx, idx + 240);
 }
 
 // --- System Status ---
-async function run4PointUrlTest(){
-  const list = ['/app.js','/assets/logo.svg','/api/fetch'];
-  const results = await Promise.all(list.map(async p=>{
-    try { const r = await fetch(p, { method:'GET' }); return [p, r.ok]; }
-    catch { return [p,false]; }
-  }));
+async function run4PointUrlTest() {
+  const list = ['/app.js', '/assets/logo.svg', '/api/fetch'];
+  const results = await Promise.all(
+    list.map(async (p) => {
+      try {
+        const r = await fetch(p, { method: 'GET' });
+        return [p, r.ok];
+      } catch {
+        return [p, false];
+      }
+    }),
+  );
   state.urlTest = Object.fromEntries(results);
   renderStatus();
 }
-function renderStatus(){
+function renderStatus() {
   const items = [];
 
   // required IDs/handlers present?
-  const requiredIds = ['setupWizard','wizardForm','openTests','testsFetchBtn'];
-  const missing = requiredIds.filter(id=>!document.getElementById(id));
-  items.push(mark('Required UI elements', missing.length ? `Missing: ${missing.join(', ')}` : 'OK', !missing.length));
+  const requiredIds = ['setupWizard', 'wizardForm', 'openTests', 'testsFetchBtn'];
+  const missing = requiredIds.filter((id) => !document.getElementById(id));
+  items.push(
+    mark(
+      'Required UI elements',
+      missing.length ? `Missing: ${missing.join(', ')}` : 'OK',
+      !missing.length,
+    ),
+  );
 
   // CSP
-  items.push(mark('CSP violations', state.cspViolations.length ? state.cspViolations.join(' • ') : 'None', state.cspViolations.length===0));
+  items.push(
+    mark(
+      'CSP violations',
+      state.cspViolations.length ? state.cspViolations.join(' • ') : 'None',
+      state.cspViolations.length === 0,
+    ),
+  );
 
   // 4-point URL (3 here; index.html is implicit)
   const u = state.urlTest || {};
-  const urlOk = ['/app.js','/assets/logo.svg','/api/fetch'].every(p => u[p]);
+  const urlOk = ['/app.js', '/assets/logo.svg', '/api/fetch'].every((p) => u[p]);
   items.push(mark('4-point URL test', JSON.stringify(u), urlOk));
 
   // Bilingual ready
-  items.push(mark('i18n', `lang=${localStorage.getItem('lang')||'en'}`, !!state.i18n));
+  items.push(mark('i18n', `lang=${localStorage.getItem('lang') || 'en'}`, !!state.i18n));
 
   // Last fetch run
-  items.push(mark('T&C fetch', state.lastFetchRun ? JSON.stringify(state.lastFetchRun) : 'Not yet', !!state.lastFetchRun?.ok));
+  items.push(
+    mark(
+      'T&C fetch',
+      state.lastFetchRun ? JSON.stringify(state.lastFetchRun) : 'Not yet',
+      !!state.lastFetchRun?.ok,
+    ),
+  );
 
   // Settings saved
-  items.push(mark('Setup', state.settings && state.settings.name ? 'Saved' : 'Not set', !!(state.settings && state.settings.name)));
+  items.push(
+    mark(
+      'Setup',
+      state.settings && state.settings.name ? 'Saved' : 'Not set',
+      !!(state.settings && state.settings.name),
+    ),
+  );
 
-  document.getElementById('statusList').innerHTML = items.map(li=>`<li class="${li.ok?'ok':'fail'}"><strong>${li.label}:</strong> ${escapeHtml(li.msg)}</li>`).join('');
+  document.getElementById('statusList').innerHTML = items
+    .map(
+      (li) =>
+        `<li class="${li.ok ? 'ok' : 'fail'}"><strong>${li.label}:</strong> ${escapeHtml(li.msg)}</li>`,
+    )
+    .join('');
 }
-function mark(label,msg,ok){ return { label, msg, ok }; }
-function escapeHtml(s){ return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function mark(label, msg, ok) {
+  return { label, msg, ok };
+}
+function escapeHtml(s) {
+  return String(s).replace(
+    /[&<>'"]/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c],
+  );
+}
