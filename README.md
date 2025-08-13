@@ -13,14 +13,22 @@
 - Requires server-side `OPENAI_API_KEY`; when missing, the UI stays visible and hints about the key.
 
 ## Dev
+
 ```bash
 npm i
 npm run test
 npm run e2e
-npm run serve  # open http://localhost:4173
+npm run dev   # open http://localhost:4173
 ```
+
+### Smoke test
+
+- `/` → 200
+- `/app.js` → 200
+- `/assets/logo.svg` → 200
+- `/api/fetch` → 200 JSON
 
 ## Deploy (Vercel)
 
-* Add env var `OPENAI_API_KEY`
-* Optional: `OPENAI_MODEL`, `TOS_URL`
+- Add env var `OPENAI_API_KEY`
+- Optional: `OPENAI_MODEL`, `TOS_URL`

@@ -1,12 +1,12 @@
-import js from "@eslint/js";
-import globals from "globals";
+import js from '@eslint/js';
+import globals from 'globals';
 
 export default [
   {
-    ignores: ["node_modules", "dist", ".vercel", "playwright-report", "test-results"],
+    ignores: ['node_modules', 'dist', '.vercel', 'playwright-report', 'test-results'],
   },
   {
-    files: ["**/*.js"],
+    files: ['**/*.js', '**/*.mjs'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -17,9 +17,20 @@ export default [
   js.configs.recommended,
   {
     rules: {
-      "no-undef": "error",
-      "no-implied-eval": "error",
-      "no-alert": "error"
-    }
-  }
+      'no-undef': 'error',
+      'no-implied-eval': 'error',
+      'no-alert': 'error',
+    },
+  },
+  {
+    files: ['e2e/**/*.{js,ts}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: ['vitest', '@jest/globals', 'expect', '@vitest/expect'],
+        },
+      ],
+    },
+  },
 ];
