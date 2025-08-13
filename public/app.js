@@ -57,7 +57,7 @@ async function toggleLang() {
 }
 
 // --- Setup Wizard ---
-function onSaveWizard(ev) {
+function onSaveWizard() {
   // dialog value is "save"
   const s = {
     name: val('#wName'),
