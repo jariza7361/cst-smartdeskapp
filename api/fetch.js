@@ -1,7 +1,28 @@
 // Vercel Serverless Function: GET /api/fetch
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ ok: false, error: 'Method not allowed' });
+    return;
+  }
+
+  // allow proxying only to a curated list of hosts
+  const { searchParams } = new URL(req.url || '', 'http://local');
+  const target = searchParams.get('url');
+  if (target) {
+    try {
+      const u = new URL(target);
+      const allowed = (process.env.FETCH_ALLOW_HOSTS || '').split(',').filter(Boolean);
+      if (allowed.length && !allowed.includes(u.host)) {
+        res.status(403).json({ ok: false, error: 'Host not allowed' });
+        return;
+      }
+      const r = await fetch(u.href);
+      const text = await r.text();
+      res.status(200).json({ ok: true, body: text });
+    } catch (e) {
+      res.status(400).json({ ok: false, error: e.message });
+    }
     return;
   }
 
