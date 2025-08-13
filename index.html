@@ -2,179 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.openai.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>CST SmartDesk — Escalation Toolkit</title>
-  <meta name="color-scheme" content="dark light"/>
-  <style>
-    :root{
-      --bg:#0d0d0f; --panel:#171722; --panel-2:#1e1e2f; --ink:#f2f3f5; --muted:#a9b0bd;
-      --accent:#6f4bd8; --ok:#00d48a; --warn:#ffb020; --danger:#ff5d5d; --border:#2b2b3a;
-    }
-    html,body{height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,"Segoe UI",Arial,sans-serif;margin:0}
-    .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#12121a;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
-    .brand{display:flex;gap:10px;align-items:center;font-weight:600}
-    .brand img{height:22px;width:auto}
-    .actions{display:flex;gap:8px;align-items:center}
-    .pill{background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:6px 10px;display:flex;gap:8px;align-items:center}
-    .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--ink)}
-    .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 56px)}
-    #sidebar{border-right:1px solid var(--border);background:#111119;padding:12px}
-    .side-title{color:var(--muted);font-size:12px;margin:8px 8px 6px}
-    .nav{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-    .nav li{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:#171722;border:1px solid var(--border);cursor:pointer}
-    .nav img{height:18px;width:auto}
-    .main{padding:14px}
-    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-    .tile{background:#1b1b28;border:1px solid var(--border);border-radius:12px;padding:14px}
-    .muted{color:var(--muted)}
-    /* Splash */
-    #splash{position:fixed;inset:0;background:#fff;color:#24103a;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:100}
-    #splash .bar{width:min(520px,80vw);height:10px;background:#e6e6ef;border-radius:999px;overflow:hidden;margin-top:12px}
-    #splash .bar>div{height:100%;width:0%;background:#22c55e;transition:width .25s}
-    #quote{margin-top:10px;font-size:13px;color:#555;text-align:center;padding:0 16px}
-    /* Modals */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:60}
-    .modal{width:min(980px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:16px}
-    .modal header,.modal footer{padding:10px 12px;border-bottom:1px solid var(--border)}
-    .modal footer{border-bottom:none;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
-    .modal .content{padding:12px}
-    .form{display:grid;gap:8px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .form input,.form select,.form textarea{background:var(--panel-2);border:1px solid var(--border);color:var(--ink);padding:10px;border-radius:10px}
-    /* QA + Toast */
-    #qa{position:fixed;right:12px;bottom:12px;background:#0f172a;color:#e6eaff;border:1px solid #26314d;border-radius:10px;padding:10px;z-index:80}
-    #qaLog{white-space:pre-wrap;max-width:46ch;max-height:28vh;overflow:auto;margin-top:6px}
-    #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#e6eaff;border:1px solid #26314d;border-radius:10px;padding:10px 14px;opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:90}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
-    /* Mobile */
-    #navToggle{display:none}
-    @media (max-width: 900px){
-      .layout{grid-template-columns:1fr}
-      #sidebar{position:fixed;left:0;top:56px;bottom:0;width:min(82vw,320px);transform:translateX(-105%);transition:transform .2s;z-index:30;overflow:auto}
-      #sidebar.open{transform:translateX(0)}
-      #navToggle{display:inline-flex}
-    }
-  </style>
+  <link rel="stylesheet" href="/styles/tokens.css"/>
 </head>
 <body>
-  <!-- Splash -->
-  <section id="splash" aria-label="Loading">
-    <h2 style="margin:0">CST SmartDesk</h2>
-    <div class="bar" aria-hidden="true"><div></div></div>
-    <div id="quote">Loading…</div>
-  </section>
-
-  <!-- Topbar -->
   <header class="topbar">
-    <div class="brand">
-      <img src="/assets/favicon.svg" alt="CST"/>
-      <div>CST SmartDesk</div>
-    </div>
-    <div class="actions">
-      <button id="navToggle" class="btn secondary" aria-expanded="false">☰</button>
-      <div class="pill"><span id="langLabel">EN</span><button id="langToggle" class="btn secondary">Toggle</button></div>
-      <div class="pill" id="profileBadge">👤 Guest</div>
+    <h1 id="appTitle">CST SmartDesk</h1>
+    <div class="top-actions">
+      <button id="langToggle" aria-label="Language">EN/ES</button>
+      <button id="openTests">Tests</button>
+      <button id="openSettings" aria-controls="setupWizard">Settings</button>
     </div>
   </header>
 
-  <div class="layout">
-    <!-- Sidebar -->
-    <aside id="sidebar">
-      <div class="side-title">Carrier Hub</div>
-      <ul class="nav">
-        <li data-open="carrier:VZW"><img src="/assets/verizon.svg" alt="Verizon"/><span>Verizon</span></li>
-        <li data-open="carrier:ATT"><img src="/assets/att.svg" alt="AT&T"/><span>AT&amp;T</span></li>
-        <li data-open="carrier:CRK"><img src="/assets/cricket.svg" alt="Cricket"/><span>Cricket</span></li>
-      </ul>
-
-      <div class="side-title" style="margin-top:12px">Tools</div>
-      <ul class="nav">
-        <li data-open="copilot">🤖 Copilot</li>
-        <li data-open="tests">🧪 Tests</li>
-        <li data-open="settings">⚙️ Settings</li>
-      </ul>
-    </aside>
-
-    <!-- Main -->
-    <main class="main">
-      <h2 style="margin:4px 0 10px">Welcome back<span id="welcomeName"></span> 👋</h2>
-      <p class="muted" style="margin-top:-6px">Dark mode · Mobile-friendly · Bilingual toggle</p>
-      <section class="tiles">
-        <article class="tile"><h3>🤖 Copilot</h3><p class="muted">Serve • Solve • Sell denial skeletons</p></article>
-        <article class="tile"><h3>📄 T&C Quick Test</h3><p class="muted">Fetch Verizon PDF headers via /api/fetch</p></article>
-      </section>
-    </main>
-  </div>
-
-  <!-- Setup Modal -->
-  <div class="modal-backdrop" id="modal-setup">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
-      <header><h3 id="setupTitle" style="margin:0">First-Time Setup</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <form class="form" id="setupForm">
-          <div class="row">
-            <div><label>First Name</label><input id="f_first" required></div>
-            <div><label>Last Name</label><input id="f_last" required></div>
-          </div>
-          <div class="row">
-            <div><label>Employee ID</label><input id="f_id" required></div>
-            <div><label>Extension</label><input id="f_ext" required maxlength="5"></div>
-          </div>
-          <div class="row">
-            <div><label>Coach</label><input id="f_coach"></div>
-            <div style="display:flex;align-items:flex-end"><button class="btn" type="submit">Save</button></div>
-          </div>
-          <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_nosplash"> Don’t show splash again</label>
-        </form>
-      </div>
+  <aside class="sidebar">
+    <div class="carriers">
+      <img src="/assets/verizon.svg" alt="Verizon" />
+      <img src="/assets/att.svg" alt="AT&T" />
+      <img src="/assets/cricket.svg" alt="Cricket" />
     </div>
-  </div>
+  </aside>
 
-  <!-- Copilot Modal -->
-  <div class="modal-backdrop" id="modal-copilot">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
-      <header><h3 id="cpTitle" style="margin:0">Copilot</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <div class="form">
-          <label>Ask (e.g., “No Airtime”):</label>
-          <textarea id="cp_in" rows="4" placeholder="Type a denial reason…"></textarea>
-          <div><button class="btn" id="cp_run">Generate</button></div>
-          <label>Output</label>
-          <textarea id="cp_out" rows="7" placeholder="Response will appear here…"></textarea>
-          <div><button class="btn secondary" id="cp_copy">Copy</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <main class="content">
+    <section class="dropzone" id="dropzone" aria-label="Drag & drop files">
+      <p id="dzText">Drop PDF/TXT here or paste text (Ctrl+V).</p>
+      <pre id="preview" class="preview"></pre>
+    </section>
+
+    <section id="systemStatus" class="status">
+      <h2>System Status</h2>
+      <ul id="statusList"></ul>
+    </section>
+  </main>
+
+  <!-- Setup Wizard -->
+  <dialog id="setupWizard">
+    <form method="dialog" id="wizardForm">
+      <h3>First-Run Setup</h3>
+      <label>Expert Name <input id="wName" required /></label>
+      <label>Employee ID <input id="wEmpId" required /></label>
+      <label>CST Extension <input id="wExt" required /></label>
+      <label>Theme
+        <select id="wTheme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="dontShow"/> Don’t show again</label>
+      <menu>
+        <button value="cancel">Cancel</button>
+        <button id="wizardSave" value="save">Save</button>
+      </menu>
+    </form>
+  </dialog>
 
   <!-- Tests Modal -->
-  <div class="modal-backdrop" id="modal-tests">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="testsTitle">
-      <header><h3 id="testsTitle" style="margin:0">Developer Tests</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <button class="btn" id="t_fetch_vzw_pdf">Test Fetch: Verizon VMP PDF</button>
-        <pre id="testLog" style="margin-top:8px;white-space:pre-wrap"></pre>
-      </div>
-    </div>
-  </div>
+  <dialog id="testsModal">
+    <h3>Tests</h3>
+    <button id="testsFetchBtn">Fetch Verizon T&C</button>
+    <pre id="testsOutput"></pre>
+    <menu><button id="testsClose">Close</button></menu>
+  </dialog>
 
-  <!-- Settings Modal -->
-  <div class="modal-backdrop" id="modal-settings">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <header><h3 id="settingsTitle" style="margin:0">Settings</h3><button class="btn secondary" data-close>Close</button></header>
-      <div class="content">
-        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="opt_bilingual"> Bilingual output (EN+ES)</label>
-        <div style="margin-top:8px"><button id="reopen_profile" class="btn secondary">Reopen profile setup</button></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- QA Ribbon + Toast -->
-  <div id="qa"><strong>Output</strong><div id="qaLog" class="muted">Status: Booting…</div></div>
-  <div id="toast" role="status" aria-live="polite"></div>
-
-  <!-- One single script include (must be EXACT path) -->
-  <script src="/app.js" defer></script>
+  <script type="module" src="/app.js" defer></script>
 </body>
 </html>
