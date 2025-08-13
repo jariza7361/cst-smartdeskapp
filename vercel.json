@@ -1,5 +1,10 @@
 {
   "installCommand": "npm ci --omit=dev",
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/app.js", "destination": "/public/app.js" },
+    { "source": "/utils/:path*", "destination": "/public/utils/:path*" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -18,9 +23,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    { "source": "/app.js", "destination": "/public/app.js" },
-    { "source": "/utils/:path*", "destination": "/public/utils/:path*" }
   ]
 }
