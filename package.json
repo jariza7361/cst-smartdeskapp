@@ -10,7 +10,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "e2e:codex": "scripts/e2e-codex.sh",
-    "serve": "http-server . -p 4173 -c-1"
+    "serve": "http-server . -p 4173 -c-1",
+    "check:lock": "node scripts/check-lock.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
