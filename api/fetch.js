@@ -1,40 +1,21 @@
-// Vercel Serverless Function: GET /api/fetch
+// GET /api/fetch
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  // Optional: fetch real T&C from env URL (self-curated)
-  const url = process.env.TOS_URL;
+  const target = process.env.TOS_URL || req.query?.url;
+  if (!target) {
+    // No target URL configured; return a stubbed normalized payload
+    return res.status(200).json({ ok: true, carrier: 'unknown', normalized: {} });
+  }
+
   try {
-    let payload;
-    if (url) {
-      const r = await fetch(url);
-      const text = await r.text();
-      payload = normalize(text);
-    } else {
-      payload = normalize(`Verizon Wireless Terms
-Effective: 2025-01-01
-Fees: activation, upgrade, recovery surcharge
-Prohibited: fraud, reselling service
-Link: https://www.verizon.com/terms/`);
-    }
-    res.status(200).json({ ok: true, carrier: payload.carrier, normalized: payload });
+    const r = await fetch(target, { method: 'GET', redirect: 'follow' });
+    const text = await r.text();
+    return res.status(200).json({ ok: true, carrier: 'unknown', normalized: { raw: text } });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    return res.status(500).json({ ok: false, error: e.message || String(e) });
   }
 }
 
-function normalize(text) {
-  const lower = text.toLowerCase();
-  return {
-    carrier: (/verizon|at&t|cricket/.exec(lower)||['unknown'])[0],
-    effectiveDate: (text.match(/(\d{4}-\d{2}-\d{2})/)||[])[1] || null,
-    fees: snippet(lower, /(fee|charge|surcharge)/g),
-    prohibited: snippet(lower, /(prohibit|forbid|not allowed|fraud)/g),
-    links: Array.from(text.matchAll(/https?:\/\/\S+/g)).map(m=>m[0]),
-    length: text.length
-  };
-}
-function snippet(t, rx){ const i = t.search(rx); return i<0?null:t.slice(i, i+240); }
