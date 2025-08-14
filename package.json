@@ -10,16 +10,16 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "e2e:codex": "scripts/e2e-codex.sh",
-    "serve": "http-server . -p 4173 -c-1",
+    "dev": "node scripts/dev-server.mjs",
+    "serve": "node scripts/dev-server.mjs",
     "check:lock": "node scripts/check-lock.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
     "@playwright/test": "1.46.1",
     "eslint": "9.11.1",
-    "http-server": "14.1.1",
+    "express": "4.19.2",
     "prettier": "3.3.3",
     "vitest": "2.0.5"
   }
 }
-
