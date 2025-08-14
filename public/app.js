@@ -169,6 +169,12 @@ function findSection(text, rx) {
 
 // --- Copilot ---
 function initCopilot() {
+  if (document.getElementById('copilotSection')) {
+    document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
+    document.getElementById('copilotCopyEn').addEventListener('click', () => copyText('copilotEn'));
+    document.getElementById('copilotCopyEs').addEventListener('click', () => copyText('copilotEs'));
+    return;
+  }
   const main = document.querySelector('main.content');
   const sec = document.createElement('section');
   sec.id = 'copilotSection';
@@ -193,12 +199,8 @@ function initCopilot() {
   `;
   main.insertBefore(sec, document.getElementById('systemStatus'));
   document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
-  document
-    .getElementById('copilotCopyEn')
-    .addEventListener('click', () => copyText('copilotEn'));
-  document
-    .getElementById('copilotCopyEs')
-    .addEventListener('click', () => copyText('copilotEs'));
+  document.getElementById('copilotCopyEn').addEventListener('click', () => copyText('copilotEn'));
+  document.getElementById('copilotCopyEs').addEventListener('click', () => copyText('copilotEs'));
 }
 function renderCopilotUI() {
   if (!document.getElementById('copilotSection')) return;
@@ -212,12 +214,13 @@ function renderCopilotUI() {
   document.getElementById('copilotCopyEn').textContent = t('Copy EN');
   document.getElementById('copilotCopyEs').textContent = t('Copy ES');
   const sel = document.getElementById('copilotSample');
-  sel.innerHTML = '';
   state.copilotSamples.forEach((p) => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.label[state.lang] || p.label.en;
-    sel.appendChild(opt);
+    if (!sel.querySelector(`option[value="${p.id}"]`)) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.label[state.lang] || p.label.en;
+      sel.appendChild(opt);
+    }
   });
 }
 async function onCopilotRun() {
@@ -231,7 +234,8 @@ async function onCopilotRun() {
   } catch {
     /* noop */
   }
-  const prompt = buildPrompt(sample?.prompt || '', user, context);
+  const seed = sel.selectedOptions[0]?.dataset.prompt || '';
+  const prompt = buildPrompt(sample?.prompt || seed, user, context);
   const outEn = document.getElementById('copilotEn');
   const outEs = document.getElementById('copilotEs');
   const msg = document.getElementById('copilotMsg');
@@ -367,3 +371,17 @@ function escapeHtml(s) {
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c],
   );
 }
+
+function ensureSeed() {
+  const sel = document.getElementById('copilotSample');
+  if (!sel) return;
+  if (sel.options.length === 0 && !sel.querySelector('option[value="serve_solve_sell"]')) {
+    const opt = document.createElement('option');
+    opt.value = 'serve_solve_sell';
+    opt.textContent = 'Serve / Solve / Sell (starter)';
+    opt.dataset.prompt =
+      'Create a concise, professional response that serves, solves, and sells. Include clear next steps and ask for confirmation.';
+    sel.appendChild(opt);
+  }
+}
+document.addEventListener('DOMContentLoaded', ensureSeed);
