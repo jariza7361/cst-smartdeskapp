@@ -1,27 +1,27 @@
 [
   {
-    "id": "escalation-billing",
-    "label": { "en": "Escalation script (billing dispute)", "es": "Guion de escalacion (disputa de facturacion)" },
-    "prompt": "Agent is handling a billing dispute. Provide a professional escalation script in English and Spanish."
+    "id": "serve_solve_sell",
+    "label": "Serve / Solve / Sell (starter)",
+    "prompt": "Create a concise, professional response that serves the customer, solves the stated issue, and sells the appropriate value-add. Include next steps."
   },
   {
-    "id": "imei-troubleshoot",
-    "label": { "en": "Troubleshooting IMEI capture", "es": "Resolucion de problemas de captura de IMEI" },
-    "prompt": "Give step-by-step instructions to capture a device IMEI. Respond in English and Spanish."
+    "id": "denial_reason_probe",
+    "label": "Denial reason probe",
+    "prompt": "Ask targeted questions to identify likely denial reasons. Keep it respectful and brief."
   },
   {
-    "id": "tc-summarizer",
-    "label": { "en": "T&C summarizer", "es": "Resumidor de TyC" },
-    "prompt": "Summarize provided terms and conditions JSON into key bullet points. Output English and Spanish."
+    "id": "smart_drop",
+    "label": "Smart Drop handoff",
+    "prompt": "Summarize the case, provide precise next steps, and craft a smooth handoff note to the next team."
   },
   {
-    "id": "deescalation-call",
-    "label": { "en": "De-escalation call open/close", "es": "Apertura/cierre de llamada de desescalacion" },
-    "prompt": "Provide calm opening and closing statements for a customer call. Output English and Spanish."
+    "id": "deep_audit",
+    "label": "Deep audit checklist",
+    "prompt": "List the minimal, verifiable steps to audit this case end-to-end. Use bullet points."
   },
   {
-    "id": "sms-followup",
-    "label": { "en": "Short bilingual SMS follow-up", "es": "Breve seguimiento por SMS bilingue" },
-    "prompt": "Draft a short follow-up SMS template in both English and Spanish."
+    "id": "carriers_verizon_att_cricket",
+    "label": "Carrier specifics: Verizon/AT&T/Cricket",
+    "prompt": "Include carrier-specific caveats and T&C touchpoints applicable to Verizon, AT&T, and Cricket."
   }
 ]
