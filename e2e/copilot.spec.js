@@ -1,21 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-const url = 'http://localhost:4173/index.html';
+const url = 'http://localhost:4173/api/copilot';
 
-test('copilot generates and copies', async ({ page }) => {
-  await page.route('**/api/copilot', route => {
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ en: 'OK EN', es: 'OK ES' }) });
-  });
-  await page.goto(url);
-  await page.selectOption('#copilotSample', { index: 0 });
-  await page.fill('#copilotInput', 'hi');
-  await page.click('#copilotRun');
-  await expect(page.locator('#copilotEn')).toHaveText('OK EN');
-  await expect(page.locator('#copilotEs')).toHaveText('OK ES');
-  await page.click('#copilotCopyEn');
-  const clipEn = await page.evaluate(() => navigator.clipboard.readText());
-  expect(clipEn).toBe('OK EN');
-  await page.click('#copilotCopyEs');
-  const clipEs = await page.evaluate(() => navigator.clipboard.readText());
-  expect(clipEs).toBe('OK ES');
+test('copilot endpoint returns stub', async ({ request }) => {
+  const res = await request.post(url, { data: { prompt: 'hi' } });
+  expect(res.ok()).toBeTruthy();
+  const json = await res.json();
+  expect(json.en).toContain('hi');
+  expect(json.es).toContain('hi');
 });

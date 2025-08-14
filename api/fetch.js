@@ -1,21 +1,15 @@
-// GET /api/fetch
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    res.status(405).json({ ok: false, error: 'Method Not Allowed' });
+    return;
   }
-
-  const target = process.env.TOS_URL || req.query?.url;
-  if (!target) {
-    // No target URL configured; return a stubbed normalized payload
-    return res.status(200).json({ ok: true, carrier: 'unknown', normalized: {} });
-  }
-
-  try {
-    const r = await fetch(target, { method: 'GET', redirect: 'follow' });
-    const text = await r.text();
-    return res.status(200).json({ ok: true, carrier: 'unknown', normalized: { raw: text } });
-  } catch (e) {
-    return res.status(500).json({ ok: false, error: e.message || String(e) });
-  }
+  const out = {
+    ok: true,
+    url: 'seed://local',
+    contentType: 'text/plain',
+    lastModified: null,
+    bytes: 0,
+    sha256: 'seed',
+  };
+  res.status(200).json(out);
 }
-

@@ -7,7 +7,7 @@ const indexPath = path.resolve(__dirname, '..', 'index.html');
 
 test('home page title and script path', async ({ page }) => {
   await page.goto('file://' + indexPath);
-  await expect(page).toHaveTitle('CST SmartDesk — Escalation Toolkit');
+  await expect(page).toHaveTitle('CST SmartDesk');
   const scriptSrc = await page.getAttribute('script[src]', 'src');
   expect(scriptSrc).toBe('/app.js');
 });
