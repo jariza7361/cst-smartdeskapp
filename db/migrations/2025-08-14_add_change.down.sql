@@ -1,0 +1,2 @@
+-- (Optional rollback; leave a comment if not feasible)
+-- No rollback provided for this migration.
