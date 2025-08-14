@@ -31,6 +31,31 @@
       <pre id="preview" class="preview"></pre>
     </section>
 
+    <section id="copilotSection">
+      <h2 id="copilotTitle"></h2>
+      <label><span id="copilotSampleLabel"></span><select id="copilotSample">
+        <option
+          value="serve_solve_sell"
+          data-prompt="Create a concise, professional response that serves, solves, and sells. Include clear next steps and ask for confirmation."
+        >Serve / Solve / Sell (starter)</option>
+      </select></label>
+      <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
+      <button id="copilotRun"></button>
+      <div id="copilotOutput" style="display:flex;gap:1rem">
+        <div style="flex:1">
+          <h3 id="copilotEnLabel"></h3>
+          <pre id="copilotEn" class="preview"></pre>
+          <button id="copilotCopyEn"></button>
+        </div>
+        <div style="flex:1">
+          <h3 id="copilotEsLabel"></h3>
+          <pre id="copilotEs" class="preview"></pre>
+          <button id="copilotCopyEs"></button>
+        </div>
+      </div>
+      <p id="copilotMsg" class="warn" hidden></p>
+    </section>
+
     <section id="systemStatus" class="status">
       <h2>System Status</h2>
       <ul id="statusList"></ul>

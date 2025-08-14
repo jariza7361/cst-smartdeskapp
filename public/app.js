@@ -11,6 +11,21 @@ const state = {
   lang: 'en',
 };
 
+function ensureSeed() {
+  const sel = document.getElementById('copilotSample');
+  if (!sel) return;
+  if (sel.options.length === 0 && !sel.querySelector('option[value="serve_solve_sell"]')) {
+    const opt = document.createElement('option');
+    opt.value = 'serve_solve_sell';
+    opt.textContent = 'Serve / Solve / Sell (starter)';
+    opt.dataset.prompt =
+      'Create a concise, professional response that serves, solves, and sells. Include clear next steps and ask for confirmation.';
+    sel.appendChild(opt);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ensureSeed);
+
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {
   // language
@@ -169,10 +184,12 @@ function findSection(text, rx) {
 
 // --- Copilot ---
 function initCopilot() {
-  const main = document.querySelector('main.content');
-  const sec = document.createElement('section');
-  sec.id = 'copilotSection';
-  sec.innerHTML = `
+  let sec = document.getElementById('copilotSection');
+  if (!sec) {
+    const main = document.querySelector('main.content');
+    sec = document.createElement('section');
+    sec.id = 'copilotSection';
+    sec.innerHTML = `
     <h2 id="copilotTitle"></h2>
     <label><span id="copilotSampleLabel"></span><select id="copilotSample"></select></label>
     <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
@@ -191,14 +208,13 @@ function initCopilot() {
     </div>
     <p id="copilotMsg" class="warn" hidden></p>
   `;
-  main.insertBefore(sec, document.getElementById('systemStatus'));
+    document
+      .querySelector('main.content')
+      .insertBefore(sec, document.getElementById('systemStatus'));
+  }
   document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
-  document
-    .getElementById('copilotCopyEn')
-    .addEventListener('click', () => copyText('copilotEn'));
-  document
-    .getElementById('copilotCopyEs')
-    .addEventListener('click', () => copyText('copilotEs'));
+  document.getElementById('copilotCopyEn').addEventListener('click', () => copyText('copilotEn'));
+  document.getElementById('copilotCopyEs').addEventListener('click', () => copyText('copilotEs'));
 }
 function renderCopilotUI() {
   if (!document.getElementById('copilotSection')) return;
@@ -212,12 +228,14 @@ function renderCopilotUI() {
   document.getElementById('copilotCopyEn').textContent = t('Copy EN');
   document.getElementById('copilotCopyEs').textContent = t('Copy ES');
   const sel = document.getElementById('copilotSample');
-  sel.innerHTML = '';
   state.copilotSamples.forEach((p) => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
+    let opt = sel.querySelector(`option[value="${p.id}"]`);
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.value = p.id;
+      sel.appendChild(opt);
+    }
     opt.textContent = p.label[state.lang] || p.label.en;
-    sel.appendChild(opt);
   });
 }
 async function onCopilotRun() {
