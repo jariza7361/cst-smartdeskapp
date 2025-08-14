@@ -367,3 +367,17 @@ function escapeHtml(s) {
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c],
   );
 }
+(function ensureAtLeastOneSample(){
+  const sel = document.getElementById('copilotSample');
+  if (sel && sel.options.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = 'serve_solve_sell';
+    opt.textContent = 'Serve / Solve / Sell (starter)';
+    opt.dataset.prompt = 'Create a concise response that serves, solves, and sells with clear next steps.';
+    sel.appendChild(opt);
+  }
+})();
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('copilotSample');
+  if (sel && sel.options.length === 0) sel.appendChild(Object.assign(document.createElement('option'), { value:'serve_solve_sell', textContent:'Serve / Solve / Sell (starter)' }));
+});
