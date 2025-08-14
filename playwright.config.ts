@@ -1,12 +1,14 @@
 import { defineConfig } from '@playwright/test';
-
 export default defineConfig({
-  testDir: './e2e',
-  webServer: {
-    command: 'npm run serve',
-    port: 4173,
-    timeout: 60_000,
-    reuseExistingServer: !process.env.CI,
-  },
-  use: { headless: true },
+  testDir: 'e2e',
+  timeout: 30000,
+  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.005 } },
+  webServer: { command: 'npm run dev', port: 4173, timeout: 60000, reuseExistingServer: !process.env.CI },
+  use: {
+    headless: true,
+    viewport: { width: 1280, height: 900 },
+    colorScheme: 'dark',
+    locale: 'en-US',
+    timezoneId: 'America/New_York'
+  }
 });
