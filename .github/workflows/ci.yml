@@ -6,17 +6,40 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest   # (Ubuntu 24.04 today)
+    timeout-minutes: 25
+    env:
+      CI: true
+      PLAYWRIGHT_BROWSERS_PATH: 0
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm i
-          fi
-      - run: npx playwright install --with-deps
-      - run: npm run lint && npm run test && npm run e2e
+          cache: npm
+
+      # Make sure the lockfile matches package.json for this run
+      - name: Regenerate lockfile (no commit)
+        run: npm i --package-lock-only
+
+      - name: Install from lock
+        run: npm ci
+
+      # Install Playwright browsers + OS deps on Ubuntu 24.04 (chromium only = faster, fewer deps)
+      - name: Install Playwright (chromium only)
+        run: npx playwright install --with-deps chromium
+
+      # If you DON'T have scripts/doctor.mjs, delete this step.
+      - name: Doctor (preflight)
+        run: node scripts/doctor.mjs || true
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: E2E tests
+        run: npm run e2e
