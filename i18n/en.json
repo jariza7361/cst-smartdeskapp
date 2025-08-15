@@ -14,4 +14,6 @@
   "Loading...": "Loading...",
   "Set OPENAI_API_KEY in Vercel to enable Copilot.": "Set OPENAI_API_KEY in Vercel to enable Copilot.",
   "Copilot reachable": "Copilot reachable"
+  ,
+  "Serve / Solve / Sell (starter)": "Serve / Solve / Sell (starter)"
 }

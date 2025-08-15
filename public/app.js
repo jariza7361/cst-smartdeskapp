@@ -1,12 +1,48 @@
 import { createI18n } from '/utils/i18n.js';
 import { buildPrompt } from '/utils/copilot.js';
 
+function ensureSeed() {
+  const sel = document.querySelector('#copilotSample');
+  if (!sel) return;
+  if (!sel.options || sel.options.length === 0) {
+    const o = document.createElement('option');
+    o.value = 'serve_solve_sell';
+    o.textContent = 'Serve / Solve / Sell (starter)';
+    o.setAttribute(
+      'data-prompt',
+      'Create a concise, professional response that serves, solves, and sells. Include clear next steps and ask for confirmation.',
+    );
+    sel.appendChild(o);
+  }
+}
+ensureSeed();
+
+// Optional hydrate (append-only). Keep seed in place.
+fetch('/copilot-prompts.json')
+  .then((r) => (r.ok ? r.json() : []))
+  .then((list) => {
+    const sel = document.querySelector('#copilotSample');
+    if (!sel || !Array.isArray(list)) return;
+    const have = new Set([...sel.options].map((o) => o.value));
+    for (const p of list) {
+      if (!have.has(p.id)) {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.label;
+        o.setAttribute('data-prompt', p.prompt);
+        sel.appendChild(o);
+      }
+    }
+  })
+  .catch(() => {
+    /* keep seed only */
+  });
+
 const state = {
   settings: null,
   i18n: null,
   cspViolations: [],
   lastFetchRun: null,
-  copilotSamples: [],
   copilotReachable: null,
   lang: 'en',
 };
@@ -34,12 +70,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
 
-  // copilot setup
-  try {
-    state.copilotSamples = await fetch('/copilot-prompts.json').then((r) => r.json());
-  } catch {
-    state.copilotSamples = [];
-  }
   initCopilot();
   renderCopilotUI();
   checkCopilot();
@@ -169,30 +199,9 @@ function findSection(text, rx) {
 
 // --- Copilot ---
 function initCopilot() {
-  const main = document.querySelector('main.content');
-  const sec = document.createElement('section');
-  sec.id = 'copilotSection';
-  sec.innerHTML = `
-    <h2 id="copilotTitle"></h2>
-    <label><span id="copilotSampleLabel"></span><select id="copilotSample"></select></label>
-    <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
-    <button id="copilotRun"></button>
-    <div id="copilotOutput" style="display:flex;gap:1rem">
-      <div style="flex:1">
-        <h3 id="copilotEnLabel"></h3>
-        <pre id="copilotEn" class="preview"></pre>
-        <button id="copilotCopyEn"></button>
-      </div>
-      <div style="flex:1">
-        <h3 id="copilotEsLabel"></h3>
-        <pre id="copilotEs" class="preview"></pre>
-        <button id="copilotCopyEs"></button>
-      </div>
-    </div>
-    <p id="copilotMsg" class="warn" hidden></p>
-  `;
-  main.insertBefore(sec, document.getElementById('systemStatus'));
-  document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
+  const run = document.getElementById('copilotRun');
+  if (!run) return;
+  run.addEventListener('click', onCopilotRun);
   document
     .getElementById('copilotCopyEn')
     .addEventListener('click', () => copyText('copilotEn'));
@@ -211,18 +220,10 @@ function renderCopilotUI() {
   document.getElementById('copilotEsLabel').textContent = t('Spanish');
   document.getElementById('copilotCopyEn').textContent = t('Copy EN');
   document.getElementById('copilotCopyEs').textContent = t('Copy ES');
-  const sel = document.getElementById('copilotSample');
-  sel.innerHTML = '';
-  state.copilotSamples.forEach((p) => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.label[state.lang] || p.label.en;
-    sel.appendChild(opt);
-  });
 }
 async function onCopilotRun() {
   const sel = document.getElementById('copilotSample');
-  const sample = state.copilotSamples.find((p) => p.id === sel.value);
+  const samplePrompt = sel.selectedOptions[0]?.getAttribute('data-prompt') || '';
   const user = document.getElementById('copilotInput').value;
   let context = null;
   try {
@@ -231,7 +232,7 @@ async function onCopilotRun() {
   } catch {
     /* noop */
   }
-  const prompt = buildPrompt(sample?.prompt || '', user, context);
+  const prompt = buildPrompt(samplePrompt, user, context);
   const outEn = document.getElementById('copilotEn');
   const outEs = document.getElementById('copilotEs');
   const msg = document.getElementById('copilotMsg');

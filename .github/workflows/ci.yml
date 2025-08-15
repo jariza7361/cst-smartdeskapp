@@ -2,21 +2,34 @@ name: CI
 
 on:
   push:
+    branches: [ cst-smartdesk, main, master ]
   pull_request:
+    branches: [ cst-smartdesk, main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm i
-          fi
-      - run: npx playwright install --with-deps
-      - run: npm run lint && npm run test && npm run e2e
+          cache: npm
+
+      # Always produce a fresh lockfile that matches package.json in the CI workspace.
+      - name: Regenerate lockfile (no commit)
+        run: npm i --package-lock-only
+
+      - name: Install from lock
+        run: npm ci
+
+      - name: Install Playwright browsers
+        uses: microsoft/playwright-github-action@v1
+
+      - name: Doctor (preflight)
+        run: node scripts/doctor.mjs
+
+      - name: Lint + Unit + E2E
+        run: npm run lint && npm run test && npm run e2e
+
