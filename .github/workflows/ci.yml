@@ -24,8 +24,9 @@ jobs:
       - name: Install from lock
         run: npm ci
 
-      - name: Install Playwright browsers
-        uses: microsoft/playwright-github-action@v1
+- name: Install Playwright browsers & OS deps
+  run: npx playwright install --with-deps
+
 
       - name: Doctor (preflight)
         run: node scripts/doctor.mjs
