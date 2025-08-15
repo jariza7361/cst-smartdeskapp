@@ -3,22 +3,18 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "engines": { "node": "20.x" },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
     "format": "prettier -w .",
     "test": "vitest run",
     "e2e": "playwright test",
-    "e2e:codex": "scripts/e2e-codex.sh",
-    "dev": "node scripts/dev-server.mjs",
-    "serve": "node scripts/dev-server.mjs",
-    "check:lock": "node scripts/check-lock.mjs"
+    "serve": "node scripts/dev-server.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
     "@playwright/test": "1.46.1",
     "eslint": "9.11.1",
-    "express": "4.19.2",
+    "globals": "15.9.0",
     "prettier": "3.3.3",
     "vitest": "2.0.5"
   }
