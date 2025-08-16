@@ -1,25 +1,26 @@
 # CST SmartDesk — Baseline
 
-**Single clean deploy rules:**
-- `index.html` at repo root
-- Client JS at `/public/app.js` (referenced as `<script src="/app.js" defer>`)
-- Logos in `/public/assets`
-- Serverless endpoints in `/api` (Node on Vercel)
+- Frontend entry: `/public/app.js` (referenced as `/app.js`)
+- Strict CSP via `vercel.json`
+- Setup Wizard, Tests modal, System Status hooks
+- Bilingual scaffolding: `/i18n/en.json`, `/i18n/es.json`
+- Serverless: `GET /api/fetch`, `POST /api/copilot`
 
-## Deploy steps
-1. Commit these files.
-2. Push to GitHub → Vercel auto-deploys.
-3. Smoke test:
-   - `/` loads UI
-   - `/app.js` returns JS (200)
-   - `/assets/verizon.svg` returns logo (200)
-   - `/api/fetch?url=https%3A%2F%2Fwww.asurion.com%2Fpdf%2Fnw-consumer-vmp-25%2F` returns JSON with `"ok": true` or a clear error
+## Copilot panel
 
-## Why 404 happened before
-- The page asked for `/app.js`, but the file wasn’t in `/public/app.js`. Vercel serves `/public` at `/`.
-- Having `app.js` in root or another folder won’t satisfy `/app.js`.
+- Prompts combine a selected sample, free-form text, and optional `CONTEXT_JSON` from the preview panel.
+- Samples live in `/public/copilot-prompts.json`; add new entries with `{ id, label, prompt }`.
+- Requires server-side `OPENAI_API_KEY`; when missing, the UI stays visible and hints about the key.
 
-## Editing policy
-- Always update whole files when requested (no piecemeal).
-- Keep inline HTML/CSS; all JS in `/public/app.js`.
-- API code only under `/api`.
+## Dev
+```bash
+npm i
+npm run test
+npm run e2e
+npm run serve  # open http://localhost:4173
+```
+
+## Deploy (Vercel)
+
+* Add env var `OPENAI_API_KEY`
+* Optional: `OPENAI_MODEL`, `TOS_URL`

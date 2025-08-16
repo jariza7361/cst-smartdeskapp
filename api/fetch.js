@@ -1,37 +1,21 @@
-// GET /api/fetch?url=...
+// GET /api/fetch
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
-  const target = req.query.url;
-  if (!target) return res.status(400).json({ ok:false, error: 'Missing url param' });
 
-  // Basic allowlist (extend as needed)
-  try {
-    const u = new URL(target);
-    const host = u.hostname.toLowerCase();
-    const allowed = ['www.asurion.com','asurion.com','www.phoneclaim.com','phoneclaim.com'];
-    if (!allowed.includes(host)) {
-      return res.status(400).json({ ok:false, error: 'Host not allowed', host });
-    }
-  } catch {
-    return res.status(400).json({ ok:false, error: 'Invalid URL' });
+  const target = process.env.TOS_URL || req.query?.url;
+  if (!target) {
+    // No target URL configured; return a stubbed normalized payload
+    return res.status(200).json({ ok: true, carrier: 'unknown', normalized: {} });
   }
 
   try {
-    const r = await fetch(target, { method:'GET', redirect:'follow' });
-    const buf = await r.arrayBuffer();
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).json({
-      ok: true,
-      url: r.url || target,
-      status: r.status,
-      contentType: r.headers.get('content-type'),
-      lastModified: r.headers.get('last-modified'),
-      bytes: buf.byteLength
-    });
+    const r = await fetch(target, { method: 'GET', redirect: 'follow' });
+    const text = await r.text();
+    return res.status(200).json({ ok: true, carrier: 'unknown', normalized: { raw: text } });
   } catch (e) {
-    return res.status(500).json({ ok:false, error: e.message || String(e) });
+    return res.status(500).json({ ok: false, error: e.message || String(e) });
   }
 }
+
