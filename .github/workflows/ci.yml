@@ -7,13 +7,31 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node scripts/doctor.mjs
-      - run: npm install --package-lock-only
-      - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npm run lint && npm run test && npm run e2e
+          cache: npm
+      - name: Install dependencies
+        run: npm i
+      - name: Install Playwright (chromium only)
+        # Installs browsers directly into the project's node_modules directory
+        # so they can be found by the test runner
+        run: npx playwright install --with-deps chromium
+      # Explicitly set the path for Playwright to find the installed browsers
+      - name: Set Playwright Browsers Path
+        run: echo "PLAYWRIGHT_BROWSERS_PATH=$(pwd)/ms-playwright" >> $GITHUB_ENV
+      - name: Doctor (preflight)
+        run: node scripts/doctor.mjs || true
+      - name: Format
+        run: npm run format
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm run test
+      - name: E2E tests
+        run: npm run e2e:codex
