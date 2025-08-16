@@ -5,6 +5,7 @@
   "type": "module",
   "engines": { "node": "20.x" },
   "scripts": {
+    "build": "vite build",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier -w .",
     "test": "vitest run",
@@ -21,6 +22,7 @@
     "eslint": "9.11.1",
     "express": "4.19.2",
     "prettier": "3.3.3",
+    "vite": "5.3.4",
     "vitest": "2.0.5"
   }
 }
