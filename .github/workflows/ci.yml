@@ -10,20 +10,17 @@ jobs:
     timeout-minutes: 25
     env:
       CI: true
-      # No need to set a custom browser path; Playwright's default location is fine.
-      # PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/ms-playwright
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - name: Regenerate lockfile (no commit)
-        run: npm i --package-lock-only
-      - name: Install from lock
-        run: npm ci
+      - name: Install dependencies
+        run: npm i
       - name: Install Playwright (chromium only)
+        # Installs browsers directly into the project's node_modules directory
+        # so they can be found by the test runner
         run: npx playwright install --with-deps chromium
       - name: Doctor (preflight)
         run: node scripts/doctor.mjs || true
