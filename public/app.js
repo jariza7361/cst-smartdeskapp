@@ -210,7 +210,9 @@ function preview(obj) {
 
 // --- Copilot ---
 function initCopilot() {
-  const main = document.querySelector('main.content');
+  // Updated for new markup: content is a section with class "content"
+  const main = document.querySelector('.content');
+  if (!main) return; // safety: don't crash if structure changes
   const sec = document.createElement('section');
   sec.id = 'copilotSection';
   sec.innerHTML = `
@@ -232,7 +234,13 @@ function initCopilot() {
     </div>
     <p id="copilotMsg" class="warn" hidden></p>
   `;
-  main.insertBefore(sec, document.getElementById('systemStatus'));
+  // Insert Copilot before the System Status card when present
+  const statusNode = document.getElementById('systemStatus');
+  if (statusNode && statusNode.parentNode === main) {
+    main.insertBefore(sec, statusNode);
+  } else {
+    main.appendChild(sec);
+  }
   document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
   document.getElementById('copilotCopyEn').addEventListener('click', () => copyText('copilotEn'));
   document.getElementById('copilotCopyEs').addEventListener('click', () => copyText('copilotEs'));
