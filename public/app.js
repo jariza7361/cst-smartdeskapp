@@ -1,5 +1,6 @@
 import { createI18n } from '/utils/i18n.js';
 import { buildPrompt } from '/utils/copilot.js';
+import { parseText } from '/utils/parser.js';
 
 const state = {
   settings: null,
@@ -153,7 +154,7 @@ async function onDrop(e) {
   if (!file) return;
   if (file.type === 'text/plain') {
     const text = await file.text();
-    preview(parseToNormalizedRecord(text));
+    preview(parseText(text));
   } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
     preview({ error: 'PDF parsing stub — add pdf.js (self-hosted) later.' });
   } else {
@@ -163,29 +164,11 @@ async function onDrop(e) {
 function onPaste(e) {
   const text = e.clipboardData?.getData('text');
   if (text && text.length > 5) {
-    preview(parseToNormalizedRecord(text));
+    preview(parseText(text));
   }
 }
 function preview(obj) {
   document.getElementById('preview').textContent = JSON.stringify(obj, null, 2);
-}
-function parseToNormalizedRecord(text) {
-  // naive extractor demo; refine in Codex task D
-  const lower = text.toLowerCase();
-  return {
-    carrier: (/verizon|at&t|cricket/.exec(lower) || ['unknown'])[0],
-    fees: findSection(lower, /(fee|charge|surcharge)/g),
-    dates: findSection(lower, /(effective|date|updated)/g),
-    prohibited: findSection(lower, /(prohibit|not allowed|forbidden)/g),
-    links: Array.from(text.matchAll(/https?:\/\/\S+/g)).map((m) => m[0]),
-    rawLength: text.length,
-    lang: localStorage.getItem('lang') || 'en',
-  };
-}
-function findSection(text, rx) {
-  const idx = text.search(rx);
-  if (idx < 0) return null;
-  return text.slice(idx, idx + 240);
 }
 
 // --- Copilot ---
