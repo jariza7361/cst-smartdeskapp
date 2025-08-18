@@ -1,4 +1,8 @@
 {
+  "AppTitle": "CST SmartDesk — Herramientas de Escalación",
+  "Start": "Comenzar",
+  "WelcomeTitle": "Bienvenido",
+  "WelcomeBlurb": "Herramientas rápidas y bilingües para servir, resolver y vender.",
   "Drop PDF/TXT here or paste text (Ctrl+V).": "Suelta PDF/TXT aquí o pega texto (Ctrl+V).",
   "System Status": "Estado del sistema",
   "First-Run Setup": "Configuración inicial",
