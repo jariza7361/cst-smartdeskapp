@@ -11,6 +11,26 @@ const state = {
   lang: 'en',
 };
 
+// Ensure the Copilot select always has at least one option
+function ensureCopilotSeed(lang) {
+  const sel = document.querySelector('#copilotSample');
+  if (!sel) return;
+  if (!sel.options || sel.options.length === 0) {
+    const o = document.createElement('option');
+    o.value = 'serve_solve_sell';
+    const labels = {
+      en: 'Serve / Solve / Sell (starter)',
+      es: 'Atender / Resolver / Ofrecer (inicio)',
+    };
+    o.textContent = labels[lang] || labels.en;
+    o.setAttribute(
+      'data-prompt',
+      'Follow Observe-AI style. In English and Spanish, write a concise, professional response that (1) serves: acknowledge & empathize, (2) solves: steps, checks, policy guardrails, (3) sells: set expectation, optional upsell or value reinforcement. Ask a confirm-at-end question. If the user pasted context, adapt to it.',
+    );
+    sel.appendChild(o);
+  }
+}
+
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {
   // language
@@ -34,14 +54,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
 
-  // copilot setup
+  // Load copilot prompts (best-effort), then seed if none
   try {
-    state.copilotSamples = await fetch('/copilot-prompts.json').then((r) => r.json());
+    state.copilotSamples = await fetch('/copilot-prompts.json').then((r) => (r.ok ? r.json() : []));
   } catch {
     state.copilotSamples = [];
   }
   initCopilot();
   renderCopilotUI();
+  ensureCopilotSeed(state.lang);
   checkCopilot();
 
   // drag & drop / paste
@@ -193,12 +214,8 @@ function initCopilot() {
   `;
   main.insertBefore(sec, document.getElementById('systemStatus'));
   document.getElementById('copilotRun').addEventListener('click', onCopilotRun);
-  document
-    .getElementById('copilotCopyEn')
-    .addEventListener('click', () => copyText('copilotEn'));
-  document
-    .getElementById('copilotCopyEs')
-    .addEventListener('click', () => copyText('copilotEs'));
+  document.getElementById('copilotCopyEn').addEventListener('click', () => copyText('copilotEn'));
+  document.getElementById('copilotCopyEs').addEventListener('click', () => copyText('copilotEs'));
 }
 function renderCopilotUI() {
   if (!document.getElementById('copilotSection')) return;
@@ -213,12 +230,15 @@ function renderCopilotUI() {
   document.getElementById('copilotCopyEs').textContent = t('Copy ES');
   const sel = document.getElementById('copilotSample');
   sel.innerHTML = '';
-  state.copilotSamples.forEach((p) => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.label[state.lang] || p.label.en;
-    sel.appendChild(opt);
-  });
+  if (Array.isArray(state.copilotSamples)) {
+    state.copilotSamples.forEach((p) => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = (p.label && (p.label[state.lang] || p.label.en)) || p.id;
+      if (p.prompt) opt.setAttribute('data-prompt', p.prompt);
+      sel.appendChild(opt);
+    });
+  }
 }
 async function onCopilotRun() {
   const sel = document.getElementById('copilotSample');
@@ -231,7 +251,11 @@ async function onCopilotRun() {
   } catch {
     /* noop */
   }
-  const prompt = buildPrompt(sample?.prompt || '', user, context);
+  const prompt = buildPrompt(
+    sample?.prompt || sel.selectedOptions[0]?.getAttribute('data-prompt') || '',
+    user,
+    context,
+  );
   const outEn = document.getElementById('copilotEn');
   const outEs = document.getElementById('copilotEs');
   const msg = document.getElementById('copilotMsg');
