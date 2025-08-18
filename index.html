@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <div id="splash" aria-hidden="true">CST SmartDesk</div>
     <header class="topbar">
       <h1 id="appTitle">CST SmartDesk</h1>
       <div class="top-actions">
@@ -20,15 +21,6 @@
         <button id="openSettings" aria-controls="setupWizard">Settings</button>
       </div>
     </header>
-    <!-- Splash (first visit) -->
-    <dialog id="splash">
-      <h3 data-i18n="WelcomeTitle">Welcome</h3>
-      <p data-i18n="WelcomeBlurb">Fast, reliable, bilingual tools to serve, solve, and sell.</p>
-      <menu>
-        <button id="splashStart" data-i18n="Start">Start</button>
-      </menu>
-    </dialog>
-
     <!-- New visible section -->
     <section id="highlights" aria-labelledby="highlightsTitle">
       <h2 id="highlightsTitle" data-i18n="Highlights">Highlights</h2>
@@ -59,21 +51,48 @@
     <!-- Setup Wizard -->
     <dialog id="setupWizard">
       <form method="dialog" id="wizardForm">
-        <h3>First-Run Setup</h3>
-        <label>Expert Name <input id="wName" required /></label>
-        <label>Employee ID <input id="wEmpId" required /></label>
-        <label>CST Extension <input id="wExt" required /></label>
+        <h3 data-i18n="SetupTitle">First-Run Setup</h3>
         <label
-          >Theme
+          ><span data-i18n="SetupName">Expert Name</span>
+          <input
+            id="wName"
+            required
+            data-i18n-placeholder="SetupNamePlaceholder"
+            placeholder="Enter your name"
+          />
+        </label>
+        <label
+          ><span data-i18n="SetupEmpId">Employee ID</span>
+          <input
+            id="wEmpId"
+            required
+            data-i18n-placeholder="SetupEmpIdPlaceholder"
+            placeholder="Enter your employee ID"
+          />
+        </label>
+        <label
+          ><span data-i18n="SetupExt">CST Extension</span>
+          <input
+            id="wExt"
+            required
+            data-i18n-placeholder="SetupExtPlaceholder"
+            placeholder="Enter your CST extension"
+          />
+        </label>
+        <label
+          ><span data-i18n="SetupTheme">Theme</span>
           <select id="wTheme">
             <option value="light">Light</option>
             <option value="dark">Dark</option>
           </select>
         </label>
-        <label><input type="checkbox" id="dontShow" /> Don’t show again</label>
+        <label
+          ><input type="checkbox" id="dontShow" />
+          <span data-i18n="DontShowAgain">Don’t show again</span></label
+        >
         <menu>
-          <button value="cancel">Cancel</button>
-          <button id="wizardSave" value="save">Save</button>
+          <button value="cancel" data-i18n="Cancel">Cancel</button>
+          <button id="wizardSave" value="save" data-i18n="Save">Save</button>
         </menu>
       </form>
     </dialog>

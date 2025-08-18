@@ -31,14 +31,6 @@ button {
 }
 
 /* Minimal global/app polish */
-dialog#splash {
-  max-width: 560px;
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
-}
-dialog#splash::backdrop {
-  background: rgba(0, 0, 0, 0.35);
-}
 menu {
   display: flex;
   gap: 0.5rem;
@@ -66,4 +58,20 @@ button {
   border-radius: 12px;
   background: linear-gradient(135deg, #dbeafe, #e9d5ff);
   border: 1px solid #e6e6e6;
+}
+/* Splash overlay – purely visual, non-blocking */
+#splash {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(20px, 4vw, 40px);
+  background: radial-gradient(1200px 600px at 50% -10%, #f5f7ff, #ffffff 60%);
+  color: #1b1f24;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#splash.show {
+  opacity: 1;
 }

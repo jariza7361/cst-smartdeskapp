@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   state.lang = lang;
   // localize static title immediately
   localizeStatic();
+  showSplash();
   applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
@@ -51,17 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('wizardSave').addEventListener('click', onSaveWizard);
   state.settings = loadSettings();
 
-  // splash first
-  const splash = document.getElementById('splash');
-  if (!localStorage.getItem('splashDone') && splash?.showModal) {
-    splash.showModal();
-    document.getElementById('splashStart').addEventListener('click', () => {
-      splash.close();
-      localStorage.setItem('splashDone', '1');
-      // immediately open wizard on very first run
-      if (!onboarded) wiz.showModal();
-    });
-  } else if (!onboarded) {
+  if (!onboarded) {
     wiz.showModal();
   }
 
@@ -121,6 +112,22 @@ function localizeStatic() {
     .forEach((el) => (el.textContent = state.i18n.t(el.dataset.i18n)));
   const title = document.querySelector('title[data-i18n]');
   if (title) title.textContent = state.i18n.t(title.dataset.i18n);
+  document
+    .querySelectorAll('[data-i18n-placeholder]')
+    .forEach((el) => (el.placeholder = state.i18n.t(el.dataset.i18nPlaceholder)));
+}
+
+function showSplash() {
+  try {
+    const el = document.getElementById('splash');
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 900);
+    });
+  } catch {
+    /* noop */
+  }
 }
 
 // --- Setup Wizard ---

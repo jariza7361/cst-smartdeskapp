@@ -19,5 +19,16 @@
   "Set OPENAI_API_KEY in Vercel to enable Copilot.": "Set OPENAI_API_KEY in Vercel to enable Copilot.",
   "Copilot reachable": "Copilot reachable",
   "Highlights": "Highlights",
-  "HighlightsIntro": "Top tips and updates for CST experts"
+  "HighlightsIntro": "Top tips and updates for CST experts",
+  "SetupTitle": "First-Run Setup",
+  "SetupName": "Expert Name",
+  "SetupEmpId": "Employee ID",
+  "SetupExt": "CST Extension",
+  "SetupTheme": "Theme",
+  "DontShowAgain": "Don’t show again",
+  "Cancel": "Cancel",
+  "Save": "Save",
+  "SetupNamePlaceholder": "Enter your name",
+  "SetupEmpIdPlaceholder": "Enter your employee ID",
+  "SetupExtPlaceholder": "Enter your CST extension"
 }
