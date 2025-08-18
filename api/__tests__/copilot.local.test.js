@@ -36,4 +36,19 @@ describe('local copilot (no key)', () => {
     expect(res.jsonPayload).toHaveProperty('en');
     expect(res.jsonPayload).toHaveProperty('es');
   });
+
+  it('emphasizes follow-up when requested', async () => {
+    const { req, res } = mockReqRes({ prompt: 'please confirm and follow up' });
+    await handler(req, res);
+    expect(res.jsonPayload.en).toMatch(/follow up after your confirmation/i);
+    expect(res.jsonPayload.es).toMatch(/Haré seguimiento/i);
+  });
+
+  it('omits SSS heading and follow-up if not prompted', async () => {
+    const { req, res } = mockReqRes({ prompt: 'hello world' });
+    await handler(req, res);
+    expect(res.jsonPayload.en).toMatch(/concise response:/);
+    expect(res.jsonPayload.en).not.toMatch(/Serve \/ Solve \/ Sell/);
+    expect(res.jsonPayload.en).not.toMatch(/follow up after your confirmation/i);
+  });
 });
