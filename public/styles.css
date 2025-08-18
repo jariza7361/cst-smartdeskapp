@@ -1,3 +1,35 @@
+/* Theme tokens (light/dark) */
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --card: #f5f7fa;
+  --accent: #2b6cb0;
+}
+:root.theme-dark {
+  --bg: #0b0f14;
+  --fg: #e7ecf3;
+  --card: #141a22;
+  --accent: #63b3ed;
+}
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+.topbar,
+.status,
+dialog,
+.preview {
+  background: var(--card);
+}
+button {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
 /* Minimal global/app polish */
 dialog#splash {
   max-width: 560px;
