@@ -1,4 +1,8 @@
 {
+  "AppTitle": "CST SmartDesk — Escalation Toolkit",
+  "Start": "Start",
+  "WelcomeTitle": "Welcome",
+  "WelcomeBlurb": "Fast, reliable, bilingual tools to serve, solve, and sell.",
   "Drop PDF/TXT here or paste text (Ctrl+V).": "Drop PDF/TXT here or paste text (Ctrl+V).",
   "System Status": "System Status",
   "First-Run Setup": "First-Run Setup",

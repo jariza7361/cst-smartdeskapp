@@ -9,6 +9,7 @@ const state = {
   lastFetchRun: null,
   copilotSamples: [],
   copilotReachable: null,
+  splashShown: false,
   lang: 'en',
 };
 
@@ -38,6 +39,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const lang = localStorage.getItem('lang') || 'en';
   state.i18n = await createI18n(lang);
   state.lang = lang;
+  // localize static title immediately
+  localizeStatic();
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
   // setup wizard
@@ -47,7 +50,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('wizardSave').addEventListener('click', onSaveWizard);
   state.settings = loadSettings();
 
-  if (!onboarded) wiz.showModal();
+  // splash first
+  const splash = document.getElementById('splash');
+  if (!localStorage.getItem('splashDone') && splash?.showModal) {
+    splash.showModal();
+    document.getElementById('splashStart').addEventListener('click', () => {
+      splash.close();
+      localStorage.setItem('splashDone', '1');
+      // immediately open wizard on very first run
+      if (!onboarded) wiz.showModal();
+    });
+  } else if (!onboarded) {
+    wiz.showModal();
+  }
 
   // tests modal
   const testsModal = document.getElementById('testsModal');
@@ -94,8 +109,17 @@ async function toggleLang() {
   localStorage.setItem('lang', next);
   state.i18n = await createI18n(next);
   state.lang = next;
+  localizeStatic();
   renderCopilotUI();
   renderStatus();
+}
+
+function localizeStatic() {
+  document
+    .querySelectorAll('[data-i18n]')
+    .forEach((el) => (el.textContent = state.i18n.t(el.dataset.i18n)));
+  const title = document.querySelector('title[data-i18n]');
+  if (title) title.textContent = state.i18n.t(title.dataset.i18n);
 }
 
 // --- Setup Wizard ---
