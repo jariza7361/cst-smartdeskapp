@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   state.lang = lang;
   // localize static title immediately
   localizeStatic();
+  applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
   // setup wizard
@@ -145,6 +146,7 @@ function val(sel) {
 function saveSettings(s) {
   localStorage.setItem('cst.settings', JSON.stringify(s));
   state.settings = s;
+  if (s.theme) applyTheme(s.theme);
 }
 function loadSettings() {
   try {
@@ -152,6 +154,10 @@ function loadSettings() {
   } catch {
     return {};
   }
+}
+
+function applyTheme(name) {
+  document.documentElement.classList.toggle('theme-dark', name === 'dark');
 }
 
 // --- Tests Modal action ---
