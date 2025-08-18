@@ -17,5 +17,7 @@
   "Copy ES": "Copy ES",
   "Loading...": "Loading...",
   "Set OPENAI_API_KEY in Vercel to enable Copilot.": "Set OPENAI_API_KEY in Vercel to enable Copilot.",
-  "Copilot reachable": "Copilot reachable"
+  "Copilot reachable": "Copilot reachable",
+  "Highlights": "Highlights",
+  "HighlightsIntro": "Top tips and updates for CST experts"
 }
