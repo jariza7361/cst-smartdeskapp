@@ -6,13 +6,14 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        main: './index.html',
+        main: './index.html'
       },
       output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
-          // This ensures CSS files keep their names and are placed correctly
-          if (assetInfo.name === 'styles.css' || assetInfo.name === 'tokens.css') {
-            return 'styles/[name]-[hash][extname]';
+          if (assetInfo.name.endsWith('.css')) {
+            return 'assets/[name]-[hash].css';
           }
           return 'assets/[name]-[hash][extname]';
         },
