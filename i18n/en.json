@@ -30,5 +30,9 @@
   "Save": "Save",
   "SetupNamePlaceholder": "Enter your name",
   "SetupEmpIdPlaceholder": "Enter your employee ID",
-  "SetupExtPlaceholder": "Enter your CST extension"
+  "SetupExtPlaceholder": "Enter your CST extension",
+  "Welcome": "Welcome to CST SmartDesk",
+  "WelcomeIntro": "Faster serve/solve/sell with bilingual responses, carrier checks, and a secure workspace.",
+  "Get Started": "Get Started",
+  "Dismiss": "Dismiss"
 }

@@ -30,5 +30,9 @@
   "Save": "Guardar",
   "SetupNamePlaceholder": "Ingresa tu nombre",
   "SetupEmpIdPlaceholder": "Ingresa tu ID de empleado",
-  "SetupExtPlaceholder": "Ingresa tu extensión CST"
+  "SetupExtPlaceholder": "Ingresa tu extensión CST",
+  "Welcome": "Bienvenido a CST SmartDesk",
+  "WelcomeIntro": "Sirve/resuelve/vende más rápido con respuestas bilingües, verificaciones de operadores y un espacio de trabajo seguro.",
+  "Get Started": "Comenzar",
+  "Dismiss": "Descartar"
 }
