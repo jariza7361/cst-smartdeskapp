@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildPrompt } from '../public/utils/copilot.js';
+import { buildPrompt } from '../src/utils/copilot.js';
 
 describe('buildPrompt', () => {
   it('merges sample and user text', () => {

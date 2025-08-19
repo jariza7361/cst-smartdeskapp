@@ -1,6 +1,6 @@
-import { createI18n } from '/utils/i18n.js';
-import { buildPrompt } from '/utils/copilot.js';
-import { parseText } from '/utils/parser.js';
+import { createI18n } from './utils/i18n.js';
+import { buildPrompt } from './utils/copilot.js';
+import { parseText } from './utils/parser.js';
 
 const state = {
   settings: null,
