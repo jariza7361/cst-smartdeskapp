@@ -7,12 +7,11 @@
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.openai.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="AppTitle">CST SmartDesk — Escalation Toolkit</title>
+    <title>CST SmartDesk — Escalation Toolkit</title>
     <link rel="stylesheet" href="/styles/tokens.css" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div id="splash" aria-hidden="true">CST SmartDesk</div>
     <header class="topbar">
       <h1 id="appTitle">CST SmartDesk</h1>
       <div class="top-actions">
@@ -21,11 +20,29 @@
         <button id="openSettings" aria-controls="setupWizard">Settings</button>
       </div>
     </header>
-    <!-- New visible section -->
+
+    <section id="splashBanner" class="banner" role="region" aria-labelledby="splashTitle" hidden>
+      <div class="banner-inner">
+        <div class="banner-body">
+          <h2 id="splashTitle" data-i18n="Welcome">Welcome to CST SmartDesk</h2>
+          <p data-i18n="WelcomeIntro">
+            Faster serve/solve/sell with bilingual responses, carrier checks, and a secure
+            workspace.
+          </p>
+          <div class="banner-actions">
+            <button id="splashStart" class="btn-primary" data-i18n="Get Started">
+              Get Started
+            </button>
+            <button id="splashDismiss" class="btn-quiet" data-i18n="Dismiss">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="highlights" aria-labelledby="highlightsTitle">
       <h2 id="highlightsTitle" data-i18n="Highlights">Highlights</h2>
       <p data-i18n="HighlightsIntro">Top tips and updates for CST experts</p>
-      <div class="hero-placeholder" role="img" aria-label="Highlights banner"></div>
+      <div class="highlights-hero" role="img" aria-label="Highlights hero"></div>
     </section>
 
     <aside class="sidebar">
@@ -48,56 +65,27 @@
       </section>
     </main>
 
-    <!-- Setup Wizard -->
     <dialog id="setupWizard">
       <form method="dialog" id="wizardForm">
-        <h3 data-i18n="SetupTitle">First-Run Setup</h3>
-        <label
-          ><span data-i18n="SetupName">Expert Name</span>
-          <input
-            id="wName"
-            required
-            data-i18n-placeholder="SetupNamePlaceholder"
-            placeholder="Enter your name"
-          />
-        </label>
-        <label
-          ><span data-i18n="SetupEmpId">Employee ID</span>
-          <input
-            id="wEmpId"
-            required
-            data-i18n-placeholder="SetupEmpIdPlaceholder"
-            placeholder="Enter your employee ID"
-          />
-        </label>
-        <label
-          ><span data-i18n="SetupExt">CST Extension</span>
-          <input
-            id="wExt"
-            required
-            data-i18n-placeholder="SetupExtPlaceholder"
-            placeholder="Enter your CST extension"
-          />
-        </label>
-        <label
-          ><span data-i18n="SetupTheme">Theme</span>
+        <h3>First-Run Setup</h3>
+        <label>Expert Name <input id="wName" required /></label>
+        <label>Employee ID <input id="wEmpId" required /></label>
+        <label>CST Extension <input id="wExt" required /></label>
+        <label>
+          Theme
           <select id="wTheme">
             <option value="light">Light</option>
             <option value="dark">Dark</option>
           </select>
         </label>
-        <label
-          ><input type="checkbox" id="dontShow" />
-          <span data-i18n="DontShowAgain">Don’t show again</span></label
-        >
+        <label><input type="checkbox" id="dontShow" /> Don’t show again</label>
         <menu>
-          <button value="cancel" data-i18n="Cancel">Cancel</button>
-          <button id="wizardSave" value="save" data-i18n="Save">Save</button>
+          <button value="cancel">Cancel</button>
+          <button id="wizardSave" value="save">Save</button>
         </menu>
       </form>
     </dialog>
 
-    <!-- Tests Modal -->
     <dialog id="testsModal">
       <h3>Tests</h3>
       <button id="testsFetchBtn">Fetch Verizon T&C</button>
