@@ -7,14 +7,14 @@
     "node": "20.x"
   },
   "scripts": {
+    "dev": "vite --port 4173",
     "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier -w .",
     "test": "vitest run",
     "e2e": "playwright test",
     "e2e:codex": "scripts/e2e-codex.sh",
-    "dev": "node scripts/dev-server.mjs",
-    "serve": "node scripts/dev-server.mjs",
     "check:lock": "node scripts/check-lock.mjs",
     "doctor": "node scripts/doctor.mjs"
   },
