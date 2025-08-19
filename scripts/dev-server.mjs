@@ -20,7 +20,6 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: '1mb' }));
 app.use('/assets', express.static(path.join(root, 'public', 'assets')));
-app.use('/utils', express.static(path.join(root, 'public', 'utils')));
 app.use(express.static(frontendPath));
 app.all('/api/:fn', async (req, res, next) => {
   try {

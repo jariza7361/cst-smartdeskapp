@@ -1,6 +1,6 @@
 // tests/parser.test.js
 import { describe, it, expect } from 'vitest';
-import { parseText } from '../public/utils/parser.js';
+import { parseText } from '../src/utils/parser.js';
 
 describe('parseText()', () => {
   it('extracts carrier, sections, and links', () => {
