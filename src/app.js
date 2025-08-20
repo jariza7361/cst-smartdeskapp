@@ -119,7 +119,7 @@ function localizeStatic() {
 
 function showSplash() {
   try {
-    const el = document.getElementById('splashBanner');
+    const el = document.getElementById('splash');
     if (!el) return;
     requestAnimationFrame(() => {
       el.classList.add('show');
