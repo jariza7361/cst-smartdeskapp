@@ -3,7 +3,7 @@
 - Frontend entry: `/public/app.js` (referenced as `/app.js`)
 - Strict CSP via `vercel.json`
 - Setup Wizard, Tests modal, System Status hooks
-- Bilingual scaffolding: `/i18n/en.json`, `/i18n/es.json`
+- Bilingual scaffolding: `/public/i18n/en.json`, `/public/i18n/es.json`
 - Serverless: `GET /api/fetch`, `POST /api/copilot`
 
 ## Copilot panel
@@ -13,6 +13,7 @@
 - Requires server-side `OPENAI_API_KEY`; when missing, the UI stays visible and hints about the key.
 
 ## Dev
+
 ```bash
 npm i
 npm run test
@@ -22,5 +23,5 @@ npm run serve  # open http://localhost:4173
 
 ## Deploy (Vercel)
 
-* Add env var `OPENAI_API_KEY`
-* Optional: `OPENAI_MODEL`, `TOS_URL`
+- Add env var `OPENAI_API_KEY`
+- Optional: `OPENAI_MODEL`, `TOS_URL`
