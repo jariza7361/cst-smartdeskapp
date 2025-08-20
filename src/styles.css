@@ -59,19 +59,29 @@ button {
   background: linear-gradient(135deg, #dbeafe, #e9d5ff);
   border: 1px solid #e6e6e6;
 }
-/* Splash overlay – purely visual, non-blocking */
-#splash {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: clamp(20px, 4vw, 40px);
-  background: radial-gradient(1200px 600px at 50% -10%, #f5f7ff, #ffffff 60%);
-  color: #1b1f24;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
+/* Splash banner basics */
+.banner {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: #f6f8fb;
+  border: 1px solid #e5e9f2;
 }
-#splash.show {
-  opacity: 1;
+.banner .banner-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.banner.show {
+  animation: fadeIn 0.28s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

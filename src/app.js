@@ -41,7 +41,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   state.lang = lang;
   // localize static title immediately
   localizeStatic();
-  showSplash();
+
+  // SHOW SPLASH (new)
+  initSplash();
+
+  // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
@@ -117,17 +121,36 @@ function localizeStatic() {
     .forEach((el) => (el.placeholder = state.i18n.t(el.dataset.i18nPlaceholder)));
 }
 
-function showSplash() {
-  try {
-    const el = document.getElementById('splash');
-    if (!el) return;
-    requestAnimationFrame(() => {
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 900);
-    });
-  } catch {
-    /* noop */
-  }
+// --- replace your existing showSplash() with this ---
+function initSplash() {
+  const el = document.getElementById('splash');
+  if (!el) return;
+
+  // respect prior dismiss/onboarding
+  const dismissed = localStorage.getItem('cst.splash.dismissed') === '1';
+  const onboarded = localStorage.getItem('onboarded') === '1';
+  if (dismissed || onboarded) return;
+
+  // actually show it
+  el.hidden = false; // ⬅️ key fix: unhide
+  requestAnimationFrame(() => {
+    el.classList.add('show'); // optional animation class
+  });
+
+  // buttons
+  const start = document.getElementById('splashStart');
+  const dismiss = document.getElementById('splashDismiss');
+
+  start?.addEventListener('click', () => {
+    el.hidden = true;
+    // guide user into the setup wizard on first use
+    document.getElementById('setupWizard')?.showModal();
+  });
+
+  dismiss?.addEventListener('click', () => {
+    el.hidden = true;
+    localStorage.setItem('cst.splash.dismissed', '1');
+  });
 }
 
 // --- Setup Wizard ---
