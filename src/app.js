@@ -1,6 +1,7 @@
 import { createI18n } from './utils/i18n.js';
 import { buildPrompt } from './utils/copilot.js';
 import { parseText } from './utils/parser.js'; // keep if you use it elsewhere
+// T11: theme + splash + clickability enhancements
 
 const state = {
   settings: null,
@@ -50,11 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // splash behavior: first visit auto; button to re-open
   const firstVisit = localStorage.getItem('welcomeSeen') !== '1';
   const btnShow = document.getElementById('showWelcome');
-  if (btnShow)
-    btnShow.addEventListener('click', () => {
-      showSplash();
-      setTimeout(() => localStorage.setItem('welcomeSeen', '1'), 800);
-    });
+  if (btnShow) btnShow.addEventListener('click', () => forceShowSplash());
   const btnStart = document.getElementById('splashStart');
   if (btnStart)
     btnStart.addEventListener('click', () => {
@@ -68,6 +65,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       hideSplash();
     });
   if (firstVisit) showSplash();
+
+  // Keep header always clickable over any decorative layers
+  const top = document.querySelector('header.topbar');
+  if (top) top.style.zIndex = '20';
 
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
@@ -294,7 +295,20 @@ function loadSettings() {
 }
 
 function applyTheme(name) {
-  document.documentElement.classList.toggle('theme-dark', name === 'dark');
+  const el = document.documentElement;
+  el.classList.remove('theme-dark', 'theme-glass');
+  if (name === 'dark') el.classList.add('theme-dark');
+  else if (name === 'glass') el.classList.add('theme-glass');
+}
+
+function forceShowSplash() {
+  try {
+    localStorage.removeItem('welcomeSeen');
+    showSplash();
+    setTimeout(() => hideSplash(), 1200);
+  } catch {
+    // ignore
+  }
 }
 
 // --- Tests Modal action ---

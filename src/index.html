@@ -14,6 +14,7 @@
       href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="white"/><text x="2" y="12" font-size="10">C</text></svg>'
     />
     <link rel="stylesheet" href="./styles/tokens.css" />
+    <!-- T11: improved theme + z-index fixes -->
     <link rel="stylesheet" href="./styles.css" />
     <!-- CSP-safe: no inline styles or scripts -->
   </head>
@@ -93,8 +94,9 @@
         <label>
           Theme
           <select id="wTheme">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
+            <option value="light" data-i18n="Light">Light</option>
+            <option value="dark" data-i18n="Dark">Dark</option>
+            <option value="glass" data-i18n="Glass">Glass</option>
           </select>
         </label>
         <label><input type="checkbox" id="dontShow" /> Don’t show again</label>
