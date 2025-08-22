@@ -45,6 +45,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SHOW SPLASH (new)
   showSplash();
 
+  document.getElementById('splashStart')?.addEventListener('click', () => {
+    const s = document.getElementById('splash');
+    if (s) s.hidden = true;
+  });
+  document.getElementById('splashDismiss')?.addEventListener('click', () => {
+    const s = document.getElementById('splash');
+    if (s) s.hidden = true;
+  });
+
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
@@ -127,8 +136,8 @@ function showSplash() {
   try {
     const el = document.getElementById('splash');
     if (!el) return;
-    // Unhide before animating so it can be seen
-    el.hidden = false; // <-- this fixes the "never shows" issue
+    // Unhide first, then animate
+    el.hidden = false;
     requestAnimationFrame(() => {
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 900);
@@ -347,7 +356,9 @@ async function checkCopilot() {
 
 // --- System Status ---
 async function run4PointUrlTest() {
-  const list = ['/app.js', '/assets/logo.svg', '/api/fetch'];
+  const list = import.meta?.env?.DEV
+    ? ['/app.js', '/assets/logo.svg', '/api/fetch']
+    : ['/assets/logo.svg', '/api/fetch']; // no /app.js in production bundle
   const results = await Promise.all(
     list.map(async (p) => {
       try {
