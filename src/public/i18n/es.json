@@ -35,5 +35,7 @@
   "Welcome": "Bienvenido a CST SmartDesk",
   "WelcomeIntro": "Sirve/resuelve/vende más rápido con respuestas bilingües, verificaciones de operadores y un espacio de trabajo seguro.",
   "Get Started": "Comenzar",
-  "Dismiss": "Descartar"
+  "Dismiss": "Descartar",
+  "LoadingSplash": "Cargando CST SmartDesk — espere…",
+  "Ready": "Listo"
 }
