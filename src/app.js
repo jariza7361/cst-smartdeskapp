@@ -127,18 +127,12 @@ function showSplash() {
   try {
     const el = document.getElementById('splash');
     if (!el) return;
-    el.hidden = false;
+    // Unhide before animating so it can be seen
+    el.hidden = false; // <-- this fixes the "never shows" issue
     requestAnimationFrame(() => {
       el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 900);
     });
-    const start = document.getElementById('splashStart');
-    const dismiss = document.getElementById('splashDismiss');
-    const hide = () => {
-      el.classList.remove('show');
-      el.hidden = true;
-    };
-    if (start) start.onclick = hide;
-    if (dismiss) dismiss.onclick = hide;
   } catch {
     /* noop */
   }
