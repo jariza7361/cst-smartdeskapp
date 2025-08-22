@@ -35,5 +35,10 @@
   "Welcome": "Welcome to CST SmartDesk",
   "WelcomeIntro": "Faster serve/solve/sell with bilingual responses, carrier checks, and a secure workspace.",
   "Get Started": "Get Started",
-  "Dismiss": "Dismiss"
+  "Dismiss": "Dismiss",
+  "PleaseWait": "Please wait… loading",
+  "LoadingUI": "Loading user interface…",
+  "LoadingTranslations": "Loading translations…",
+  "CheckingCore": "Checking core assets…",
+  "StartingApp": "Starting app…"
 }

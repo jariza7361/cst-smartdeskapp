@@ -35,5 +35,10 @@
   "Welcome": "Bienvenido a CST SmartDesk",
   "WelcomeIntro": "Atiende, resuelve y ofrece más rápido con respuestas bilingües, verificaciones de operadoras y un espacio de trabajo seguro.",
   "Get Started": "Comenzar",
-  "Dismiss": "Omitir"
+  "Dismiss": "Omitir",
+  "PleaseWait": "Por favor espera… cargando",
+  "LoadingUI": "Cargando la interfaz…",
+  "LoadingTranslations": "Cargando traducciones…",
+  "CheckingCore": "Verificando recursos básicos…",
+  "StartingApp": "Iniciando la aplicación…"
 }
