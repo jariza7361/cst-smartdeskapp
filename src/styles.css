@@ -124,37 +124,17 @@ body {
   font-size: 0.95rem;
 }
 .progress {
-  position: relative;
-  height: 6px;
-  background: #e5e7eb;
+  height: 10px;
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
+  margin: 12px 0 16px;
 }
 .progress .bar {
   height: 100%;
-  background: #16a34a;
-}
-@keyframes loadPulse {
-  0% {
-    transform: translateX(-60%);
-  }
-  50% {
-    transform: translateX(-10%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-.progress .bar {
-  width: 85%;
-  transform: translateX(-60%);
-  animation: loadPulse 1.2s ease-in-out infinite alternate;
-}
-.progress.done .bar {
-  animation: none;
-  width: 100%;
-  transform: none;
-  transition: width 0.3s ease;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #818cf8, #a78bfa);
+  transition: width 0.18s ease;
 }
 
 /* Layout polish */
@@ -236,6 +216,41 @@ body {
 .dropzone.hover {
   outline: 2px dashed var(--accent);
   outline-offset: 4px;
+}
+
+/* --- Splash overlay & progress --- */
+#splash.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--bg, #0b1220) 85%, transparent);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#splash.overlay.show {
+  opacity: 1;
+}
+#splash .banner-inner {
+  width: min(720px, 92vw);
+  border-radius: 16px;
+  padding: 24px;
+  background: var(--card, #0f172a);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+#splash .banner-body > p {
+  margin-block: 0.5rem 1rem;
+  color: var(--muted, #94a3b8);
+}
+
+/* Highlights hero placeholder (keeps your current look) */
+#highlights .highlights-hero {
+  height: 180px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 .status {

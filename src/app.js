@@ -1,6 +1,6 @@
 import { createI18n } from './utils/i18n.js';
 import { buildPrompt } from './utils/copilot.js';
-import { parseText } from './utils/parser.js';
+import { parseText } from './utils/parser.js'; // keep if you use it elsewhere
 
 const state = {
   settings: null,
@@ -12,6 +12,8 @@ const state = {
   splashShown: false,
   lang: 'en',
 };
+let splashTimer = null;
+let splashProgress = 0;
 
 // Ensure the Copilot select always has at least one option
 function ensureCopilotSeed(lang) {
@@ -41,15 +43,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   state.lang = lang;
   // localize static title immediately
   localizeStatic();
-
-  // SHOW SPLASH (new)
-  showSplash();
+  // splash: show on first visit, and wire buttons
+  const firstVisit = localStorage.getItem('welcomeSeen') !== '1';
+  const btnShow = document.getElementById('showWelcome');
+  if (btnShow) btnShow.addEventListener('click', () => showSplash());
+  const btnStart = document.getElementById('splashStart');
+  if (btnStart)
+    btnStart.addEventListener('click', () => {
+      localStorage.setItem('welcomeSeen', '1');
+      hideSplash();
+    });
+  const btnDismiss = document.getElementById('splashDismiss');
+  if (btnDismiss)
+    btnDismiss.addEventListener('click', () => {
+      localStorage.setItem('welcomeSeen', '1');
+      hideSplash();
+    });
+  if (firstVisit) showSplash();
 
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
-  const showBtn = document.getElementById('showWelcome');
-  if (showBtn) showBtn.addEventListener('click', forceShowSplash);
 
   // setup wizard
   const wiz = document.getElementById('setupWizard');
@@ -106,10 +120,6 @@ async function toggleLang() {
   localStorage.setItem('lang', next);
   state.i18n = await createI18n(next);
   state.lang = next;
-  const msg = document.getElementById('splashMsg');
-  if (msg && msg.dataset.i18n) {
-    msg.textContent = state.i18n.t(msg.dataset.i18n);
-  }
   localizeStatic();
   renderCopilotUI();
   renderStatus();
@@ -126,52 +136,32 @@ function localizeStatic() {
     .forEach((el) => (el.placeholder = state.i18n.t(el.dataset.i18nPlaceholder)));
 }
 
-function showSplash() {
-  try {
-    const el = document.getElementById('splash');
-    if (!el) return;
-    const alreadyDismissed = localStorage.getItem('splashSeen') === '1';
-    const onboarded = localStorage.getItem('onboarded') === '1';
-    if (alreadyDismissed || onboarded) return;
-
-    // reveal + animate (CSS handles .show)
-    el.hidden = false;
-    requestAnimationFrame(() => el.classList.add('show'));
-
-    // buttons
-    const startBtn = document.getElementById('splashStart');
-    const dismissBtn = document.getElementById('splashDismiss');
-
-    if (startBtn) {
-      startBtn.addEventListener('click', () => {
-        el.hidden = true;
-        el.classList.remove('show');
-        // open setup wizard
-        const wiz = document.getElementById('setupWizard');
-        if (wiz && typeof wiz.showModal === 'function') wiz.showModal();
-        localStorage.setItem('splashSeen', '1');
-      });
-    }
-
-    if (dismissBtn) {
-      dismissBtn.addEventListener('click', () => {
-        el.hidden = true;
-        el.classList.remove('show');
-        localStorage.setItem('splashSeen', '1');
-      });
-    }
-  } catch {
-    /* noop */
-  }
+function startSplashProgress() {
+  const bar = document.getElementById('splashProgress');
+  if (!bar) return;
+  splashProgress = 0;
+  clearInterval(splashTimer);
+  splashTimer = setInterval(() => {
+    splashProgress = Math.min(100, splashProgress + (8 + Math.random() * 14));
+    bar.style.width = splashProgress + '%';
+    if (splashProgress >= 100) clearInterval(splashTimer);
+  }, 120);
 }
 
-function forceShowSplash() {
+function showSplash() {
   const el = document.getElementById('splash');
   if (!el) return;
   el.hidden = false;
-  requestAnimationFrame(() => {
-    el.classList.add('show');
-  });
+  el.classList.add('show');
+  startSplashProgress();
+}
+
+function hideSplash() {
+  const el = document.getElementById('splash');
+  if (!el) return;
+  el.classList.remove('show');
+  el.hidden = true;
+  clearInterval(splashTimer);
 }
 
 // --- Setup Wizard ---
@@ -471,15 +461,6 @@ function escapeHtml(s) {
   );
 }
 
-const splashDismiss = document.getElementById('splashDismiss');
-const splashStart = document.getElementById('splashStart');
-[splashDismiss, splashStart].forEach((btn) => {
-  if (btn)
-    btn.addEventListener('click', () => {
-      const el = document.getElementById('splash');
-      if (el) {
-        el.classList.remove('show');
-        el.hidden = true;
-      }
-    });
+window.addEventListener('load', () => {
+  if (localStorage.getItem('welcomeSeen') !== '1') setTimeout(hideSplash, 700);
 });
