@@ -87,3 +87,14 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   margin: 1rem 0 2rem;
 }
+
+/* Copilot layout (replaces inline styles blocked by CSP) */
+.copilot-output {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.copilot-col {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
