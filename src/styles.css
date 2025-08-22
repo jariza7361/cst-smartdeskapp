@@ -1,4 +1,25 @@
 /* --- Layout / Theme polish --- */
+
+/* Skip link (a11y) */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip:focus {
+  left: 12px;
+  top: 12px;
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  background: #fff;
+  color: #111;
+  border-radius: 10px;
+  z-index: 1100;
+}
 :root {
   --page-bg: #f6f8fb;
   --card-bg: #ffffff;

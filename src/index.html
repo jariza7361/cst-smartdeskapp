@@ -18,6 +18,7 @@
     <!-- CSP-safe: no inline styles or scripts -->
   </head>
   <body>
+    <a href="#mainContent" class="skip" data-i18n="Skip to content">Skip to content</a>
     <header class="topbar">
       <h1 id="appTitle">CST SmartDesk</h1>
       <div class="top-actions">
@@ -71,7 +72,7 @@
       </div>
     </aside>
 
-    <main class="content">
+    <main id="mainContent" class="content">
       <section class="dropzone" id="dropzone" aria-label="Drag & drop files">
         <p id="dzText">Drop PDF/TXT here or paste text (Ctrl+V).</p>
         <pre id="preview" class="preview"></pre>
