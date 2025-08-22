@@ -86,7 +86,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // CSP violations
   window.addEventListener('securitypolicyviolation', (e) => {
-    state.cspViolations.push(`${e.violatedDirective} @ ${e.blockedURI || 'inline'}`);
+    const blocked = e.blockedURI || '';
+    // Ignore non-actionable CSP noise (Vercel Live helper + inline style attributes)
+    if (blocked.includes('vercel.live')) return;
+    if (e.violatedDirective === 'style-src-attr') return;
+    state.cspViolations.push(`${e.violatedDirective} @ ${blocked || 'inline'}`);
     renderStatus();
   });
 
@@ -371,9 +375,11 @@ async function checkCopilot() {
 
 // --- System Status ---
 async function run4PointUrlTest() {
-  const list = import.meta?.env?.DEV
-    ? ['/app.js', '/assets/logo.svg', '/api/fetch']
-    : ['/assets/logo.svg', '/api/fetch']; // no /app.js in production bundle
+  // 1) Check the bundled main module tag Vite emits (e.g., /assets/index-XXXXX.js)
+  const hasMainScript = !!document.querySelector('script[type="module"][src*="/assets/index-"]');
+
+  // 2) Network probes for stable endpoints
+  const list = ['/assets/logo.svg', '/api/fetch'];
   const results = await Promise.all(
     list.map(async (p) => {
       try {
@@ -384,7 +390,9 @@ async function run4PointUrlTest() {
       }
     }),
   );
-  state.urlTest = Object.fromEntries(results);
+
+  // 3) Store results under stable keys
+  state.urlTest = Object.fromEntries([...results, ['mainScript', hasMainScript]]);
   renderStatus();
 }
 function renderStatus() {
@@ -410,10 +418,10 @@ function renderStatus() {
     ),
   );
 
-  // 4-point URL (3 here; index.html is implicit)
+  // Core assets presence
   const u = state.urlTest || {};
-  const urlOk = ['/app.js', '/assets/logo.svg', '/api/fetch'].every((p) => u[p]);
-  items.push(mark('4-point URL test', JSON.stringify(u), urlOk));
+  const urlOk = u.mainScript === true && ['/assets/logo.svg', '/api/fetch'].every((p) => u[p]);
+  items.push(mark('Core assets test', JSON.stringify(u), urlOk));
 
   // Bilingual ready
   items.push(mark('i18n', `lang=${localStorage.getItem('lang') || 'en'}`, !!state.i18n));
