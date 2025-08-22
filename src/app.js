@@ -237,13 +237,13 @@ function initCopilot() {
     <label><span id="copilotSampleLabel"></span><select id="copilotSample"></select></label>
     <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
     <button id="copilotRun"></button>
-    <div id="copilotOutput" style="display:flex;gap:1rem">
-      <div style="flex:1">
+    <div id="copilotOutput" class="copilot-output">
+      <div class="copilot-col">
         <h3 id="copilotEnLabel"></h3>
         <pre id="copilotEn" class="preview"></pre>
         <button id="copilotCopyEn"></button>
       </div>
-      <div style="flex:1">
+      <div class="copilot-col">
         <h3 id="copilotEsLabel"></h3>
         <pre id="copilotEs" class="preview"></pre>
         <button id="copilotCopyEs"></button>
