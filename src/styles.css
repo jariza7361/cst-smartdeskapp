@@ -169,7 +169,7 @@ body {
   --muted: #6b7280;
   --accent: #0ea5e9;
 }
-.theme-dark :root {
+.theme-dark {
   --surface: #0f172a;
   --surface-2: #0b1220;
   --text: #e5e7eb;
