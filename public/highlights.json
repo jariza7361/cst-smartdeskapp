@@ -22,5 +22,29 @@
       "en": "Use the Serve/Solve/Sell starter prompt for tricky chats.",
       "es": "Usa el prompt inicial Atender/Resolver/Ofrecer para casos difíciles."
     }
+  },
+  {
+    "id": "billing-checks",
+    "title": { "en": "Billing checks to do first", "es": "Revisiones de facturación" },
+    "body": {
+      "en": "Verify plan, promos, credits and past-due before escalation.",
+      "es": "Verifique plan, promociones, créditos y morosidad antes de escalar."
+    }
+  },
+  {
+    "id": "porting-tips",
+    "title": { "en": "Number porting tips", "es": "Consejos para portar número" },
+    "body": {
+      "en": "Confirm account number, PIN and billing ZIP. Warn about downtime.",
+      "es": "Confirme número de cuenta, PIN y código postal. Avise sobre interrupciones."
+    }
+  },
+  {
+    "id": "fraud-reminder",
+    "title": { "en": "Fraud guardrails", "es": "Guardas contra fraude" },
+    "body": {
+      "en": "Never request full SSN or full card over chat. Use masked inputs.",
+      "es": "Nunca solicite SSN completo ni tarjeta completa por chat. Use datos enmascarados."
+    }
   }
 ]
