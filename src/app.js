@@ -17,6 +17,7 @@ let splashAnimDone = false;
 let splashAssetsDone = false;
 let splashPct = 0;
 let splashPctTimer = null;
+let splashKeyHandler = null;
 
 // Ensure the Copilot select always has at least one option
 function ensureCopilotSeed(lang) {
@@ -160,6 +161,31 @@ function showSplash() {
     bar.classList.remove('run');
     requestAnimationFrame(() => bar.classList.add('run'));
   }
+  // focus trap & Esc to close after first visit
+  const container = document.getElementById('splash');
+  const panel = container?.querySelector('.banner-inner');
+  if (panel) {
+    panel.setAttribute('tabindex', '-1');
+    panel.focus();
+  }
+  splashKeyHandler = (e) => {
+    if (e.key === 'Escape' && localStorage.getItem('welcomeSeen') === '1') hideSplash();
+    if (e.key !== 'Tab') return;
+    const F = "a[href],button,textarea,input,select,[tabindex]:not([tabindex='-1'])";
+    const nodes = [...container.querySelectorAll(F)].filter((el) => !el.disabled);
+    if (!nodes.length) return;
+    const first = nodes[0],
+      last = nodes[nodes.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      last.focus();
+      e.preventDefault();
+    }
+    if (!e.shiftKey && document.activeElement === last) {
+      first.focus();
+      e.preventDefault();
+    }
+  };
+  container.addEventListener('keydown', splashKeyHandler);
   // % counter (smooth, capped until finish)
   splashPct = 0;
   updatePct();
@@ -199,6 +225,8 @@ function hideSplash() {
   el.hidden = true;
   clearInterval(splashMsgTimer);
   clearInterval(splashPctTimer);
+  el.removeEventListener('keydown', splashKeyHandler);
+  splashKeyHandler = null;
 }
 
 function waitForSplashFinish() {
