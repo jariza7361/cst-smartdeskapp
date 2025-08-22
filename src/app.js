@@ -15,6 +15,8 @@ const state = {
 let splashMsgTimer = null;
 let splashAnimDone = false;
 let splashAssetsDone = false;
+let splashPct = 0;
+let splashPctTimer = null;
 
 // Ensure the Copilot select always has at least one option
 function ensureCopilotSeed(lang) {
@@ -158,6 +160,21 @@ function showSplash() {
     bar.classList.remove('run');
     requestAnimationFrame(() => bar.classList.add('run'));
   }
+  // % counter (smooth, capped until finish)
+  splashPct = 0;
+  updatePct();
+  clearInterval(splashPctTimer);
+  splashPctTimer = setInterval(() => {
+    splashPct = Math.min(splashPct + 7, 97);
+    updatePct();
+    if (splashPct >= 97) clearInterval(splashPctTimer);
+  }, 180);
+  const retry = document.getElementById('splashRetry');
+  if (retry)
+    retry.onclick = () => {
+      clearInterval(splashPctTimer);
+      showSplash();
+    };
   const steps = ['LoadingUI', 'LoadingTranslations', 'CheckingCore', 'StartingApp'];
   let idx = 0;
   setStep(steps[idx]);
@@ -170,6 +187,10 @@ function showSplash() {
   splashAssetsDone = false;
   waitForSplashFinish();
 }
+function updatePct() {
+  const el = document.getElementById('splashPct');
+  if (el) el.textContent = `${splashPct}%`;
+}
 
 function hideSplash() {
   const el = document.getElementById('splash');
@@ -177,6 +198,7 @@ function hideSplash() {
   el.classList.remove('show');
   el.hidden = true;
   clearInterval(splashMsgTimer);
+  clearInterval(splashPctTimer);
 }
 
 function waitForSplashFinish() {
@@ -202,7 +224,11 @@ function waitForSplashFinish() {
 }
 
 function maybeCloseSplash() {
-  if (splashAnimDone && splashAssetsDone) hideSplash();
+  if (splashAnimDone && splashAssetsDone) {
+    splashPct = 100;
+    updatePct();
+    hideSplash();
+  }
 }
 
 // --- Setup Wizard ---

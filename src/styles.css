@@ -160,6 +160,22 @@ body {
   color: #a7b0bd;
   min-height: 1.25rem;
 }
+.pct-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.5rem;
+  margin-bottom: 0.25rem;
+}
+#splashPct {
+  color: #a7b0bd;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress .bar.run {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
 
 /* Layout polish */
 :root {

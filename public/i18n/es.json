@@ -40,5 +40,6 @@
   "LoadingUI": "Cargando la interfaz…",
   "LoadingTranslations": "Cargando traducciones…",
   "CheckingCore": "Verificando recursos básicos…",
-  "StartingApp": "Iniciando la aplicación…"
+  "StartingApp": "Iniciando la aplicación…",
+  "Retry": "Reintentar"
 }
