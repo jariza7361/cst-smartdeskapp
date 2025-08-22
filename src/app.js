@@ -45,15 +45,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SHOW SPLASH (new)
   showSplash();
 
-  document.getElementById('splashStart')?.addEventListener('click', () => {
-    const s = document.getElementById('splash');
-    if (s) s.hidden = true;
-  });
-  document.getElementById('splashDismiss')?.addEventListener('click', () => {
-    const s = document.getElementById('splash');
-    if (s) s.hidden = true;
-  });
-
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
@@ -116,6 +107,10 @@ async function toggleLang() {
   localStorage.setItem('lang', next);
   state.i18n = await createI18n(next);
   state.lang = next;
+  const msg = document.getElementById('splashMsg');
+  if (msg && msg.dataset.i18n) {
+    msg.textContent = state.i18n.t(msg.dataset.i18n);
+  }
   localizeStatic();
   renderCopilotUI();
   renderStatus();
@@ -136,12 +131,13 @@ function showSplash() {
   try {
     const el = document.getElementById('splash');
     if (!el) return;
-    // Unhide first, then animate
-    el.hidden = false;
-    requestAnimationFrame(() => {
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 900);
-    });
+    el.hidden = false; // unhide for SSR/meta CSP
+    el.classList.add('show'); // CSS-controlled visibility
+    const msg = document.getElementById('splashMsg');
+    if (msg) {
+      msg.dataset.i18n = 'LoadingSplash';
+      msg.textContent = state.i18n.t('LoadingSplash');
+    }
   } catch {
     /* noop */
   }
@@ -371,6 +367,22 @@ async function run4PointUrlTest() {
   );
   state.urlTest = Object.fromEntries(results);
   renderStatus();
+
+  // mark splash bar done and close shortly after
+  const prog = document.querySelector('#splash .progress');
+  const msg = document.getElementById('splashMsg');
+  if (prog) prog.classList.add('done');
+  if (msg) {
+    msg.dataset.i18n = 'Ready';
+    msg.textContent = state.i18n.t('Ready');
+  }
+  setTimeout(() => {
+    const el = document.getElementById('splash');
+    if (el) {
+      el.classList.remove('show');
+      el.hidden = true;
+    }
+  }, 700);
 }
 function renderStatus() {
   const items = [];
@@ -447,3 +459,16 @@ function escapeHtml(s) {
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c],
   );
 }
+
+const splashDismiss = document.getElementById('splashDismiss');
+const splashStart = document.getElementById('splashStart');
+[splashDismiss, splashStart].forEach((btn) => {
+  if (btn)
+    btn.addEventListener('click', () => {
+      const el = document.getElementById('splash');
+      if (el) {
+        el.classList.remove('show');
+        el.hidden = true;
+      }
+    });
+});
