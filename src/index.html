@@ -15,7 +15,7 @@
     />
     <link rel="stylesheet" href="./styles/tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
-    <!-- no inline styles/scripts: CSP-safe -->
+    <!-- CSP-safe: no inline styles or scripts -->
   </head>
   <body>
     <header class="topbar">
@@ -28,7 +28,7 @@
       </div>
     </header>
 
-    <!-- First-run splash (overlay) -->
+    <!-- Full-screen welcome / loader -->
     <section id="splash" class="banner overlay" role="dialog" aria-labelledby="splashTitle" hidden>
       <div class="banner-inner">
         <div class="banner-body">
@@ -37,9 +37,13 @@
             Faster serve/solve/sell with bilingual responses, carrier checks, and a secure
             workspace.
           </p>
+          <p id="splashNote" class="note" data-i18n="PleaseWait">Please wait…</p>
           <div class="progress" aria-hidden="true">
-            <div class="bar" id="splashProgress" style="width: 0%"></div>
+            <div class="bar" id="splashBar"></div>
           </div>
+          <ul class="steps" aria-live="polite" aria-atomic="true">
+            <li id="splashStep"></li>
+          </ul>
           <div class="banner-actions">
             <button id="splashStart" class="btn-primary" data-i18n="Get Started">
               Get Started

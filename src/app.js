@@ -12,8 +12,9 @@ const state = {
   splashShown: false,
   lang: 'en',
 };
-let splashTimer = null;
-let splashProgress = 0;
+let splashMsgTimer = null;
+let splashAnimDone = false;
+let splashAssetsDone = false;
 
 // Ensure the Copilot select always has at least one option
 function ensureCopilotSeed(lang) {
@@ -43,10 +44,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   state.lang = lang;
   // localize static title immediately
   localizeStatic();
-  // splash: show on first visit, and wire buttons
+  // splash behavior: first visit auto; button to re-open
   const firstVisit = localStorage.getItem('welcomeSeen') !== '1';
   const btnShow = document.getElementById('showWelcome');
-  if (btnShow) btnShow.addEventListener('click', () => showSplash());
+  if (btnShow)
+    btnShow.addEventListener('click', () => {
+      showSplash();
+      setTimeout(() => localStorage.setItem('welcomeSeen', '1'), 800);
+    });
   const btnStart = document.getElementById('splashStart');
   if (btnStart)
     btnStart.addEventListener('click', () => {
@@ -136,16 +141,10 @@ function localizeStatic() {
     .forEach((el) => (el.placeholder = state.i18n.t(el.dataset.i18nPlaceholder)));
 }
 
-function startSplashProgress() {
-  const bar = document.getElementById('splashProgress');
-  if (!bar) return;
-  splashProgress = 0;
-  clearInterval(splashTimer);
-  splashTimer = setInterval(() => {
-    splashProgress = Math.min(100, splashProgress + (8 + Math.random() * 14));
-    bar.style.width = splashProgress + '%';
-    if (splashProgress >= 100) clearInterval(splashTimer);
-  }, 120);
+function setStep(textKey) {
+  const el = document.getElementById('splashStep');
+  if (!el) return;
+  el.textContent = state.i18n ? state.i18n.t(textKey) : textKey;
 }
 
 function showSplash() {
@@ -153,7 +152,22 @@ function showSplash() {
   if (!el) return;
   el.hidden = false;
   el.classList.add('show');
-  startSplashProgress();
+  const bar = document.getElementById('splashBar');
+  if (bar) {
+    bar.classList.remove('run');
+    requestAnimationFrame(() => bar.classList.add('run'));
+  }
+  const steps = ['LoadingUI', 'LoadingTranslations', 'CheckingCore', 'StartingApp'];
+  let idx = 0;
+  setStep(steps[idx]);
+  clearInterval(splashMsgTimer);
+  splashMsgTimer = setInterval(() => {
+    idx = Math.min(idx + 1, steps.length - 1);
+    setStep(steps[idx]);
+  }, 700);
+  splashAnimDone = false;
+  splashAssetsDone = false;
+  waitForSplashFinish();
 }
 
 function hideSplash() {
@@ -161,7 +175,33 @@ function hideSplash() {
   if (!el) return;
   el.classList.remove('show');
   el.hidden = true;
-  clearInterval(splashTimer);
+  clearInterval(splashMsgTimer);
+}
+
+function waitForSplashFinish() {
+  const bar = document.getElementById('splashBar');
+  if (bar) {
+    const onEnd = () => {
+      splashAnimDone = true;
+      maybeCloseSplash();
+    };
+    bar.addEventListener('animationend', onEnd, { once: true });
+    setTimeout(onEnd, 2600);
+  } else {
+    splashAnimDone = true;
+  }
+  Promise.allSettled([
+    fetch('/i18n/en.json', { cache: 'no-store' }),
+    fetch('/i18n/es.json', { cache: 'no-store' }),
+    fetch('/assets/logo.svg', { cache: 'no-store' }),
+  ]).then(() => {
+    splashAssetsDone = true;
+    maybeCloseSplash();
+  });
+}
+
+function maybeCloseSplash() {
+  if (splashAnimDone && splashAssetsDone) hideSplash();
 }
 
 // --- Setup Wizard ---
@@ -462,5 +502,5 @@ function escapeHtml(s) {
 }
 
 window.addEventListener('load', () => {
-  if (localStorage.getItem('welcomeSeen') !== '1') setTimeout(hideSplash, 700);
+  if (localStorage.getItem('welcomeSeen') !== '1') setTimeout(maybeCloseSplash, 400);
 });
