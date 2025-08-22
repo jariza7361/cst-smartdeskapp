@@ -1,4 +1,4 @@
-/* --- Layout / Theme polish --- */
+/* T11b: stronger tokens, glass mode, full-screen splash, fix hero click-through */
 
 /* Skip link (a11y) */
 .skip {
@@ -66,6 +66,14 @@ body {
 }
 .banner.show {
   display: block !important;
+}
+#splash.banner.show {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(5, 8, 15, 0.85);
+  display: grid;
+  place-items: center;
 }
 .banner .banner-inner {
   padding: 1rem;
@@ -279,12 +287,15 @@ body {
 
 .sidebar .carriers {
   display: flex;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
 }
-.sidebar img {
-  height: 28px;
-  opacity: 0.9;
+.sidebar .carriers img {
+  height: 18px;
+  width: auto;
+  opacity: 0.95;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.2));
 }
 
 .dropzone {

@@ -296,18 +296,23 @@ function loadSettings() {
 
 function applyTheme(name) {
   const el = document.documentElement;
-  el.classList.remove('theme-dark', 'theme-glass');
+  el.classList.remove('theme-light', 'theme-dark', 'theme-glass');
   if (name === 'dark') el.classList.add('theme-dark');
   else if (name === 'glass') el.classList.add('theme-glass');
+  else el.classList.add('theme-light');
 }
 
 function forceShowSplash() {
   try {
     localStorage.removeItem('welcomeSeen');
-    showSplash();
-    setTimeout(() => hideSplash(), 1200);
+    const el = document.getElementById('splash');
+    if (!el) return;
+    el.hidden = false;
+    el.classList.add('show');
+    // auto-dismiss after a second
+    setTimeout(() => el.classList.remove('show'), 1200);
   } catch {
-    // ignore
+    /* ignore */
   }
 }
 
