@@ -15,21 +15,21 @@
     />
     <link rel="stylesheet" href="./styles/tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
+    <!-- no inline styles/scripts: CSP-safe -->
   </head>
   <body>
     <header class="topbar">
       <h1 id="appTitle">CST SmartDesk</h1>
       <div class="top-actions">
-        <button id="showWelcome" aria-label="Show Welcome" data-i18n="Show Welcome">
-          Show Welcome
-        </button>
         <button id="langToggle" aria-label="Language">EN/ES</button>
         <button id="openTests">Tests</button>
         <button id="openSettings" aria-controls="setupWizard">Settings</button>
+        <button id="showWelcome" class="btn-quiet" data-i18n="Show Welcome">Show Welcome</button>
       </div>
     </header>
 
-    <section id="splash" class="banner" role="region" aria-labelledby="splashTitle" hidden>
+    <!-- First-run splash (overlay) -->
+    <section id="splash" class="banner overlay" role="dialog" aria-labelledby="splashTitle" hidden>
       <div class="banner-inner">
         <div class="banner-body">
           <h2 id="splashTitle" data-i18n="Welcome">Welcome to CST SmartDesk</h2>
@@ -37,11 +37,8 @@
             Faster serve/solve/sell with bilingual responses, carrier checks, and a secure
             workspace.
           </p>
-          <p id="splashMsg" class="banner-msg" data-i18n="LoadingSplash">
-            Loading CST SmartDesk — stand by…
-          </p>
           <div class="progress" aria-hidden="true">
-            <div class="bar" role="presentation"></div>
+            <div class="bar" id="splashProgress" style="width: 0%"></div>
           </div>
           <div class="banner-actions">
             <button id="splashStart" class="btn-primary" data-i18n="Get Started">
