@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
+  const showBtn = document.getElementById('showWelcome');
+  if (showBtn) showBtn.addEventListener('click', forceShowSplash);
 
   // setup wizard
   const onboarded = localStorage.getItem('onboarded') === '1';
@@ -125,26 +127,30 @@ function showSplash() {
   try {
     const el = document.getElementById('splash');
     if (!el) return;
-    if (localStorage.getItem('splashSeen') === '1') {
-      el.hidden = true;
-      return;
-    }
-
     el.hidden = false;
-    el.classList.add('show');
-
-    const dismiss = () => {
+    requestAnimationFrame(() => {
+      el.classList.add('show');
+    });
+    const start = document.getElementById('splashStart');
+    const dismiss = document.getElementById('splashDismiss');
+    const hide = () => {
       el.classList.remove('show');
       el.hidden = true;
-      localStorage.setItem('splashSeen', '1');
     };
-    document.getElementById('splashStart')?.addEventListener('click', dismiss, { once: true });
-    document.getElementById('splashDismiss')?.addEventListener('click', dismiss, { once: true });
-
-    setTimeout(() => el.classList.remove('show'), 900);
+    if (start) start.onclick = hide;
+    if (dismiss) dismiss.onclick = hide;
   } catch {
     /* noop */
   }
+}
+
+function forceShowSplash() {
+  const el = document.getElementById('splash');
+  if (!el) return;
+  el.hidden = false;
+  requestAnimationFrame(() => {
+    el.classList.add('show');
+  });
 }
 
 // --- Setup Wizard ---
