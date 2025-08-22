@@ -156,3 +156,158 @@ body {
   transform: none;
   transition: width 0.3s ease;
 }
+
+/* Layout polish */
+:root {
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --radius: 12px;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --text: #0d1117;
+  --muted: #6b7280;
+  --accent: #0ea5e9;
+}
+.theme-dark :root {
+  --surface: #0f172a;
+  --surface-2: #0b1220;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #38bdf8;
+}
+
+body {
+  color: var(--text);
+  background: var(--surface-2);
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    'Apple Color Emoji',
+    'Segoe UI Emoji';
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2);
+  background: var(--surface);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.content {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+  padding: var(--space-3);
+}
+@media (min-width: 960px) {
+  .content {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+.sidebar .carriers {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+.sidebar img {
+  height: 28px;
+  opacity: 0.9;
+}
+
+.dropzone {
+  background: var(--surface);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.dropzone.hover {
+  outline: 2px dashed var(--accent);
+  outline-offset: 4px;
+}
+
+.status {
+  background: var(--surface);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+/* Splash banner */
+.banner {
+  display: none; /* will be turned on by JS */
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.12), transparent 60%), var(--surface);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.banner.show {
+  display: block;
+  animation: splashIn 0.28s ease-out both;
+}
+@keyframes splashIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.banner-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-3);
+}
+.banner-body h2 {
+  margin: 0 0 var(--space-1);
+}
+.banner-body p {
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+}
+.banner-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.btn-primary,
+.btn-quiet {
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+.btn-quiet {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Highlights */
+#highlights {
+  max-width: 1100px;
+  margin: var(--space-3) auto;
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius);
+}
+.highlights-hero {
+  height: 180px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(56, 189, 248, 0.15));
+  margin-top: var(--space-2);
+}

@@ -52,15 +52,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (showBtn) showBtn.addEventListener('click', forceShowSplash);
 
   // setup wizard
-  const onboarded = localStorage.getItem('onboarded') === '1';
   const wiz = document.getElementById('setupWizard');
   document.getElementById('openSettings').addEventListener('click', () => wiz.showModal());
   document.getElementById('wizardSave').addEventListener('click', onSaveWizard);
   state.settings = loadSettings();
-
-  if (!onboarded) {
-    wiz.showModal();
-  }
 
   // tests modal
   const testsModal = document.getElementById('testsModal');
@@ -131,12 +126,35 @@ function showSplash() {
   try {
     const el = document.getElementById('splash');
     if (!el) return;
-    el.hidden = false; // unhide for SSR/meta CSP
-    el.classList.add('show'); // CSS-controlled visibility
-    const msg = document.getElementById('splashMsg');
-    if (msg) {
-      msg.dataset.i18n = 'LoadingSplash';
-      msg.textContent = state.i18n.t('LoadingSplash');
+    const alreadyDismissed = localStorage.getItem('splashSeen') === '1';
+    const onboarded = localStorage.getItem('onboarded') === '1';
+    if (alreadyDismissed || onboarded) return;
+
+    // reveal + animate (CSS handles .show)
+    el.hidden = false;
+    requestAnimationFrame(() => el.classList.add('show'));
+
+    // buttons
+    const startBtn = document.getElementById('splashStart');
+    const dismissBtn = document.getElementById('splashDismiss');
+
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        el.hidden = true;
+        el.classList.remove('show');
+        // open setup wizard
+        const wiz = document.getElementById('setupWizard');
+        if (wiz && typeof wiz.showModal === 'function') wiz.showModal();
+        localStorage.setItem('splashSeen', '1');
+      });
+    }
+
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        el.hidden = true;
+        el.classList.remove('show');
+        localStorage.setItem('splashSeen', '1');
+      });
     }
   } catch {
     /* noop */
@@ -163,6 +181,7 @@ function onSaveWizard() {
   };
   if (!s.name || !s.empId || !s.ext) return; // native required also guards
   saveSettings(s);
+  localStorage.setItem('splashSeen', '1');
   if (document.getElementById('dontShow').checked) {
     localStorage.setItem('onboarded', '1');
   }
@@ -367,22 +386,6 @@ async function run4PointUrlTest() {
   );
   state.urlTest = Object.fromEntries(results);
   renderStatus();
-
-  // mark splash bar done and close shortly after
-  const prog = document.querySelector('#splash .progress');
-  const msg = document.getElementById('splashMsg');
-  if (prog) prog.classList.add('done');
-  if (msg) {
-    msg.dataset.i18n = 'Ready';
-    msg.textContent = state.i18n.t('Ready');
-  }
-  setTimeout(() => {
-    const el = document.getElementById('splash');
-    if (el) {
-      el.classList.remove('show');
-      el.hidden = true;
-    }
-  }, 700);
 }
 function renderStatus() {
   const items = [];
