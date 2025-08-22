@@ -285,6 +285,30 @@ body {
   border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
+/* Highlights cards */
+#highlights .cards {
+  margin-top: 1rem;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+#highlights .card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: color-mix(in oklab, var(--card, #0f172a) 92%, transparent);
+}
+#highlights .card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+#highlights .card p {
+  margin: 0;
+  color: var(--muted, #94a3b8);
+  line-height: 1.35;
+  font-size: 0.92rem;
+}
+
 .status {
   background: var(--surface);
   border: 1px solid rgba(0, 0, 0, 0.06);
