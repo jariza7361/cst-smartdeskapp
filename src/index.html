@@ -15,13 +15,16 @@
     <header class="topbar">
       <h1 id="appTitle">CST SmartDesk</h1>
       <div class="top-actions">
+        <button id="showWelcome" aria-label="Show Welcome" data-i18n="Show Welcome">
+          Show Welcome
+        </button>
         <button id="langToggle" aria-label="Language">EN/ES</button>
         <button id="openTests">Tests</button>
         <button id="openSettings" aria-controls="setupWizard">Settings</button>
       </div>
     </header>
 
-    <section id="splash" class="banner" role="region" aria-labelledby="splashTitle">
+    <section id="splash" class="banner" role="region" aria-labelledby="splashTitle" hidden>
       <div class="banner-inner">
         <div class="banner-body">
           <h2 id="splashTitle" data-i18n="Welcome">Welcome to CST SmartDesk</h2>
