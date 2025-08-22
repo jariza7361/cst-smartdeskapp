@@ -5,7 +5,7 @@
 - **Security/CSP:** No external scripts or CDNs; never use `document.write`; sanitize all inputs; no unescaped `</script>`.
 - **Zero layout drift:** Preserve design tokens and layout; any intentional visual change must update snapshots.
 - **Bilingual engine:** Any new user-facing copy MUST provide `{ en, es }`. Do not switch UI language unless the user toggles it.
-- **House paths:** Frontend script is **`/public/app.js`** (served as `/app.js` via rewrites). Assets live under `/public/assets`. Serverless under `/api/**`.
+- **House paths:** Frontend script is **`/public/app.js`** (served as `/app.js` via rewrites). Assets live under `src/public/assets` (served from `/assets`). Copilot samples at `src/public/copilot-prompts.json`. Serverless under `/api/**`.
 
 ## Environment
 
@@ -29,7 +29,7 @@
 2. `npm run test` → **PASS**.
 3. `npm run e2e:codex` → **PASS**, or print note when browsers unavailable (CI runs `npm run e2e`).
 4. **4-point URL smoke:** `/`, `/app.js`, `/assets/logo.svg`, `/api/fetch` reachable locally.
-5. **i18n coverage:** All added strings exist in both `public/i18n/en.json` and `public/i18n/es.json`.
+5. **i18n coverage:** All added strings exist in both `src/public/i18n/en.json` and `src/public/i18n/es.json`.
 6. **CSP:** No `securitypolicyviolation` events during a basic route tour.
 7. If dependencies changed, run `npm install --package-lock-only` and commit `package-lock.json`.
 8. Run `npm run dev` and ensure `/`, `/app.js`, `/assets/logo.svg`, `/api/fetch` return **200**.
@@ -47,8 +47,9 @@
 ## Allowed Files to Modify
 
 - `/public/**` (frontend code, utils, styles),
+- `src/public/assets/**`,
 - `/api/**` (serverless functions),
-- `/public/i18n/*.json`,
+- `src/public/i18n/*.json`,
 - `/tests/**`, `/e2e/**`, `playwright.config.*`, `vitest.config.*`,
 - `vercel.json`, `package.json`, `README.md`, `AGENTS.md`.
 

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   localizeStatic();
 
   // SHOW SPLASH (new)
-  initSplash();
+  showSplash();
 
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
@@ -121,36 +121,30 @@ function localizeStatic() {
     .forEach((el) => (el.placeholder = state.i18n.t(el.dataset.i18nPlaceholder)));
 }
 
-// --- replace your existing showSplash() with this ---
-function initSplash() {
-  const el = document.getElementById('splash');
-  if (!el) return;
+function showSplash() {
+  try {
+    const el = document.getElementById('splash');
+    if (!el) return;
+    if (localStorage.getItem('splashSeen') === '1') {
+      el.hidden = true;
+      return;
+    }
 
-  // respect prior dismiss/onboarding
-  const dismissed = localStorage.getItem('cst.splash.dismissed') === '1';
-  const onboarded = localStorage.getItem('onboarded') === '1';
-  if (dismissed || onboarded) return;
+    el.hidden = false;
+    el.classList.add('show');
 
-  // actually show it
-  el.hidden = false; // ⬅️ key fix: unhide
-  requestAnimationFrame(() => {
-    el.classList.add('show'); // optional animation class
-  });
+    const dismiss = () => {
+      el.classList.remove('show');
+      el.hidden = true;
+      localStorage.setItem('splashSeen', '1');
+    };
+    document.getElementById('splashStart')?.addEventListener('click', dismiss, { once: true });
+    document.getElementById('splashDismiss')?.addEventListener('click', dismiss, { once: true });
 
-  // buttons
-  const start = document.getElementById('splashStart');
-  const dismiss = document.getElementById('splashDismiss');
-
-  start?.addEventListener('click', () => {
-    el.hidden = true;
-    // guide user into the setup wizard on first use
-    document.getElementById('setupWizard')?.showModal();
-  });
-
-  dismiss?.addEventListener('click', () => {
-    el.hidden = true;
-    localStorage.setItem('cst.splash.dismissed', '1');
-  });
+    setTimeout(() => el.classList.remove('show'), 900);
+  } catch {
+    /* noop */
+  }
 }
 
 // --- Setup Wizard ---
