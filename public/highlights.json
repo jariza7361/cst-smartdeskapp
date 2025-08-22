@@ -1,0 +1,26 @@
+[
+  {
+    "id": "outage-check",
+    "title": { "en": "Outage quick check", "es": "Chequeo rápido de averías" },
+    "body": {
+      "en": "Before you escalate, run a 30-second service check.",
+      "es": "Antes de escalar, realiza una verificación de servicio de 30 segundos."
+    }
+  },
+  {
+    "id": "billing-policy",
+    "title": { "en": "Billing policy refresher", "es": "Recordatorio de política de facturación" },
+    "body": {
+      "en": "Refunds require supervisor approval beyond 30 days.",
+      "es": "Reembolsos requieren aprobación del supervisor después de 30 días."
+    }
+  },
+  {
+    "id": "tone-template",
+    "title": { "en": "Tone template (EN/ES)", "es": "Plantilla de tono (EN/ES)" },
+    "body": {
+      "en": "Use the Serve/Solve/Sell starter prompt for tricky chats.",
+      "es": "Usa el prompt inicial Atender/Resolver/Ofrecer para casos difíciles."
+    }
+  }
+]

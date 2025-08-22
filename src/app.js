@@ -128,6 +128,7 @@ async function toggleLang() {
   localizeStatic();
   renderCopilotUI();
   renderStatus();
+  loadHighlights();
 }
 
 function localizeStatic() {
@@ -504,3 +505,28 @@ function escapeHtml(s) {
 window.addEventListener('load', () => {
   if (localStorage.getItem('welcomeSeen') !== '1') setTimeout(maybeCloseSplash, 400);
 });
+
+// ---------- Highlights: render from public/highlights.json ----------
+async function loadHighlights() {
+  const host = document.getElementById('highlightsList');
+  if (!host) return;
+  try {
+    const list = await fetch('/highlights.json', { cache: 'no-store' }).then((r) =>
+      r.ok ? r.json() : [],
+    );
+    host.innerHTML = '';
+    list.forEach((item) => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      const title = item.title?.[state.lang] || item.title?.en || '';
+      const body = item.body?.[state.lang] || item.body?.en || '';
+      card.innerHTML = `<h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p>`;
+      host.appendChild(card);
+    });
+  } catch {
+    // keep empty on error
+  }
+}
+
+// run on first load and when language toggles
+document.addEventListener('DOMContentLoaded', loadHighlights);
