@@ -40,5 +40,6 @@
   "LoadingUI": "Loading user interface…",
   "LoadingTranslations": "Loading translations…",
   "CheckingCore": "Checking core assets…",
-  "StartingApp": "Starting app…"
+  "StartingApp": "Starting app…",
+  "Retry": "Retry"
 }
