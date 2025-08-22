@@ -19,7 +19,7 @@
   "Set OPENAI_API_KEY in Vercel to enable Copilot.": "Configure OPENAI_API_KEY en Vercel para habilitar Copilot.",
   "Copilot reachable": "Copilot alcanzable",
   "Highlights": "Aspectos destacados",
-  "HighlightsIntro": "Consejos y actualizaciones principales para expertos de CST",
+  "HighlightsIntro": "Consejos y novedades principales para expertos de CST",
   "Show Welcome": "Mostrar bienvenida",
   "SetupTitle": "Configuración inicial",
   "SetupName": "Nombre del experto",
@@ -33,7 +33,7 @@
   "SetupEmpIdPlaceholder": "Ingresa tu ID de empleado",
   "SetupExtPlaceholder": "Ingresa tu extensión CST",
   "Welcome": "Bienvenido a CST SmartDesk",
-  "WelcomeIntro": "Sirve/resuelve/vende más rápido con respuestas bilingües, verificaciones de operadores y un espacio de trabajo seguro.",
+  "WelcomeIntro": "Atiende, resuelve y ofrece más rápido con respuestas bilingües, verificaciones de operadoras y un espacio de trabajo seguro.",
   "Get Started": "Comenzar",
-  "Dismiss": "Descartar"
+  "Dismiss": "Omitir"
 }
