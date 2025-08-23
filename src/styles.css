@@ -192,6 +192,16 @@ body {
   color: #a7b0bd;
   min-height: 1.25rem;
 }
+/* Splash status lines */
+#splash .msgs {
+  margin-top: 8px;
+  max-width: min(520px, 80vw);
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-line;
+}
 .pct-row {
   display: flex;
   justify-content: flex-end;

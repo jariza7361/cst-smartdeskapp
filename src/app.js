@@ -13,6 +13,18 @@ const state = {
   splashShown: false,
   lang: 'en',
 };
+
+// Highlights bootstrap (silent if missing or bad shape)
+(async function bootstrapHighlights() {
+  try {
+    const res = await fetch('/highlights.json', { cache: 'no-store' });
+    const data = res.ok ? await res.json() : [];
+    const isCard = (x) => x && typeof x === 'object' && x.title && x.body;
+    window.__HIGHLIGHTS__ = Array.isArray(data) ? data.filter(isCard) : [];
+  } catch {
+    window.__HIGHLIGHTS__ = [];
+  }
+})();
 let splashMsgTimer = null;
 let splashAnimDone = false;
 let splashAssetsDone = false;
@@ -86,6 +98,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
 
+  // Command Center button (bugfix: proper arrow function)
+  const cmdBtn = document.getElementById('openCmd');
+  if (cmdBtn && typeof window.openModal === 'function') {
+    cmdBtn.onclick = () => window.openModal('commands');
+  }
+
   // Load copilot prompts (best-effort), then seed if none
   try {
     state.copilotSamples = await fetch('/copilot-prompts.json').then((r) => (r.ok ? r.json() : []));
@@ -147,9 +165,11 @@ function localizeStatic() {
 }
 
 function setStep(textKey) {
-  const el = document.getElementById('splashStep');
-  if (!el) return;
-  el.textContent = state.i18n ? state.i18n.t(textKey) : textKey;
+  const stepEl = document.getElementById('splashStep');
+  const msgEl = document.getElementById('splashMsgs');
+  const text = state.i18n ? state.i18n.t(textKey) : textKey;
+  if (stepEl) stepEl.textContent = text;
+  if (msgEl) msgEl.textContent = text;
 }
 
 function showSplash() {
