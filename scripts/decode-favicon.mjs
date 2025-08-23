@@ -18,5 +18,5 @@ try {
   }
 } catch (e) {
   console.error('[decode-favicon] error:', e.message);
-  process.exit(0); // don’t fail builds; favicon is optional
+  process.exit(0); // do not fail builds if favicon missing
 }
