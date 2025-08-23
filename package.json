@@ -17,7 +17,8 @@
     "e2e:codex": "scripts/e2e-codex.sh",
     "check:lock": "node scripts/check-lock.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "prebuild": "node scripts/decode-favicon.mjs"
+    "prebuild": "node scripts/validate-entry.mjs && node scripts/decode-favicon.mjs",
+    "test:ci": "node tests/decode-favicon.smoke.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
