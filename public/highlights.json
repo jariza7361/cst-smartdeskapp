@@ -11,11 +11,13 @@
   {
     "id": "vzw-tnc",
     "date": "2025-08-22",
-    "title": { "en": "Verizon Protection Terms focus", "es": "Enfoque en Términos de Protección de Verizon" },
+    "title": {
+      "en": "Verizon Protection Terms focus",
+      "es": "Enfoque en Términos de Protección de Verizon"
+    },
     "body": {
       "en": "We’re starting with Verizon Protection terms. Carrier Hub → Verizon.",
       "es": "Comenzamos con los términos de protección de Verizon. Carrier Hub → Verizon."
     }
   }
 ]
-
