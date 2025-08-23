@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "welcome",
+    "date": "2025-08-22",
+    "title": { "en": "Welcome to SmartDesk v1.6", "es": "Bienvenido a SmartDesk v1.6" },
+    "body":  { "en": "Splash, dark theme, and seed T&C docs are ready.",
+               "es": "Splash, tema oscuro y documentos T&C de muestra listos." }
+  },
+  {
+    "id": "vzw-tnc",
+    "date": "2025-08-22",
+    "title": { "en": "Verizon Protection Terms focus", "es": "Enfoque en Términos de Protección de Verizon" },
+    "body":  { "en": "We’re starting with Verizon Protection terms. Carrier Hub → Verizon.",
+               "es": "Comenzamos con los términos de protección de Verizon. Carrier Hub → Verizon." }
+  }
+]
