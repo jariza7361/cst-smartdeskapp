@@ -1,0 +1,7 @@
+[
+  {
+    "id": "serve_solve_sell",
+    "label": { "en": "Serve / Solve / Sell (starter)", "es": "Atender / Resolver / Ofrecer (inicio)" },
+    "prompt": "Follow Observe-AI style. In English and Spanish, write a concise, professional response that (1) serves: acknowledge & empathize, (2) solves: steps, checks, policy guardrails, (3) sells: set expectation, optional upsell or value reinforcement. Ask a confirm-at-end question. If the user pasted context, adapt to it."
+  }
+]

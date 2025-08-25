@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (top) top.style.zIndex = '20';
 
   // theme + listeners...
-  applyTheme('dark'); // force dark theme for now
+  applyTheme(loadSettings()?.theme || 'light');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
   // setup wizard
@@ -295,14 +295,11 @@ function loadSettings() {
 }
 
 function applyTheme(name) {
-  // Force dark theme for now for debugging
   const el = document.documentElement;
   el.classList.remove('theme-light', 'theme-dark', 'theme-glass');
-  el.classList.add('theme-dark');
-  // If you want to restore dynamic theme, comment the above and uncomment below:
-  // if (name === 'dark') el.classList.add('theme-dark');
-  // else if (name === 'glass') el.classList.add('theme-glass');
-  // else el.classList.add('theme-light');
+  if (name === 'dark') el.classList.add('theme-dark');
+  else if (name === 'glass') el.classList.add('theme-glass');
+  else el.classList.add('theme-light');
 }
 
 function forceShowSplash() {
@@ -362,13 +359,9 @@ function preview(obj) {
 
 // --- Copilot ---
 function initCopilot() {
-  let main = document.querySelector('.content');
-  if (!main) {
-    // fallback: create .content if missing
-    main = document.createElement('div');
-    main.className = 'content';
-    document.body.appendChild(main);
-  }
+  // Updated for new markup: content is a section with class "content"
+  const main = document.querySelector('.content');
+  if (!main) return; // safety: don't crash if structure changes
   const sec = document.createElement('section');
   sec.id = 'copilotSection';
   sec.innerHTML = `
