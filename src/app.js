@@ -13,6 +13,7 @@ const state = {
   splashShown: false,
   lang: 'en',
   redirectTo: null,
+  engine: localStorage.getItem('cst_engine') || 'templates', // 'templates' | 'local-llm'
 };
 let splashMsgTimer = null;
 let splashAnimDone = false;
@@ -20,6 +21,24 @@ let splashAssetsDone = false;
 let splashPct = 0;
 let splashPctTimer = null;
 let splashKeyHandler = null;
+
+// Copilot engine toggle (console-friendly)
+function setEngine(v) {
+  state.engine = v;
+  localStorage.setItem('cst_engine', v);
+  showToast('Engine: ' + v);
+}
+// expose for console usage
+try {
+  window.setEngine = setEngine;
+} catch {
+  /* ignore */
+}
+
+async function localLLM(prompt) {
+  // Placeholder offline path: returns templated draft. Future: load WebGPU/WASM model locally.
+  return `[LOCAL ENGINE]\n\n` + String(prompt || '') + `\n\n(Template assist applied.)`;
+}
 
 // Ensure the Copilot select always has at least one option
 function ensureCopilotSeed(lang) {
@@ -166,7 +185,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const key = el.getAttribute('data-open');
     if (!key) return;
     // Known quick actions
-    if (key === 'tests') return openModal('tests');
+  if (key === 'tests') return openModal('tests');
     if (key === 'tools:denials') {
       openDenials();
       return;
@@ -189,7 +208,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       'tools:denials': 'Denials',
       'tools:affidavits': 'Affidavits',
       'tools:byod': 'BYOD Premium Check',
-  'tools:smartdrop': 'SmartDrop OCR',
+      'tools:smartdrop': 'SmartDrop (OCR)',
+      // compatibility if a plain key is used in markup
+      smartdrop: 'SmartDrop (OCR)'
     };
     const productMap = {
       'product:UBIF': 'uBreakiFix',
@@ -200,23 +221,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       'product:ATT_HTP': 'AT&T Home Tech Protection',
     };
     if (toolMap[key]) {
-      if (key === 'tools:smartdrop') {
-        const picker = document.createElement('input');
-        picker.type = 'file';
-        picker.accept = '.png,.jpg,.jpeg,.pdf,.tif,.tiff,.bmp,.gif,.webp,.heic,.docx,.xlsx,.eml';
-        picker.onchange = async () => {
-          const f = picker.files?.[0];
-          if (!f) return;
-          showToast('Running local OCR…');
-          try {
-            const text = await runOCRFromFile(f);
-            logQA('SmartDrop OCR:\n' + (text.slice(0, 800) || '(no text)'));
-          } catch (e) {
-            showToast('OCR failed', 'warn');
-            logQA('OCR error: ' + e.message);
-          }
-        };
-        picker.click();
+      if (key === 'tools:smartdrop' || key === 'smartdrop') {
+        openSmartDrop();
       } else {
         logQA(`Tool open → ${toolMap[key]} (TODO: modal/panel)`);
         showToast(toolMap[key]);
@@ -252,6 +258,179 @@ function logQA(msg) {
   } catch {
     /* ignore */
   }
+}
+
+// --- SmartDrop modal/controller (local, no backend) ---
+function openSmartDrop() {
+  const modal = document.getElementById('modal-smartdrop');
+  if (!modal) return showToast('SmartDrop not available');
+  modal.hidden = false;
+  // close handler
+  const closeBtn = modal.querySelector('[data-close]');
+  if (closeBtn) closeBtn.onclick = () => (modal.hidden = true);
+
+  const drop = document.getElementById('sd_drop');
+  const file = document.getElementById('sd_file');
+  const prev = document.getElementById('sd_preview');
+  const status = document.getElementById('sd_status');
+  const suggestWrap = document.getElementById('sd_suggest');
+  const suggestLabel = document.getElementById('sd_suggest_label');
+  const learnChk = document.getElementById('sd_learn');
+  const btnDen = document.getElementById('sd_route_denials');
+  const btnRpf = document.getElementById('sd_route_rpfr');
+  const btnFmi = document.getElementById('sd_route_fmip');
+
+  function setStatus(msg) {
+    if (status) status.textContent = msg || '';
+  }
+  function tokenize(s) {
+    const STOP = new Set(
+      (
+        'a,an,the,of,to,in,for,on,and,or,if,then,with,by,be,is,are,was,were,as,at,from,that,this,it,its,into,you,your,' +
+        'de,la,el,los,las,un,una,para,por,con,en,es,son,era,eran,como,que,esto,este,su'
+      ).split(',')
+    );
+    return (s || '')
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !STOP.has(w))
+      .slice(0, 400);
+  }
+  function loadJSON(key, def) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || '') || def;
+    } catch {
+      return def;
+    }
+  }
+  function saveJSON(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+  }
+  function saveToBucket(dest, text, meta = {}) {
+    const ROUTE_KEYS = { denials: 'cst_bucket_denials', rpfr: 'cst_bucket_rpfr', fmip: 'cst_bucket_fmip' };
+    const legacyKey = ROUTE_KEYS[dest];
+    const unifiedKey = 'cst_bucket:' + dest;
+    if (!dest) return;
+    const entry = { ts: Date.now(), text: String(text || '').slice(0, 20000), meta };
+    // write legacy key (for backward compatibility)
+    if (legacyKey) {
+      const arr = loadJSON(legacyKey, []);
+      arr.unshift(entry);
+      saveJSON(legacyKey, arr.slice(0, 200));
+    }
+    // write unified key used by Bucket Views/Compose
+    const uarr = loadJSON(unifiedKey, []);
+    uarr.unshift(entry);
+    saveJSON(unifiedKey, uarr.slice(0, 200));
+  }
+  function learnRoute(dest, text) {
+    const RULES_KEY = 'cst_route_rules_v1';
+    const rules = loadJSON(RULES_KEY, {});
+    for (const tok of tokenize(text)) {
+      rules[tok] ??= { denials: 0, rpfr: 0, fmip: 0 };
+      rules[tok][dest] += 1;
+    }
+    saveJSON(RULES_KEY, rules);
+  }
+  function suggestRoute(text) {
+    const RULES_KEY = 'cst_route_rules_v1';
+    const rules = loadJSON(RULES_KEY, {});
+    const score = { denials: 0, rpfr: 0, fmip: 0 };
+    for (const tok of tokenize(text)) {
+      const r = rules[tok];
+      if (!r) continue;
+      score.denials += r.denials;
+      score.rpfr += r.rpfr;
+      score.fmip += r.fmip;
+    }
+    const best = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
+    return { score, best: best && best[1] > 0 ? best[0] : null };
+  }
+  function setSuggest(text) {
+    const s = suggestRoute(text || '');
+    if (s.best) {
+      suggestWrap.style.display = '';
+      const label = s.best === 'rpfr' ? 'RPFR' : s.best === 'fmip' ? 'FMIP' : 'Denials';
+      suggestLabel.textContent = `${label} (learned)`;
+    } else {
+      suggestWrap.style.display = 'none';
+      suggestLabel.textContent = '';
+    }
+  }
+
+  // drag/drop
+  ['dragenter', 'dragover'].forEach((evt) =>
+    drop.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      drop.style.background = '#141422';
+    })
+  );
+  ['dragleave', 'drop'].forEach((evt) =>
+    drop.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      drop.style.background = '';
+    })
+  );
+
+  drop.addEventListener('drop', async (e) => {
+    const f = e.dataTransfer?.files?.[0];
+    if (!f) return;
+    await handleFile(f);
+  });
+  file.addEventListener('change', async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    await handleFile(f);
+    file.value = '';
+  });
+
+  async function handleFile(f) {
+    setStatus(`Processing "${f.name}"…`);
+    showToast('Analyzing file…');
+    try {
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      let txt = '';
+      if (/(png|jpg|jpeg|bmp|gif|webp|tif|tiff|pdf|heic)$/.test(ext)) {
+        txt = await runOCRFromFile(f);
+      } else if (/(txt|csv|log|md|json)$/.test(ext)) {
+        txt = await f.text();
+      } else {
+        try {
+          txt = await f.text();
+        } catch {
+          txt = `[${ext.toUpperCase()} unsupported for OCR preview]`;
+        }
+      }
+      prev.value = String(txt || '').trim();
+      const previewShort = (prev.value.slice(0, 240) || '(no text)').replace(/\s+/g, ' ');
+      logQA(`SmartDrop: ${f.name}\n→ ${previewShort}${prev.value.length > 240 ? '…' : ''}`);
+      setSuggest(prev.value);
+      setStatus('Ready to route. Tip: edit the text before routing if needed.');
+    } catch (err) {
+      setStatus('Error reading file.');
+      showToast('SmartDrop failed', 'warn');
+      logQA('SmartDrop error: ' + (err?.message || err));
+    }
+  }
+
+  function route(dest) {
+    const text = prev.value.trim();
+    if (!text) {
+      showToast('Nothing to route', 'warn');
+      return;
+    }
+    saveToBucket(dest, text, { from: 'smartdrop' });
+    if (learnChk?.checked) learnRoute(dest, text);
+    showToast(`Routed to ${dest.toUpperCase()}`);
+    setStatus(`Routed to ${dest.toUpperCase()} at ${new Date().toLocaleTimeString()}`);
+  }
+
+  btnDen.addEventListener('click', () => route('denials'));
+  btnRpf.addEventListener('click', () => route('rpfr'));
+  btnFmi.addEventListener('click', () => route('fmip'));
 }
 
 // --- Denials Library (starter content, extend freely) ---
@@ -742,18 +921,33 @@ async function onCopilotRun() {
   msg.textContent = state.i18n.t('Loading...');
   msg.hidden = false;
   try {
-    const res = await fetch('/api/copilot', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error();
-    outEn.textContent = data.en || '';
-    outEs.textContent = data.es || '';
-    msg.hidden = true;
+    if (state.engine === 'local-llm') {
+      const out = await localLLM(prompt);
+      outEn.textContent = out;
+      outEs.textContent = out; // simple mirror for now
+      msg.hidden = true;
+    } else {
+      const res = await fetch('/api/copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(String(res.status || 'Copilot error'));
+      outEn.textContent = data.en || '';
+      outEs.textContent = data.es || '';
+      msg.hidden = true;
+    }
   } catch {
-    msg.textContent = state.i18n.t('Set OPENAI_API_KEY in Vercel to enable Copilot.');
+    if (state.engine === 'templates') {
+      // Provide a graceful offline draft instead of a hard failure
+      const offline = 'Draft: ' + (user || '').trim() + '\n\n(Select a specific denial or switch engine to Local LLM beta.)';
+      outEn.textContent = offline;
+      outEs.textContent = offline;
+      msg.hidden = true;
+    } else {
+      msg.textContent = state.i18n.t('Set OPENAI_API_KEY in Vercel to enable Copilot.');
+    }
   }
   await checkCopilot();
 }
@@ -999,3 +1193,308 @@ function runQA() {
     if (misses.length) logQA('QA misses: ' + misses.join(', '));
   }, 600);
 }
+
+/* ================================
+   BUCKET VIEWS (Denials / RPFR / FMIP)
+   Single paste: drop at the bottom of /app.js
+   ================================ */
+
+(function bucketViewsInit(){
+  const $ = (s, c=document) => c.querySelector(s);
+  const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+
+  // ---- 1) Create "Routed Buckets" section in the sidebar (no HTML edits needed)
+  const sidebar = $('#sidebar');
+  if (sidebar && !$('#bucketSection')) {
+    const title = document.createElement('div');
+    title.className = 'side-title';
+    title.textContent = 'Routed Buckets';
+    title.id = 'bucketSection';
+
+    const list = document.createElement('ul');
+    list.className = 'nav';
+    list.innerHTML = `
+  <li data-open="tools:copilot">🤖 Copilot</li>
+      <li data-open="bucket:denials">🚨 Denials</li>
+      <li data-open="bucket:rpfr">💳 RPFR</li>
+      <li data-open="bucket:fmip">📱 FMIP</li>
+    `;
+
+    sidebar.appendChild(title);
+    sidebar.appendChild(list);
+
+    // hook the new openers
+    list.querySelectorAll('[data-open]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const key = el.getAttribute('data-open');
+        if(key?.startsWith('bucket:')){
+          const name = key.split(':')[1];
+          openBucket(name);
+        }
+      });
+    });
+  }
+
+  // ---- 2) Inject a generic Bucket Modal into DOM (still no HTML file edits)
+  if (!$('#modal-bucket')) {
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-backdrop';
+    wrap.id = 'modal-bucket';
+    wrap.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bucketTitle">
+        <header style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <h3 id="bucketTitle" style="margin:0">Bucket</h3>
+          <div style="display:flex;gap:8px">
+            <button class="btn secondary" id="bucketExport">Export JSON</button>
+            <button class="btn secondary" id="bucketClear">Clear</button>
+            <button class="btn secondary" data-close>Close</button>
+          </div>
+        </header>
+        <div class="content">
+          <div id="bucketMeta" class="muted" style="margin-bottom:8px"></div>
+          <div id="bucketEmpty" class="muted" style="display:none">No items yet. Use SmartDrop to route content here.</div>
+          <div id="bucketList" style="display:grid;gap:10px"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(wrap);
+
+    // close handlers (backdrop & button)
+    wrap.addEventListener('click', (e)=>{ if(e.target===wrap) closeModal(wrap); });
+    wrap.querySelector('[data-close]')?.addEventListener('click', ()=> closeModal(wrap));
+  }
+
+  // ---- 3) Local helpers
+  const BKT_LABEL = { denials: 'Denials', rpfr: 'RPFR', fmip: 'FMIP' };
+  function readBucket(name){
+    try { return JSON.parse(localStorage.getItem('cst_bucket:'+name) || '[]'); }
+    catch { return []; }
+  }
+  function writeBucket(name, arr){
+    localStorage.setItem('cst_bucket:'+name, JSON.stringify(arr||[]));
+  }
+  function fmtDate(ts){
+    try{ return new Date(ts).toLocaleString(); } catch { return ''+ts; }
+  }
+  function fmtBytes(n){
+    const b = Number(n)||0; if(b<1024) return b+' B';
+    const u=['KB','MB','GB']; let i=-1, s=b;
+    do { s/=1024; i++; } while (s>=1024 && i<u.length-1);
+    return s.toFixed(s<10?2:1)+' '+u[i];
+  }
+  async function copyText(s){
+    try{ await navigator.clipboard.writeText(s||''); showToast?.('Copied'); }catch{ showToast?.('Copy failed','warn'); }
+  }
+  function downloadJSON(filename, data){
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+  }
+
+  // ---- 4) Renderer
+  function renderBucket(name){
+    const arr = readBucket(name);
+    const modal = $('#modal-bucket');
+    const list = $('#bucketList');
+    const empty = $('#bucketEmpty');
+    const meta = $('#bucketMeta');
+
+    if (!modal || !list || !empty || !meta) return;
+    $('#bucketTitle').textContent = `${BKT_LABEL[name] || name} Bucket`;
+    meta.textContent = `${arr.length} item(s) · key: cst_bucket:${name}`;
+
+    list.innerHTML = '';
+    if (!arr.length){
+      empty.style.display = 'block';
+      list.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    list.style.display = 'grid';
+
+    arr
+    // newest first
+    .slice().sort((a,b)=>(b?.ts||0)-(a?.ts||0))
+    .forEach((it, idx)=>{
+      // tolerant fields
+      const title = it?.name || it?.fileName || `Item ${idx+1}`;
+      const when = fmtDate(it?.ts || Date.now());
+      const type = it?.type || it?.mime || 'text/plain';
+      const size = fmtBytes(it?.size || (it?.text? it.text.length : 0));
+      const text = (it?.text || it?.content || '').toString();
+
+      const card = document.createElement('article');
+      card.className = 'tile';
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</div>
+          <div class="muted" style="font-size:12px">${when}</div>
+        </div>
+        <div class="muted" style="font-size:12px;margin:6px 0">${type} · ${size}</div>
+        <textarea readonly rows="5" style="width:100%;resize:vertical;background:var(--panel-2);border:1px solid var(--border);color:var(--ink);padding:8px;border-radius:8px">${text}</textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="btn secondary" data-act="copy">Copy</button>
+          <button class="btn secondary" data-act="remove">Remove</button>
+        </div>
+      `;
+      card.querySelector('[data-act="copy"]')?.addEventListener('click', ()=> copyText(text));
+      card.querySelector('[data-act="remove"]')?.addEventListener('click', ()=>{
+        const fresh = readBucket(name);
+        const idxToRemove = fresh.findIndex(x => (x?.id && x.id===it.id) || x===it);
+        if (idxToRemove>-1) { fresh.splice(idxToRemove,1); writeBucket(name, fresh); }
+        renderBucket(name);
+      });
+      list.appendChild(card);
+    });
+
+    // wire Export/Clear
+    $('#bucketExport')?.addEventListener('click', ()=> {
+      const data = readBucket(name);
+      downloadJSON(`cst-${name}-bucket.json`, data);
+    });
+    $('#bucketClear')?.addEventListener('click', ()=> {
+      if (!confirm(`Clear all items from ${BKT_LABEL[name]||name}?`)) return;
+      writeBucket(name, []);
+      renderBucket(name);
+      showToast?.('Bucket cleared.');
+    });
+  }
+
+  // ---- 5) Open/Close helpers (reuse app modal UX)
+  function openBucket(name){
+    renderBucket(name);
+    const modal = $('#modal-bucket');
+    if (!modal) return;
+    modal.style.display='flex';
+    document.body.style.overflow='hidden';
+  }
+  function closeModal(el){
+    const mb = el?.closest?.('.modal-backdrop') || el;
+    if(mb){ mb.style.display='none'; document.body.style.overflow=''; }
+  }
+
+  // ---- 6) Also hook global [data-open] if app added more later
+  $$('[data-open]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const key = el.getAttribute('data-open');
+      if(key?.startsWith?.('bucket:')) openBucket(key.split(':')[1]);
+    });
+  });
+
+  // Optional: QA log hint
+  try {
+    const sizes = ['denials','rpfr','fmip'].map(n=>`${n}:${(readBucket(n)||[]).length}`).join(' | ');
+    (window.logQA||console.debug)(`Buckets: ${sizes}`);
+  } catch {}
+})();
+
+/* =========================================
+   BUCKET ➜ COPILOT COMPOSE WIRING
+   Drop at the bottom of /app.js
+   ========================================= */
+
+(function bucketToCopilot(){
+  const $ = (s,c=document)=>c.querySelector(s);
+  const $$= (s,c=document)=>Array.from(c.querySelectorAll(s));
+
+  // ---- Templates per bucket
+  function buildBucketPrompt(kind, itemText){
+    const who = (JSON.parse(localStorage.getItem('cst_profile')||'null')?.first) || 'Agent';
+    const lang = (localStorage.getItem('cst_lang')||localStorage.getItem('lang')||'en').toUpperCase();
+    const bilingual = localStorage.getItem('cst_bilingual')==='1';
+
+    const header = `You are CST Copilot. Return:\n1) Chat Script (${lang}${bilingual?'+ES':''})\n2) Alpha Note\n3) Tag\n4) Email (if needed)\n`;
+    const context = `Expert: ${who}\nSource bucket: ${String(kind||'general').toUpperCase()}\n---\n` + (itemText||'').trim();
+
+    if (kind === 'denials') {
+      return `${header}\nDenial context below. Produce SERVE/SOLVE/SELL.\n${context}`;
+    }
+    if (kind === 'rpfr') {
+      return `${header}\nRPFR (Retail Purchase For Reimbursement) case. Summarize deductible handling and refund path.\n${context}`;
+    }
+    if (kind === 'fmip') {
+      return `${header}\nFMIP (Find My iPhone) override coaching. Return customer-facing steps + internal Alpha.\n${context}`;
+    }
+    return `${header}\nGeneral CST assistance.\n${context}`;
+  }
+
+  // ---- Open Copilot with text (adapts to existing Copilot UI in this app)
+  function openCopilotWith(kind, text){
+    // Ensure Copilot section exists
+    if (!document.getElementById('copilotSection')) {
+      try { initCopilot(); renderCopilotUI(); } catch {}
+    }
+    // Fill the additional instructions textarea with the built prompt
+    const prompt = buildBucketPrompt(kind, text||'');
+    const box = document.getElementById('copilotInput');
+    if (box){ box.value = prompt; box.focus(); }
+    // Scroll into view and auto-trigger generation
+    const sec = document.getElementById('copilotSection');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const runBtn = document.getElementById('copilotRun');
+    if (runBtn) runBtn.click();
+  }
+
+  // expose globally so other modules can call later if needed
+  try { window.openCopilotWith = openCopilotWith; } catch {}
+
+  // ---- Patch bucket modal to add "Compose All"
+  const patchComposeHeader = () => {
+    const bucketModal = document.getElementById('modal-bucket');
+    if (bucketModal && !bucketModal.dataset.composePatched){
+      bucketModal.dataset.composePatched = '1';
+      const hdr = bucketModal.querySelector('header div');
+      if (hdr){
+        const btn = document.createElement('button');
+        btn.className = 'btn secondary';
+        btn.id = 'bucketComposeAll';
+        btn.textContent = 'Compose All';
+        hdr.insertBefore(btn, hdr.firstChild);
+
+        btn.addEventListener('click', ()=>{
+          const title = (document.getElementById('bucketTitle')?.textContent || 'Bucket').toLowerCase();
+          const name = title.includes('denials') ? 'denials' : title.includes('rpfr') ? 'rpfr' : title.includes('fmip') ? 'fmip' : 'general';
+          let data = [];
+          try { data = JSON.parse(localStorage.getItem('cst_bucket:'+name) || '[]'); } catch {}
+          const merged = (data||[])
+            .slice()
+            .sort((a,b)=>(b?.ts||0)-(a?.ts||0))
+            .map(it => (it?.text || it?.content || '')).filter(Boolean)
+            .join('\n\n—\n\n');
+          if (!merged) { (window.showToast||alert)('Bucket is empty.'); return; }
+          openCopilotWith(name, merged);
+        });
+      }
+    }
+  };
+  patchComposeHeader();
+
+  // ---- Add per-item "Compose" button when bucket renders (observe list)
+  const list = document.getElementById('bucketList');
+  if (list){
+    const mo = new MutationObserver(()=>{
+      patchComposeHeader();
+      list.querySelectorAll('article.tile').forEach(card=>{
+        if (card.dataset.composeWired) return;
+        card.dataset.composeWired = '1';
+        const btnRow = card.querySelector('div[style*="justify-content:flex-end"]');
+        if (btnRow){
+          const compose = document.createElement('button');
+          compose.className = 'btn secondary';
+          compose.textContent = 'Compose';
+          compose.addEventListener('click', ()=>{
+            const txt = (card.querySelector('textarea')?.value || '');
+            const title = (document.getElementById('bucketTitle')?.textContent || '').toLowerCase();
+            const name = title.includes('denials') ? 'denials' : title.includes('rpfr') ? 'rpfr' : title.includes('fmip') ? 'fmip' : 'general';
+            openCopilotWith(name, txt);
+          });
+          btnRow.insertBefore(compose, btnRow.firstChild);
+        }
+      });
+    });
+    mo.observe(list, { childList:true, subtree:true });
+  }
+})();

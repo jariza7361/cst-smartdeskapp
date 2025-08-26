@@ -99,6 +99,36 @@
         <pre id="testsOutput"></pre>
       </div>
     </dialog>
+    <!-- SmartDrop Modal (non-dialog overlay) -->
+    <div class="modal-backdrop" id="modal-smartdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
+        <header>
+          <h3 id="sdTitle" style="margin:0">SmartDrop</h3>
+          <button class="btn secondary" data-close>Close</button>
+        </header>
+        <div class="content">
+          <div class="form" style="gap:10px">
+            <div id="sd_drop" style="border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center">
+              <strong>Drop a file here</strong>
+              <div class="muted">PDF / image / DOCX / XLSX / EML</div>
+              <div style="margin-top:8px"><input id="sd_file" type="file" /></div>
+            </div>
+            <div id="sd_suggest" class="muted" style="font-size:12px;display:none">Suggestion: <span id="sd_suggest_label"></span></div>
+            <label>Extracted Text (editable):</label>
+            <textarea id="sd_preview" rows="10" placeholder="OCR / extracted text will appear here…"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button id="sd_route_denials" class="btn secondary">Route → Denials</button>
+              <button id="sd_route_rpfr" class="btn secondary">Route → RPFR</button>
+              <button id="sd_route_fmip" class="btn secondary">Route → FMIP</button>
+              <label style="display:flex;gap:8px;align-items:center;margin-left:auto">
+                <input type="checkbox" id="sd_learn" checked> Auto-learn routes
+              </label>
+            </div>
+            <div id="sd_status" class="muted" style="font-size:12px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <dialog id="denialsModal">
       <div class="denials-wrap">
         <button id="denialsClose" type="button">Close</button>
