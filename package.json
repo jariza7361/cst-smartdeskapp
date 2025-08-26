@@ -13,6 +13,7 @@
   "build:clean-env": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= vite build",
   "preview": "vite preview --port 53124 --strictPort",
   "preview:clean-env": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= vite preview --port 53124 --strictPort",
+  "preview:alt": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= vite preview --host --port 53126 --strictPort",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier -w .",
     "test": "vitest run",
@@ -28,7 +29,8 @@
   "verify": "npm run doctor:local && npm run lint && npm test",
   "fix": "node doctor.mjs --write",
     "test:ci": "node tests/decode-favicon.smoke.mjs",
-    "start:local": "node server.js"
+  "start:local": "node server.js",
+  "start:local:clean-env": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= node server.js"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
