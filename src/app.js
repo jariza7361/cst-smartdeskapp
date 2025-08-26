@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'tools:denials': 'Denials',
       'tools:affidavits': 'Affidavits',
       'tools:byod': 'BYOD Premium Check',
+  'tools:smartdrop': 'SmartDrop OCR',
     };
     const productMap = {
       'product:UBIF': 'uBreakiFix',
@@ -199,8 +200,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       'product:ATT_HTP': 'AT&T Home Tech Protection',
     };
     if (toolMap[key]) {
-      logQA(`Tool open → ${toolMap[key]} (TODO: modal/panel)`);
-      showToast(toolMap[key]);
+      if (key === 'tools:smartdrop') {
+        const picker = document.createElement('input');
+        picker.type = 'file';
+        picker.accept = '.png,.jpg,.jpeg,.pdf,.tif,.tiff,.bmp,.gif,.webp,.heic,.docx,.xlsx,.eml';
+        picker.onchange = async () => {
+          const f = picker.files?.[0];
+          if (!f) return;
+          showToast('Running local OCR…');
+          try {
+            const text = await runOCRFromFile(f);
+            logQA('SmartDrop OCR:\n' + (text.slice(0, 800) || '(no text)'));
+          } catch (e) {
+            showToast('OCR failed', 'warn');
+            logQA('OCR error: ' + e.message);
+          }
+        };
+        picker.click();
+      } else {
+        logQA(`Tool open → ${toolMap[key]} (TODO: modal/panel)`);
+        showToast(toolMap[key]);
+      }
       return;
     }
     if (productMap[key]) {
@@ -739,9 +759,14 @@ async function onCopilotRun() {
 }
 async function copyText(id) {
   try {
-    await navigator.clipboard.writeText(document.getElementById(id).textContent);
+    let el = null;
+    if (id && id.startsWith && id.startsWith('#')) el = document.querySelector(id);
+    else el = document.getElementById(id);
+    const value = (el && (el.value || el.textContent)) || '';
+    await navigator.clipboard.writeText(value);
+    showToast('Copied');
   } catch {
-    /* noop */
+    showToast('Copy failed', 'warn');
   }
 }
 async function checkCopilot() {
@@ -757,6 +782,42 @@ async function checkCopilot() {
     state.copilotReachable = false;
   }
   renderStatus();
+}
+
+// ---- Local OCR (Tesseract.js) wiring ----
+let OCR_READY = false;
+let TESS = null;
+async function ensureOCR() {
+  if (OCR_READY) return true;
+  try {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = '/libs/tesseract/tesseract.min.js';
+      s.onload = res;
+      s.onerror = () => rej(new Error('Failed to load OCR lib'));
+      document.head.appendChild(s);
+    });
+    if (!window.Tesseract) return false;
+    TESS = window.Tesseract;
+    OCR_READY = true;
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function runOCRFromFile(file) {
+  const ok = await ensureOCR();
+  if (!ok) throw new Error('OCR not available');
+  const worker = await TESS.createWorker({
+    workerPath: '/libs/tesseract/worker.min.js',
+    langPath: '/libs/tesseract/',
+    corePath: '/libs/tesseract/tesseract-core.wasm',
+  });
+  await worker.loadLanguage('eng');
+  await worker.initialize('eng');
+  const { data } = await worker.recognize(file);
+  await worker.terminate();
+  return data?.text || '';
 }
 
 // --- System Status ---
