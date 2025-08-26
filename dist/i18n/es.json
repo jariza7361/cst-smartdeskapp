@@ -45,4 +45,7 @@
   "CheckingCore": "Verificando recursos básicos…",
   "StartingApp": "Iniciando la aplicación…",
   "Retry": "Reintentar"
+  ,
+  "EngineOfflineLocked": "Motor: Sin conexión (bloqueado)",
+  "LockedOfflineEngine": "Bloqueado al motor sin conexión"
 }

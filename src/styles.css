@@ -29,14 +29,14 @@
 }
 html,
 body {
-  background: var(--page-bg);
-  color: var(--ink);
+  background: var(--bg, var(--page-bg));
+  color: var(--ink, var(--text));
 }
 .content section {
-  background: var(--card-bg);
+  background: var(--card-bg, var(--surface));
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow, 0 4px 18px rgba(0, 0, 0, 0.06));
   margin: 1rem 0;
 }
 .topbar {
@@ -129,6 +129,17 @@ body {
 .copilot-col {
   flex: 1 1 320px;
   min-width: 280px;
+}
+/* Copilot header with engine badge */
+.copilot-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.copilot-header h2{ margin: 0; }
+.copilot-header .pill{
+  font-size: 12px;
+  padding: 4px 8px;
 }
 
 /* Splash banner + progress */
@@ -246,8 +257,8 @@ body {
 }
 
 body {
-  color: var(--text);
-  background: var(--surface-2);
+  color: var(--text, var(--ink));
+  background: var(--surface-2, var(--bg));
   margin: 0;
   font-family:
     system-ui,
@@ -320,8 +331,8 @@ dialog[open] {
 }
 
 .dropzone {
-  background: var(--surface);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--panel-2, var(--surface));
+  border: 1px solid var(--border, rgba(0,0,0,.06));
   border-radius: var(--radius);
   padding: var(--space-3);
 }
@@ -384,7 +395,7 @@ dialog[open] {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 #highlights .card {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   padding: 12px 14px;
   background: color-mix(in oklab, var(--card, #0f172a) 92%, transparent);
@@ -401,10 +412,75 @@ dialog[open] {
 }
 
 .status {
-  background: var(--surface);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--panel, var(--surface));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
   border-radius: var(--radius);
   padding: var(--space-3);
+}
+
+/* Generic UI bits using tokens */
+.muted{ color: var(--muted); }
+.subtle{ color: var(--ink-subtle); }
+
+.tile{
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.pill{
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.btn{
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn.secondary{
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+.btn:focus-visible{
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+.nav li{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.nav li span{ color: var(--ink); }
+.nav li:focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.form input,.form select,.form textarea{
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 10px;
+  border-radius: 10px;
+}
+.form input::placeholder,.form textarea::placeholder{ color: var(--ink-subtle); }
+.form input:focus-visible,.form select:focus-visible,.form textarea:focus-visible{
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* Splash banner */

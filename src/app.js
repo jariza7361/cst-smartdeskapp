@@ -180,6 +180,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Lightweight QA probes (console-only)
   runQA();
+  // Contrast QA: auto-enable high-contrast if needed
+  ensureContrast();
 
   // Sidebar: handle [data-open] clicks (carriers, tools, products)
   document.addEventListener('click', (ev) => {
@@ -195,6 +197,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (key === 'settings') return openModal('settings');
     if (key === 'tools:copilot') {
+      const modal = document.getElementById('modal-copilot');
+      if (modal) {
+        openCopilotModal();
+        return;
+      }
       const sec = document.getElementById('copilotSection');
       if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
@@ -743,15 +750,23 @@ function onSaveWizard() {
   // dialog value is "save"
   const s = {
     name: val('#wName'),
+    coach: val('#wCoach'),
     empId: val('#wEmpId'),
     ext: val('#wExt'),
     theme: val('#wTheme'),
+    expertType: (document.getElementById('wExpertType')?.value)||'english',
   };
   if (!s.name || !s.empId || !s.ext) return; // native required also guards
   saveSettings(s);
   localStorage.setItem('splashSeen', '1');
   if (document.getElementById('dontShow').checked) {
     localStorage.setItem('onboarded', '1');
+  }
+  // Persist bilingual preference + default output mode
+  const isBilingual = s.expertType === 'bilingual';
+  localStorage.setItem('cst_bilingual', isBilingual ? '1' : '0');
+  if (!localStorage.getItem('cst_output_mode')) {
+    localStorage.setItem('cst_output_mode', isBilingual ? 'both' : 'en');
   }
   document.getElementById('setupWizard').close();
   renderStatus();
@@ -792,6 +807,50 @@ function forceShowSplash() {
   } catch {
     /* ignore */
   }
+}
+
+// --- Copilot Modal wiring (proxies to existing Copilot engine) ---
+function openCopilotModal(){
+  const modal = document.getElementById('modal-copilot');
+  if (!modal) return;
+  modal.hidden = false;
+  // close handler
+  const closeBtn = modal.querySelector('[data-close]');
+  if (closeBtn) closeBtn.onclick = () => (modal.hidden = true);
+
+  // seed quick starters
+  const q1 = document.getElementById('cp_quick_rpfr');
+  const q2 = document.getElementById('cp_quick_fmip');
+  const input = document.getElementById('cp_in');
+  if (q1) q1.onclick = () => (input.value = 'RPFR: customer purchased accessory at retail; requesting reimbursement.');
+  if (q2) q2.onclick = () => (input.value = 'FMIP override: customer forgot Apple ID; need safe coaching and Alpha note.');
+
+  // run bridges to main copilot
+  const runBtn = document.getElementById('cp_run');
+  if (runBtn) runBtn.onclick = async () => {
+    // ensure main Copilot exists
+    try { initCopilot(); renderCopilotUI(); } catch {}
+    const box = document.getElementById('copilotInput');
+    if (box) box.value = input.value;
+    const btn = document.getElementById('copilotRun');
+    if (btn) btn.click();
+    // After a short delay, mirror outputs into modal textarea
+    setTimeout(() => {
+      const en = document.getElementById('copilotEn')?.textContent || '';
+      const es = document.getElementById('copilotEs')?.textContent || '';
+      const out = document.getElementById('cp_out');
+      if (out) out.value = [en, es && '\n\n— ES —\n' + es].filter(Boolean).join('\n');
+    }, 400);
+  };
+  const copy = document.getElementById('cp_copy');
+  if (copy) copy.onclick = () => copyText('#cp_out');
+  const copyAll = document.getElementById('cp_copy_all');
+  if (copyAll) copyAll.onclick = () => {
+    const en = document.getElementById('copilotEn')?.textContent || '';
+    const es = document.getElementById('copilotEs')?.textContent || '';
+    const both = [en, es && '\n\n— ES —\n' + es].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(both).then(()=>showToast('Copied')); 
+  };
 }
 
 // --- Tests Modal action ---
@@ -911,7 +970,18 @@ function initCopilot() {
   const sec = document.createElement('section');
   sec.id = 'copilotSection';
   sec.innerHTML = `
-    <h2 id="copilotTitle"></h2>
+    <div class="copilot-header">
+      <h2 id="copilotTitle"></h2>
+      <span id="copilotEngine" class="pill" title="Locked to offline engine"></span>
+      <label style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <span style="font-size:12px;opacity:.8">Output</span>
+        <select id="copilotMode">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="both">EN+ES</option>
+        </select>
+      </label>
+    </div>
     <label><span id="copilotSampleLabel"></span><select id="copilotSample"></select></label>
     <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
     <button id="copilotRun"></button>
@@ -944,6 +1014,26 @@ function renderCopilotUI() {
   if (!document.getElementById('copilotSection')) return;
   const t = (s) => state.i18n.t(s);
   document.getElementById('copilotTitle').textContent = t('Copilot');
+  // Engine badge (Free mode lock)
+  const eng = document.getElementById('copilotEngine');
+  if (eng) {
+    // Default to locked offline mode; allow override with localStorage.freeLock = '0'
+    let isLocked = true;
+    try {
+      if (localStorage.getItem('freeLock') === '0') isLocked = false;
+      else if (import.meta && import.meta.env && import.meta.env.VITE_FREE_LOCK === '0') isLocked = false;
+    } catch {
+      /* ignore */
+    }
+    if (isLocked) {
+      eng.textContent = t('EngineOfflineLocked');
+      eng.title = t('LockedOfflineEngine');
+      eng.setAttribute('aria-disabled', 'true');
+      eng.hidden = false;
+    } else {
+      eng.hidden = true;
+    }
+  }
   document.getElementById('copilotSampleLabel').textContent = t('Sample prompt');
   document.getElementById('copilotInputLabel').textContent = t('Additional instructions');
   document.getElementById('copilotRun').textContent = t('Generate');
@@ -962,6 +1052,22 @@ function renderCopilotUI() {
       sel.appendChild(opt);
     });
   }
+  // Output mode selector
+  try {
+    const modeSel = document.getElementById('copilotMode');
+    if (modeSel && !modeSel.dataset.wired) {
+      modeSel.dataset.wired = '1';
+      modeSel.value = getOutputMode();
+      modeSel.addEventListener('change', () => {
+        setOutputMode(modeSel.value);
+        applyOutputModeVisibility();
+      });
+      applyOutputModeVisibility();
+    } else if (modeSel) {
+      modeSel.value = getOutputMode();
+      applyOutputModeVisibility();
+    }
+  } catch {}
 }
 async function onCopilotRun() {
   const sel = document.getElementById('copilotSample');
@@ -1015,6 +1121,34 @@ async function onCopilotRun() {
     }
   }
   await checkCopilot();
+  // Apply output mode filtering after content updates
+  applyOutputModeVisibility();
+}
+// ---- Output mode helpers (EN / ES / Both) ----
+function getOutputMode(){
+  const saved = localStorage.getItem('cst_output_mode');
+  if (saved === 'en' || saved === 'es' || saved === 'both') return saved;
+  return localStorage.getItem('cst_bilingual') === '1' ? 'both' : 'en';
+}
+function setOutputMode(v){
+  const val = v === 'es' ? 'es' : v === 'both' ? 'both' : 'en';
+  localStorage.setItem('cst_output_mode', val);
+}
+function applyOutputModeVisibility(){
+  const mode = getOutputMode();
+  const colEn = document.getElementById('copilotEn')?.parentElement;
+  const colEs = document.getElementById('copilotEs')?.parentElement;
+  if (!colEn || !colEs) return;
+  if (mode === 'en') {
+    colEn.style.display = '';
+    colEs.style.display = 'none';
+  } else if (mode === 'es') {
+    colEn.style.display = 'none';
+    colEs.style.display = '';
+  } else {
+    colEn.style.display = '';
+    colEs.style.display = '';
+  }
 }
 async function copyText(id) {
   try {
@@ -1455,6 +1589,58 @@ function runQA() {
     (window.logQA||console.debug)(`Buckets: ${sizes}`);
   } catch {}
 })();
+
+// ---- Contrast safety: enable .high-contrast when ratios are low ----
+function ensureContrast(){
+  try{
+    const cs = (el,prop) => getComputedStyle(el).getPropertyValue(prop).trim();
+    const body = document.body;
+    const bg = cs(body,'background-color');
+    const ink = cs(body,'color');
+    const ratio = contrastRatio(bg, ink);
+    const tile = document.querySelector('.tile') || body;
+    const tbg = cs(tile,'background-color');
+    const tink = cs(tile,'color') || ink;
+    const tratio = contrastRatio(tbg, tink);
+    if (ratio < 4.3 || tratio < 4.3){
+      document.documentElement.classList.add('high-contrast');
+    }
+  }catch{/* noop */}
+}
+function contrastRatio(bg, fg){
+  function toRGB(x){
+    const m = x && x.match && x.match(/rgba?\(([^)]+)\)/i); if(!m) return [0,0,0];
+    const p = m[1].split(',').map(s=>parseFloat(s.trim()));
+    return p.length>=3? [p[0],p[1],p[2]] : [0,0,0];
+  }
+  function rel(c){
+    const s = c/255; return s<=0.03928? s/12.92 : Math.pow((s+0.055)/1.055, 2.4);
+  }
+  const [r1,g1,b1] = toRGB(bg), [r2,g2,b2] = toRGB(fg);
+  const L1 = 0.2126*rel(r1)+0.7152*rel(g1)+0.0722*rel(b1)+1e-4;
+  const L2 = 0.2126*rel(r2)+0.7152*rel(b2)+0.0722*rel(b2)+1e-4;
+  const a = Math.max(L1,L2), b = Math.min(L1,L2);
+  return (a+0.05)/(b+0.05);
+}
+
+// Dev helper: cycle themes and print contrast ratios
+try {
+  window._themeAudit = function(){
+    const themes = ['theme-dark','theme-light','theme-glass'];
+    const root = document.documentElement;
+    themes.forEach((t, i)=>{
+      setTimeout(()=>{
+        root.classList.remove('theme-dark','theme-light','theme-glass');
+        root.classList.add(t);
+        setTimeout(()=>{
+          const bg = getComputedStyle(document.body).backgroundColor;
+          const ink = getComputedStyle(document.body).color;
+          console.log(`[${t}] body contrast`, contrastRatio(bg, ink).toFixed(2));
+        }, 30);
+      }, i*80);
+    });
+  };
+} catch {}
 
 /* =========================================
    BUCKET ➜ COPILOT COMPOSE WIRING

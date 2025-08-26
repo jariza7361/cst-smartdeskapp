@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title data-i18n="AppTitle">CST SmartDesk — Escalation Toolkit</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <script type="module" crossorigin src="/assets/index-CFv6qj7a.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Fpq6kRsd.css">
+    <script type="module" crossorigin src="/assets/index-CrHLbuMl.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DuuzxjtQ.css">
   </head>
   <body>
     <header class="topbar">
@@ -45,6 +45,7 @@
       <div class="side-title" style="margin-top:12px">Tools</div>
       <ul class="nav">
         <li data-open="tools:copilot">🤖 Copilot</li>
+  <li data-open="tools:smartdrop">📥 SmartDrop (OCR)</li>
         <li data-open="tools:rpfr">🧾 RPFR / PFR</li>
         <li data-open="tools:fmip">🔒 FMIP Script</li>
         <li data-open="tools:denials">🚨 Denials</li>
@@ -94,7 +95,46 @@
       <div>
         <button id="testsClose" type="button">Close</button>
         <button id="testsFetchBtn" type="button">Run Fetch Test</button>
+  <button class="btn" id="t_run_doctor" type="button">Run Doctor</button>
+  <span id="ocrBadge" class="pill" title="Local OCR status" style="margin-left:8px">OCR: checking…</span>
         <pre id="testsOutput"></pre>
+  <pre id="testLog" style="margin-top:8px;white-space:pre-wrap"></pre>
+      </div>
+    </dialog>
+    <!-- SmartDrop Modal (non-dialog overlay) -->
+    <div class="modal-backdrop" id="modal-smartdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
+        <header>
+          <h3 id="sdTitle" style="margin:0">SmartDrop</h3>
+          <button class="btn secondary" data-close>Close</button>
+        </header>
+        <div class="content">
+          <div class="form" style="gap:10px">
+            <div id="sd_drop" style="border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center">
+              <strong>Drop a file here</strong>
+              <div class="muted">PDF / image / DOCX / XLSX / EML</div>
+              <div style="margin-top:8px"><input id="sd_file" type="file" /></div>
+            </div>
+            <div id="sd_suggest" class="muted" style="font-size:12px;display:none">Suggestion: <span id="sd_suggest_label"></span></div>
+            <label>Extracted Text (editable):</label>
+            <textarea id="sd_preview" rows="10" placeholder="OCR / extracted text will appear here…"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button id="sd_route_denials" class="btn secondary">Route → Denials</button>
+              <button id="sd_route_rpfr" class="btn secondary">Route → RPFR</button>
+              <button id="sd_route_fmip" class="btn secondary">Route → FMIP</button>
+              <label style="display:flex;gap:8px;align-items:center;margin-left:auto">
+                <input type="checkbox" id="sd_learn" checked> Auto-learn routes
+              </label>
+            </div>
+            <div id="sd_status" class="muted" style="font-size:12px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <dialog id="denialsModal">
+      <div class="denials-wrap">
+        <button id="denialsClose" type="button">Close</button>
+        <div id="denialsContent"></div>
       </div>
     </dialog>
     <dialog id="carrierModal">
@@ -103,6 +143,30 @@
         <div id="carrierContent"></div>
       </div>
     </dialog>
+    <!-- Copilot Modal (non-dialog overlay) -->
+    <div class="modal-backdrop" id="modal-copilot" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+        <header><h3 id="cpTitle" style="margin:0">Copilot</h3><button class="btn secondary" data-close>Close</button></header>
+        <div class="content">
+          <!-- Quick starters -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="btn secondary" id="cp_quick_rpfr">Quick: RPFR</button>
+            <button class="btn secondary" id="cp_quick_fmip">Quick: FMIP Override</button>
+          </div>
+          <div class="form">
+            <label>Ask (e.g., “No Airtime”):</label>
+            <textarea id="cp_in" rows="4" placeholder="Type a denial reason or use a quick button…"></textarea>
+            <div><button class="btn" id="cp_run">Generate</button></div>
+            <label>Output</label>
+            <textarea id="cp_out" rows="9" placeholder="Response will appear here…"></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn secondary" id="cp_copy">Copy</button>
+              <button class="btn secondary" id="cp_copy_all">Copy EN+ES</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <button id="openTests">Open Tests</button>
     
     <!-- Splash elements -->

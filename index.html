@@ -144,6 +144,30 @@
         <div id="carrierContent"></div>
       </div>
     </dialog>
+    <!-- Copilot Modal (non-dialog overlay) -->
+    <div class="modal-backdrop" id="modal-copilot" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+        <header><h3 id="cpTitle" style="margin:0">Copilot</h3><button class="btn secondary" data-close>Close</button></header>
+        <div class="content">
+          <!-- Quick starters -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="btn secondary" id="cp_quick_rpfr">Quick: RPFR</button>
+            <button class="btn secondary" id="cp_quick_fmip">Quick: FMIP Override</button>
+          </div>
+          <div class="form">
+            <label>Ask (e.g., “No Airtime”):</label>
+            <textarea id="cp_in" rows="4" placeholder="Type a denial reason or use a quick button…"></textarea>
+            <div><button class="btn" id="cp_run">Generate</button></div>
+            <label>Output</label>
+            <textarea id="cp_out" rows="9" placeholder="Response will appear here…"></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn secondary" id="cp_copy">Copy</button>
+              <button class="btn secondary" id="cp_copy_all">Copy EN+ES</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <button id="openTests">Open Tests</button>
     
     <!-- Splash elements -->

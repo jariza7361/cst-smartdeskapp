@@ -45,4 +45,7 @@
   "CheckingCore": "Checking core assets…",
   "StartingApp": "Starting app…",
   "Retry": "Retry"
+  ,
+  "EngineOfflineLocked": "Engine: Offline (locked)",
+  "LockedOfflineEngine": "Locked to offline engine"
 }
