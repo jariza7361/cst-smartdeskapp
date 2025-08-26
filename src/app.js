@@ -127,6 +127,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('openTests').addEventListener('click', () => testsModal.showModal());
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
+  // Tests: wire Doctor and OCR status badge
+  document.getElementById('t_run_doctor')?.addEventListener('click', runDoctorTest);
+  checkOCRStatus();
 
   // denials modal
   const denialsModal = document.getElementById('denialsModal');
@@ -830,6 +833,68 @@ function onPaste(e) {
 }
 function preview(obj) {
   document.getElementById('preview').textContent = JSON.stringify(obj, null, 2);
+}
+
+// ---- Tests helpers: OCR status + Doctor runner ----
+async function checkOCRStatus() {
+  const badge = document.getElementById('ocrBadge');
+  if (!badge) return;
+  try {
+    const r = await fetch('/api/doctor?check=ocr');
+    if (r.ok) {
+      const data = await r.json();
+      if (data.ok && data.ocr?.ready) {
+        badge.textContent = 'OCR: Ready ✅';
+        badge.style.borderColor = '#16a34a';
+      } else {
+        badge.textContent = 'OCR: Offline ⚠️';
+        badge.style.borderColor = '#ffb020';
+        if (data.ocr?.missing?.length) {
+          badge.title = 'Missing: ' + data.ocr.missing.join(', ');
+        }
+      }
+      return;
+    }
+  } catch {}
+  const targets = [
+    '/libs/tesseract/tesseract.min.js',
+    '/libs/tesseract/worker.min.js',
+    '/libs/tesseract/tesseract-core.wasm',
+  ];
+  const missing = [];
+  await Promise.all(
+    targets.map(async (p) => {
+      try {
+        const r = await fetch(p, { method: 'HEAD', cache: 'no-store' });
+        if (!r.ok) missing.push(p);
+      } catch {
+        missing.push(p);
+      }
+    }),
+  );
+  if (missing.length === 0) {
+    badge.textContent = 'OCR: Ready ✅';
+    badge.style.borderColor = '#16a34a';
+  } else {
+    badge.textContent = 'OCR: Offline ⚠️';
+    badge.style.borderColor = '#ffb020';
+    badge.title = 'Missing: ' + missing.join(', ');
+  }
+}
+
+async function runDoctorTest() {
+  const log = document.getElementById('testLog') || document.getElementById('testsOutput');
+  if (log) log.textContent = 'Doctor: running…';
+  try {
+    const r = await fetch('/api/doctor');
+    const j = await r.json();
+    if (log) log.textContent = JSON.stringify(j, null, 2);
+    checkOCRStatus();
+    showToast(j.ok ? 'Doctor passed' : 'Doctor found issues');
+  } catch (e) {
+    if (log) log.textContent = 'Doctor error: ' + (e?.message || e);
+    showToast('Doctor error', 'warn');
+  }
 }
 
 // --- Copilot ---
