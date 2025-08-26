@@ -43,6 +43,8 @@ function ensureCopilotSeed(lang) {
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {
+  // Admin gate: set localStorage.cst_admin = '1' to enable admin-only UI/actions
+  const adminOk = localStorage.getItem('cst_admin') === '1';
   // Detect Codex mode (env flag, query param, or local setting)
   let CODEX = false;
   try {
@@ -107,6 +109,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
 
+  // denials modal
+  const denialsModal = document.getElementById('denialsModal');
+  const denialsClose = document.getElementById('denialsClose');
+  if (denialsClose) denialsClose.addEventListener('click', () => denialsModal?.close());
+
   // carrier modal close
   const carrierModal = document.getElementById('carrierModal');
   const carrierClose = document.getElementById('carrierClose');
@@ -160,6 +167,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!key) return;
     // Known quick actions
     if (key === 'tests') return openModal('tests');
+    if (key === 'tools:denials') {
+      openDenials();
+      return;
+    }
     if (key === 'settings') return openModal('settings');
     if (key === 'tools:copilot') {
       const sec = document.getElementById('copilotSection');
@@ -221,6 +232,57 @@ function logQA(msg) {
   } catch {
     /* ignore */
   }
+}
+
+// --- Denials Library (starter content, extend freely) ---
+const DENIAL = {
+  DEVICE_INELIGIBLE: {
+    en: {
+      reason: "This device isn’t eligible under the plan.",
+      rebuttal: 'We can review alternate coverage options or repair pathways that might fit your device.'
+    },
+    es: {
+      reason: 'Este equipo no es elegible bajo el plan.',
+      rebuttal: 'Podemos revisar opciones alternativas de cobertura o reparación que podrían ajustarse a su equipo.'
+    }
+  },
+};
+
+function openDenials() {
+  const modal = document.getElementById('denialsModal');
+  const host = document.getElementById('denialsContent');
+  if (!modal || !host) return;
+  host.innerHTML = renderDenialsHtml(DENIAL, state.lang || 'en');
+  modal.showModal();
+}
+
+function renderDenialsHtml(map, lang) {
+  const entries = Object.entries(map || {});
+  if (!entries.length) return '<p class="muted">No denials defined yet.</p>';
+  const blocks = entries
+    .map(([key, v]) => {
+      const en = v.en || {};
+      const tr = v[lang] || v.en || {};
+      return `
+        <article class="card">
+          <h3><code>${escapeHtml(key)}</code></h3>
+          <div class="cols">
+            <div>
+              <h4>EN</h4>
+              <p><strong>Reason:</strong> ${escapeHtml(en.reason || '')}</p>
+              <p><strong>Rebuttal:</strong> ${escapeHtml(en.rebuttal || '')}</p>
+            </div>
+            <div>
+              <h4>${lang.toUpperCase()}</h4>
+              <p><strong>Reason:</strong> ${escapeHtml(tr.reason || '')}</p>
+              <p><strong>Rebuttal:</strong> ${escapeHtml(tr.rebuttal || '')}</p>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+  return `<section>${blocks}</section>`;
 }
 
 async function openCarrier(id) {
