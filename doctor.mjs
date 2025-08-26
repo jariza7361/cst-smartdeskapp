@@ -170,6 +170,35 @@ async function run() {
   for (const r of results) {
     console.log(`${r.ok ? '✓' : '✗'} ${r.file}${r.ok ? '' : ` — ${r.fix}`}`);
   }
+  // OCR assets check (local Tesseract build)
+  let ocrMissing = 0;
+  const ocrDir = path.join(ROOT, 'libs', 'tesseract');
+  const ocrFiles = ['tesseract.min.js', 'worker.min.js', 'tesseract-core.wasm'];
+  for (const f of ocrFiles) {
+    try {
+      await fs.access(path.join(ocrDir, f));
+    } catch {
+      ocrMissing++;
+    }
+  }
+  if (ocrMissing) {
+    console.log(`OCR: ${ocrMissing} missing — copy tesseract.min.js, worker.min.js, tesseract-core.wasm into libs/tesseract`);
+    if (writeMode) {
+      await ensureDir(ocrDir);
+      try {
+        await fs.writeFile(
+          path.join(ocrDir, 'README.txt'),
+          'Place tesseract.min.js, worker.min.js, tesseract-core.wasm here. Files are large; keep them local.',
+          'utf8',
+        );
+        console.log('OCR: scaffolded libs/tesseract/README.txt');
+      } catch {
+        // ignore
+      }
+    }
+  } else {
+    console.log('OCR: all present');
+  }
   console.log(
     `Assets: ${createdAssets ? `created ${createdAssets}` : missingAssets ? `${missingAssets} missing (run: npm run fix)` : 'all present'}`,
   );
