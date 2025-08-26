@@ -32,6 +32,19 @@ body {
   background: var(--bg, var(--page-bg));
   color: var(--ink, var(--text));
 }
+/* App layout grid: header + sidebar + content */
+body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'topbar topbar'
+    'sidebar content';
+  min-height: 100vh;
+}
+.topbar { grid-area: topbar; }
+.sidebar { grid-area: sidebar; position: sticky; top: 0; align-self: start; height: 100%; }
+.content { grid-area: content; }
 .content section {
   background: var(--card-bg, var(--surface));
   padding: 1rem;

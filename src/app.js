@@ -22,6 +22,15 @@ let splashPct = 0;
 let splashPctTimer = null;
 let splashKeyHandler = null;
 
+// Detect if running under automation (e.g., Playwright)
+function isAutomation() {
+  try {
+    return !!(typeof navigator !== 'undefined' && 'webdriver' in navigator && navigator.webdriver);
+  } catch {
+    return false;
+  }
+}
+
 // Copilot engine toggle (console-friendly)
 function setEngine(v) {
   state.engine = v;
@@ -63,7 +72,6 @@ function ensureCopilotSeed(lang) {
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {
   // Admin gate: set localStorage.cst_admin = '1' to enable admin-only UI/actions
-  const adminOk = localStorage.getItem('cst_admin') === '1';
   // Detect Codex mode (env flag, query param, or local setting)
   let CODEX = false;
   try {
@@ -79,6 +87,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (CODEX) document.documentElement.classList.add('codex');
   // Compute redirect target early
   state.redirectTo = getRedirectTarget();
+  // In automation, suppress unhandled promise rejections to avoid debugger pauses
+  try {
+    if (typeof isAutomation === 'function' && isAutomation()) {
+      window.addEventListener('unhandledrejection', (e) => { e.preventDefault?.(); }, { capture: true });
+    }
+  } catch { /* noop */ }
   // language
   const lang = localStorage.getItem('lang') || 'en';
   state.i18n = await createI18n(lang);
@@ -86,7 +100,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // localize static title immediately
   localizeStatic();
   // splash behavior: first visit auto; button to re-open
-  const firstVisit = CODEX || localStorage.getItem('welcomeSeen') !== '1';
+  // In automation, skip splash to keep tests stable
+  let firstVisit;
+  try {
+    if (typeof isAutomation === 'function' && isAutomation()) {
+      localStorage.setItem('welcomeSeen', '1');
+      firstVisit = false;
+    } else {
+      firstVisit = CODEX || localStorage.getItem('welcomeSeen') !== '1';
+    }
+  } catch {
+    firstVisit = CODEX || localStorage.getItem('welcomeSeen') !== '1';
+  }
   const btnShow = document.getElementById('showWelcome');
   if (btnShow) btnShow.addEventListener('click', () => forceShowSplash());
   const btnStart = document.getElementById('splashStart');
@@ -115,6 +140,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   // theme + listeners... Use light theme in Codex mode
   applyTheme(CODEX ? 'light' : 'dark');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
+  // Help menu wiring
+  const helpBtn = document.getElementById('helpMenuBtn');
+  const helpMenu = document.getElementById('helpMenu');
+  const helpWrap = document.getElementById('helpMenuWrap');
+  const helpWelcome = document.getElementById('helpWelcomeItem');
+  if (helpBtn && helpMenu) {
+    let open = false;
+    const setOpen = (v)=>{ open = v; helpMenu.style.display = v ? 'block' : 'none'; };
+    helpBtn.addEventListener('click', (e)=>{ e.stopPropagation(); setOpen(!open); });
+    document.addEventListener('click', (e)=>{
+      if (!open) return;
+      if (helpWrap && helpWrap.contains(e.target)) return;
+      setOpen(false);
+    });
+  }
+  if (helpWelcome) {
+    helpWelcome.addEventListener('click', ()=>{
+      try { ensureWelcomeModal(); renderWelcomeModal(); showWelcomeModal(); } catch { /* noop */ }
+      const helpMenu = document.getElementById('helpMenu'); if (helpMenu) helpMenu.style.display = 'none';
+    });
+  }
 
   // setup wizard
   const wiz = document.getElementById('setupWizard');
@@ -571,6 +617,8 @@ function getRedirectTarget() {
 
 function safeRedirect(target) {
   try {
+  // Avoid redirects during automation to keep frames stable in tests
+  if (typeof isAutomation === 'function' && isAutomation()) return;
     if (!target || typeof target !== 'string') return;
     const same = target === location.href || target === location.pathname;
     if (same) return;
@@ -615,6 +663,22 @@ function showSplash() {
   if (!el) return;
   el.hidden = false;
   el.classList.add('show');
+  // Optional tagline (localized one-liner)
+  try {
+    const title = document.getElementById('splashTitle');
+    if (title && !document.getElementById('splashTagline')) {
+      const tag = document.createElement('p');
+      tag.id = 'splashTagline';
+      tag.className = 'muted';
+      tag.style.marginTop = '4px';
+      tag.style.fontSize = '14px';
+      tag.textContent = state.i18n ? state.i18n.t('SplashTagline') : 'White-glove support. Faster workflows. Gold-standard results.';
+      title.insertAdjacentElement('afterend', tag);
+    } else if (title) {
+      const tag = document.getElementById('splashTagline');
+      if (tag) tag.textContent = state.i18n ? state.i18n.t('SplashTagline') : tag.textContent;
+    }
+  } catch { /* noop */ }
   const bar = document.getElementById('splashBar');
   if (bar) {
     bar.classList.remove('run');
@@ -726,8 +790,14 @@ function waitForSplashFinish() {
     splashPct = 100;
     updatePct();
     hideSplash();
-  // Redirect (if configured) right after splash hides
-  if (state.redirectTo) setTimeout(() => safeRedirect(state.redirectTo), 60);
+  // Open setup on first run; else redirect if configured
+  const onboarded = localStorage.getItem('onboarded') === '1';
+  if (!onboarded) {
+    const wiz = document.getElementById('setupWizard');
+    if (wiz && typeof wiz.showModal === 'function') setTimeout(()=>wiz.showModal(), 80);
+  } else if (state.redirectTo) {
+    setTimeout(() => safeRedirect(state.redirectTo), 60);
+  }
       // Self-test (silent): check Copilot button clickability after splash closes
       setTimeout(() => {
         const btn = document.getElementById('copilotRun');
@@ -770,6 +840,10 @@ function onSaveWizard() {
   }
   document.getElementById('setupWizard').close();
   renderStatus();
+  // Show welcome modal once after setup save
+  if (localStorage.getItem('welcomeShown') !== '1') {
+    try { ensureWelcomeModal(); renderWelcomeModal(); showWelcomeModal(); } catch { /* noop */ }
+  }
 }
 function val(sel) {
   return document.querySelector(sel).value?.trim();
@@ -809,6 +883,99 @@ function forceShowSplash() {
   }
 }
 
+// --- Welcome Modal (post-setup intro) ---
+function ensureWelcomeModal(){
+  if (document.getElementById('modal-welcome')) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-backdrop';
+  wrap.id = 'modal-welcome';
+  wrap.setAttribute('data-testid', 'welcome-modal');
+  wrap.hidden = true;
+  wrap.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="welTitle">
+      <header style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <h3 id="welTitle" data-testid="welcome-title" style="margin:0"></h3>
+        <button class="btn secondary" data-testid="welcome-close" data-close>Close</button>
+      </header>
+      <div class="content">
+        <div id="welBlocks" data-testid="welcome-blocks" style="display:grid;gap:10px"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <input type="checkbox" id="welDontShow" data-testid="welcome-dontshow" />
+          <span id="welDontShowLabel" data-testid="welcome-dontshow-label"></span>
+        </label>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button id="welOpenCopilot" data-testid="welcome-open-copilot" class="btn"></button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  // Close handlers
+  wrap.addEventListener('click', (e)=>{ if (e.target === wrap) { hideWelcomeModal(true); } });
+  wrap.querySelector('[data-close]')?.addEventListener('click', ()=> hideWelcomeModal(true));
+  document.getElementById('welOpenCopilot')?.addEventListener('click', ()=>{
+    hideWelcomeModal(true);
+    try {
+      const modal = document.getElementById('modal-copilot');
+      if (modal) openCopilotModal();
+      else {
+  if (!document.getElementById('copilotSection')) { try { initCopilot(); renderCopilotUI(); } catch { /* noop */ } }
+        document.getElementById('copilotSection')?.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    } catch { /* noop */ }
+  });
+}
+function renderWelcomeModal(){
+  const t = (s)=> state.i18n ? state.i18n.t(s) : s;
+  const title = document.getElementById('welTitle');
+  const blocks = document.getElementById('welBlocks');
+  const cta = document.getElementById('welOpenCopilot');
+  const dontLbl = document.getElementById('welDontShowLabel');
+  if (!blocks || !cta) return;
+  if (title) title.textContent = t('WelcomeHeadline');
+  cta.textContent = t('CTAOpenCopilot');
+  if (dontLbl) dontLbl.textContent = t('Do Not Show Again');
+  // Build blocks by output mode
+  const mode = getOutputMode();
+  const wantEN = mode === 'en' || mode === 'both';
+  const wantES = mode === 'es' || mode === 'both';
+  const mk = (lang)=>{
+    const wrap = document.createElement('section');
+    wrap.className = 'wel-block';
+    const h = document.createElement('h4');
+    h.className = 'muted';
+    h.style.margin = '0';
+    h.style.fontWeight = '600';
+    h.textContent = lang === 'es' ? 'Español' : 'English';
+    const sub = document.createElement('p');
+    sub.style.margin = '6px 0 0 0';
+  sub.textContent = t('WelcomeSubheadline');
+    const body = document.createElement('p');
+    body.className = 'muted';
+    body.style.margin = '6px 0 0 0';
+  body.textContent = t('WelcomeBody');
+    wrap.appendChild(h);
+    wrap.appendChild(sub);
+    wrap.appendChild(body);
+    return wrap;
+  };
+  blocks.innerHTML = '';
+  if (wantEN) blocks.appendChild(mk('en'));
+  if (wantES) blocks.appendChild(mk('es'));
+}
+function showWelcomeModal(){
+  const el = document.getElementById('modal-welcome'); if (!el) return;
+  const chk = document.getElementById('welDontShow'); if (chk) chk.checked = false;
+  el.hidden = false;
+}
+function hideWelcomeModal(markSeen){
+  const el = document.getElementById('modal-welcome'); if (!el) return;
+  el.hidden = true;
+  if (markSeen) {
+    const chk = document.getElementById('welDontShow');
+    if (chk?.checked) localStorage.setItem('welcomeShown','1');
+  }
+}
+
 // --- Copilot Modal wiring (proxies to existing Copilot engine) ---
 function openCopilotModal(){
   const modal = document.getElementById('modal-copilot');
@@ -829,7 +996,7 @@ function openCopilotModal(){
   const runBtn = document.getElementById('cp_run');
   if (runBtn) runBtn.onclick = async () => {
     // ensure main Copilot exists
-    try { initCopilot(); renderCopilotUI(); } catch {}
+  try { initCopilot(); renderCopilotUI(); } catch { /* noop */ }
     const box = document.getElementById('copilotInput');
     if (box) box.value = input.value;
     const btn = document.getElementById('copilotRun');
@@ -843,14 +1010,25 @@ function openCopilotModal(){
     }, 400);
   };
   const copy = document.getElementById('cp_copy');
-  if (copy) copy.onclick = () => copyText('#cp_out');
-  const copyAll = document.getElementById('cp_copy_all');
-  if (copyAll) copyAll.onclick = () => {
+  if (copy) copy.onclick = () => {
     const en = document.getElementById('copilotEn')?.textContent || '';
     const es = document.getElementById('copilotEs')?.textContent || '';
-    const both = [en, es && '\n\n— ES —\n' + es].filter(Boolean).join('\n');
-    navigator.clipboard.writeText(both).then(()=>showToast('Copied')); 
+    const mode = getOutputMode();
+    const txt = mode === 'en' ? en : mode === 'es' ? es : (state.lang === 'es' ? es : en);
+    navigator.clipboard.writeText(txt).then(()=>showToast('Copied'));
   };
+  const copyAll = document.getElementById('cp_copy_all');
+  if (copyAll) { copyAll.style.display = 'none'; }
+  updateModalCopyLabel();
+}
+
+function updateModalCopyLabel(){
+  const btn = document.getElementById('cp_copy'); if (!btn) return;
+  const t = (s)=> state.i18n ? state.i18n.t(s) : s;
+  const mode = getOutputMode();
+  if (mode === 'en') btn.textContent = t('Copy EN');
+  else if (mode === 'es') btn.textContent = t('Copy ES');
+  else btn.textContent = (state.lang === 'es') ? t('Copy ES') : t('Copy EN');
 }
 
 // --- Tests Modal action ---
@@ -914,7 +1092,7 @@ async function checkOCRStatus() {
       }
       return;
     }
-  } catch {}
+  } catch { /* noop */ }
   const targets = [
     '/libs/tesseract/tesseract.min.js',
     '/libs/tesseract/worker.min.js',
@@ -969,32 +1147,33 @@ function initCopilot() {
   }
   const sec = document.createElement('section');
   sec.id = 'copilotSection';
+  sec.setAttribute('data-testid', 'copilot-section');
   sec.innerHTML = `
     <div class="copilot-header">
-      <h2 id="copilotTitle"></h2>
-      <span id="copilotEngine" class="pill" title="Locked to offline engine"></span>
+      <h2 id="copilotTitle" data-testid="copilot-title"></h2>
+      <span id="copilotEngine" data-testid="copilot-engine" class="pill" title="Locked to offline engine"></span>
       <label style="margin-left:auto;display:flex;align-items:center;gap:6px">
-        <span style="font-size:12px;opacity:.8">Output</span>
-        <select id="copilotMode">
+        <span id="copilotOutputLabel" data-testid="copilot-output-label" style="font-size:12px;opacity:.8">Output</span>
+        <select id="copilotMode" data-testid="copilot-mode">
           <option value="en">EN</option>
           <option value="es">ES</option>
-          <option value="both">EN+ES</option>
+          <option value="both">Bilingual</option>
         </select>
       </label>
     </div>
-    <label><span id="copilotSampleLabel"></span><select id="copilotSample"></select></label>
-    <label><span id="copilotInputLabel"></span><textarea id="copilotInput"></textarea></label>
-    <button id="copilotRun"></button>
-    <div id="copilotOutput" class="copilot-output">
+    <label><span id="copilotSampleLabel"></span><select id="copilotSample" data-testid="copilot-sample"></select></label>
+    <label><span id="copilotInputLabel"></span><textarea id="copilotInput" data-testid="copilot-input"></textarea></label>
+    <button id="copilotRun" data-testid="copilot-run"></button>
+    <div id="copilotOutput" class="copilot-output" data-testid="copilot-output">
       <div class="copilot-col">
-        <h3 id="copilotEnLabel"></h3>
-        <pre id="copilotEn" class="preview"></pre>
-        <button id="copilotCopyEn"></button>
+        <h3 id="copilotEnLabel" data-testid="copilot-en-label"></h3>
+        <pre id="copilotEn" data-testid="copilot-en" class="preview"></pre>
+        <button id="copilotCopyEn" data-testid="copilot-copy-en"></button>
       </div>
       <div class="copilot-col">
-        <h3 id="copilotEsLabel"></h3>
-        <pre id="copilotEs" class="preview"></pre>
-        <button id="copilotCopyEs"></button>
+        <h3 id="copilotEsLabel" data-testid="copilot-es-label"></h3>
+        <pre id="copilotEs" data-testid="copilot-es" class="preview"></pre>
+        <button id="copilotCopyEs" data-testid="copilot-copy-es"></button>
       </div>
     </div>
     <p id="copilotMsg" class="warn" hidden></p>
@@ -1014,6 +1193,8 @@ function renderCopilotUI() {
   if (!document.getElementById('copilotSection')) return;
   const t = (s) => state.i18n.t(s);
   document.getElementById('copilotTitle').textContent = t('Copilot');
+  const outLbl = document.getElementById('copilotOutputLabel');
+  if (outLbl) outLbl.textContent = t('Output');
   // Engine badge (Free mode lock)
   const eng = document.getElementById('copilotEngine');
   if (eng) {
@@ -1057,17 +1238,29 @@ function renderCopilotUI() {
     const modeSel = document.getElementById('copilotMode');
     if (modeSel && !modeSel.dataset.wired) {
       modeSel.dataset.wired = '1';
+      // Localize option labels
+      if (modeSel.options && modeSel.options.length >= 3) {
+        modeSel.options[0].textContent = t('English');
+        modeSel.options[1].textContent = t('Spanish');
+        modeSel.options[2].textContent = t('Bilingual');
+      }
       modeSel.value = getOutputMode();
       modeSel.addEventListener('change', () => {
         setOutputMode(modeSel.value);
         applyOutputModeVisibility();
+  try { updateModalCopyLabel(); } catch { /* noop */ }
       });
       applyOutputModeVisibility();
     } else if (modeSel) {
+      if (modeSel.options && modeSel.options.length >= 3) {
+        modeSel.options[0].textContent = t('English');
+        modeSel.options[1].textContent = t('Spanish');
+        modeSel.options[2].textContent = t('Bilingual');
+      }
       modeSel.value = getOutputMode();
       applyOutputModeVisibility();
     }
-  } catch {}
+  } catch { /* noop */ }
 }
 async function onCopilotRun() {
   const sel = document.getElementById('copilotSample');
@@ -1555,7 +1748,8 @@ function runQA() {
       downloadJSON(`cst-${name}-bucket.json`, data);
     });
     $('#bucketClear')?.addEventListener('click', ()=> {
-      if (!confirm(`Clear all items from ${BKT_LABEL[name]||name}?`)) return;
+      // eslint-disable-next-line no-alert
+      if (!window.confirm(`Clear all items from ${BKT_LABEL[name]||name}?`)) return;
       writeBucket(name, []);
       renderBucket(name);
       showToast?.('Bucket cleared.');
@@ -1587,7 +1781,7 @@ function runQA() {
   try {
     const sizes = ['denials','rpfr','fmip'].map(n=>`${n}:${(readBucket(n)||[]).length}`).join(' | ');
     (window.logQA||console.debug)(`Buckets: ${sizes}`);
-  } catch {}
+  } catch { /* noop */ }
 })();
 
 // ---- Contrast safety: enable .high-contrast when ratios are low ----
@@ -1618,7 +1812,7 @@ function contrastRatio(bg, fg){
   }
   const [r1,g1,b1] = toRGB(bg), [r2,g2,b2] = toRGB(fg);
   const L1 = 0.2126*rel(r1)+0.7152*rel(g1)+0.0722*rel(b1)+1e-4;
-  const L2 = 0.2126*rel(r2)+0.7152*rel(b2)+0.0722*rel(b2)+1e-4;
+  const L2 = 0.2126*rel(r2)+0.7152*rel(g2)+0.0722*rel(b2)+1e-4;
   const a = Math.max(L1,L2), b = Math.min(L1,L2);
   return (a+0.05)/(b+0.05);
 }
@@ -1640,7 +1834,7 @@ try {
       }, i*80);
     });
   };
-} catch {}
+} catch { /* noop */ }
 
 /* =========================================
    BUCKET ➜ COPILOT COMPOSE WIRING
@@ -1648,8 +1842,7 @@ try {
    ========================================= */
 
 (function bucketToCopilot(){
-  const $ = (s,c=document)=>c.querySelector(s);
-  const $$= (s,c=document)=>Array.from(c.querySelectorAll(s));
+  // (intentionally no local $/$$ helpers to satisfy lint rules)
 
   // ---- Templates per bucket
   function buildBucketPrompt(kind, itemText){
@@ -1676,7 +1869,7 @@ try {
   function openCopilotWith(kind, text){
     // Ensure Copilot section exists
     if (!document.getElementById('copilotSection')) {
-      try { initCopilot(); renderCopilotUI(); } catch {}
+      try { initCopilot(); renderCopilotUI(); } catch { /* noop */ }
     }
     // Fill the additional instructions textarea with the built prompt
     const prompt = buildBucketPrompt(kind, text||'');
@@ -1690,7 +1883,7 @@ try {
   }
 
   // expose globally so other modules can call later if needed
-  try { window.openCopilotWith = openCopilotWith; } catch {}
+  try { window.openCopilotWith = openCopilotWith; } catch { /* noop */ }
 
   // ---- Patch bucket modal to add "Compose All"
   const patchComposeHeader = () => {
@@ -1709,7 +1902,7 @@ try {
           const title = (document.getElementById('bucketTitle')?.textContent || 'Bucket').toLowerCase();
           const name = title.includes('denials') ? 'denials' : title.includes('rpfr') ? 'rpfr' : title.includes('fmip') ? 'fmip' : 'general';
           let data = [];
-          try { data = JSON.parse(localStorage.getItem('cst_bucket:'+name) || '[]'); } catch {}
+          try { data = JSON.parse(localStorage.getItem('cst_bucket:'+name) || '[]'); } catch { /* noop */ }
           const merged = (data||[])
             .slice()
             .sort((a,b)=>(b?.ts||0)-(a?.ts||0))

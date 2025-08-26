@@ -20,6 +20,8 @@
   "Copilot reachable": "Copilot reachable",
   "Highlights": "Highlights",
   "HighlightsIntro": "Top tips and updates for CST experts",
+  "Language": "Language",
+  "Help": "Help",
   "Show Welcome": "Show Welcome",
   "SetupTitle": "First-Run Setup",
   "SetupName": "Expert Name",
@@ -37,6 +39,12 @@
   "SetupExtPlaceholder": "Enter your CST extension",
   "Welcome": "Welcome to CST SmartDesk",
   "WelcomeIntro": "Faster serve/solve/sell with bilingual responses, carrier checks, and a secure workspace.",
+  "WelcomeHeadline": "CST SmartDesk",
+  "WelcomeSubheadline": "Your smart assistant for white‑glove service.",
+  "WelcomeBody": "We help you serve, solve, and sell with confidence — faster workflows and gold‑standard customer care.",
+  "CTAOpenCopilot": "Open Copilot",
+  "SplashTagline": "White‑glove support. Faster workflows. Gold‑standard results.",
+  "Do Not Show Again": "Do Not Show Again",
   "Get Started": "Get Started",
   "Dismiss": "Dismiss",
   "PleaseWait": "Please wait… loading",
@@ -48,4 +56,7 @@
   ,
   "EngineOfflineLocked": "Engine: Offline (locked)",
   "LockedOfflineEngine": "Locked to offline engine"
+  ,
+  "Output": "Output",
+  "Bilingual": "Bilingual"
 }
