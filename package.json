@@ -8,9 +8,9 @@
   },
   "scripts": {
     "prebuild": "node scripts/decode-favicon.mjs",
-    "dev": "vite --port 4173",
+  "dev": "vite --port 53123",
     "build": "vite build",
-    "preview": "vite preview",
+  "preview": "vite preview --port 53124",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier -w .",
     "test": "vitest run",
@@ -18,7 +18,11 @@
     "e2e:codex": "scripts/e2e-codex.sh",
     "check:lock": "node scripts/check-lock.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "test:ci": "node tests/decode-favicon.smoke.mjs"
+  "doctor:local": "node doctor.mjs",
+  "verify": "npm run doctor:local && npm run lint && npm test",
+  "fix": "node doctor.mjs --write",
+    "test:ci": "node tests/decode-favicon.smoke.mjs",
+    "start:local": "node server.js"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",

@@ -260,6 +260,27 @@ body {
     'Segoe UI Emoji';
 }
 
+/* Defensive: hidden elements should never block clicks */
+[hidden] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Splash should only accept clicks when showing */
+#splash:not(.show) {
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Dialogs only clickable when open */
+dialog {
+  pointer-events: none;
+}
+dialog[open] {
+  pointer-events: auto;
+}
+
 .topbar {
   position: sticky;
   top: 0;

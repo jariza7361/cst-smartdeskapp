@@ -1,10 +1,18 @@
 import { test, expect } from '@playwright/test';
 
-const url = 'http://localhost:4173/index.html';
+const url = 'http://127.0.0.1:53124/';
 
-test('copilot generates and copies', async ({ page }) => {
-  await page.route('**/api/copilot', route => {
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ en: 'OK EN', es: 'OK ES' }) });
+test('copilot generates and copies', async ({ page, context }) => {
+  // grant clipboard permissions for this origin
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+  origin: 'http://127.0.0.1:53124',
+  });
+  await page.route('**/api/copilot', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ en: 'OK EN', es: 'OK ES' }),
+    });
   });
   await page.goto(url);
   await page.selectOption('#copilotSample', { index: 0 });

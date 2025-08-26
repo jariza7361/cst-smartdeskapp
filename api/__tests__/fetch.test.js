@@ -35,4 +35,3 @@ describe('GET /api/fetch', () => {
     expect(res._.status).toBe(405);
   });
 });
-

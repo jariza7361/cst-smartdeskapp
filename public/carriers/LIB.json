@@ -1,0 +1,15 @@
+{
+  "id": "LIB",
+  "name": "LIB",
+  "tcs": [],
+  "common_denials": [],
+  "rpfr": {
+    "eligibility_hint": "",
+    "note_template_en": ""
+  },
+  "fmip": {
+    "steps_en": [],
+    "steps_es": []
+  },
+  "support_links": []
+}

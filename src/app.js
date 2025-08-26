@@ -12,6 +12,7 @@ const state = {
   copilotReachable: null,
   splashShown: false,
   lang: 'en',
+  redirectTo: null,
 };
 let splashMsgTimer = null;
 let splashAnimDone = false;
@@ -42,6 +43,21 @@ function ensureCopilotSeed(lang) {
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {
+  // Detect Codex mode (env flag, query param, or local setting)
+  let CODEX = false;
+  try {
+    // Vite exposes import.meta.env at runtime
+    CODEX = !!(import.meta && import.meta.env && import.meta.env.VITE_CODEX === '1');
+  } catch {
+    // ignore
+  }
+  if (!CODEX) {
+    const qp = new URLSearchParams(location.search).get('codex');
+    CODEX = qp === '1' || localStorage.getItem('codexMode') === '1';
+  }
+  if (CODEX) document.documentElement.classList.add('codex');
+  // Compute redirect target early
+  state.redirectTo = getRedirectTarget();
   // language
   const lang = localStorage.getItem('lang') || 'en';
   state.i18n = await createI18n(lang);
@@ -49,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // localize static title immediately
   localizeStatic();
   // splash behavior: first visit auto; button to re-open
-  const firstVisit = localStorage.getItem('welcomeSeen') !== '1';
+  const firstVisit = CODEX || localStorage.getItem('welcomeSeen') !== '1';
   const btnShow = document.getElementById('showWelcome');
   if (btnShow) btnShow.addEventListener('click', () => forceShowSplash());
   const btnStart = document.getElementById('splashStart');
@@ -64,14 +80,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       localStorage.setItem('welcomeSeen', '1');
       hideSplash();
     });
-  if (firstVisit) showSplash();
+  if (firstVisit) {
+    showSplash();
+  } else if (state.redirectTo) {
+    // No splash: redirect after initial paint
+    setTimeout(() => safeRedirect(state.redirectTo), 80);
+  }
 
   // Keep header always clickable over any decorative layers
   const top = document.querySelector('header.topbar');
   if (top) top.style.zIndex = '20';
 
-  // theme + listeners...
-  applyTheme('dark'); // force dark theme for now
+  // theme + listeners... Use light theme in Codex mode
+  applyTheme(CODEX ? 'light' : 'dark');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
 
   // setup wizard
@@ -85,6 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('openTests').addEventListener('click', () => testsModal.showModal());
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
+
+  // carrier modal close
+  const carrierModal = document.getElementById('carrierModal');
+  const carrierClose = document.getElementById('carrierClose');
+  if (carrierClose) carrierClose.addEventListener('click', () => carrierModal?.close());
 
   // Load copilot prompts (best-effort), then seed if none
   try {
@@ -120,7 +146,168 @@ document.addEventListener('DOMContentLoaded', async () => {
   // first render
   renderStatus();
   run4PointUrlTest();
+  // initial highlights load
+  loadHighlights();
+
+  // Lightweight QA probes (console-only)
+  runQA();
+
+  // Sidebar: handle [data-open] clicks (carriers, tools, products)
+  document.addEventListener('click', (ev) => {
+    const el = ev.target?.closest?.('[data-open]');
+    if (!el) return;
+    const key = el.getAttribute('data-open');
+    if (!key) return;
+    // Known quick actions
+    if (key === 'tests') return openModal('tests');
+    if (key === 'settings') return openModal('settings');
+    if (key === 'tools:copilot') {
+      const sec = document.getElementById('copilotSection');
+      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    // Carriers (USA/Canada)
+    if (key.startsWith('carrier:')) {
+      const carrier = key.split(':')[1];
+      openCarrier(carrier);
+      return;
+    }
+    const toolMap = {
+      'tools:rpfr': 'RPFR / PFR',
+      'tools:fmip': 'FMIP Script',
+      'tools:denials': 'Denials',
+      'tools:affidavits': 'Affidavits',
+      'tools:byod': 'BYOD Premium Check',
+    };
+    const productMap = {
+      'product:UBIF': 'uBreakiFix',
+      'product:RSG': 'Repair Service Group',
+      'product:HOMEPLUS': 'Asurion Home+',
+      'product:APPLIANCEPLUS': 'Asurion Appliance+',
+      'product:VZ_HDP': 'Verizon Home Device Protect',
+      'product:ATT_HTP': 'AT&T Home Tech Protection',
+    };
+    if (toolMap[key]) {
+      logQA(`Tool open → ${toolMap[key]} (TODO: modal/panel)`);
+      showToast(toolMap[key]);
+      return;
+    }
+    if (productMap[key]) {
+      logQA(`Product panel open → ${productMap[key]} (TODO)`);
+      showToast(productMap[key]);
+    }
+  });
 });
+
+// Minimal helpers (safe no-ops if UI not present)
+function openModal(name) {
+  const id = name === 'settings' ? 'setupWizard' : name === 'tests' ? 'testsModal' : name;
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (typeof el.showModal === 'function') el.showModal();
+  else el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function showToast(msg) {
+  try {
+    // Non-intrusive: console only; can be upgraded later
+    console.log('[Toast]', msg);
+  } catch {
+    /* ignore */
+  }
+}
+function logQA(msg) {
+  try {
+    console.debug('[QA]', msg);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function openCarrier(id) {
+  logQA(`Carrier hub open → ${id}`);
+  const modal = document.getElementById('carrierModal');
+  const host = document.getElementById('carrierContent');
+  if (!modal || !host) return;
+  host.textContent = 'Loading…';
+  try {
+    const data = await fetch(`/carriers/${id}.json`, { cache: 'no-store' }).then((r) =>
+      r.ok ? r.json() : Promise.reject(new Error('Not found')),
+    );
+    host.innerHTML = renderCarrierHtml(data);
+  } catch {
+    host.textContent = `Failed to load carrier ${id}`;
+  }
+  modal.showModal();
+}
+
+function renderCarrierHtml(data) {
+  const esc = (s) => escapeHtml(String(s || ''));
+  const list = (arr, map) =>
+    Array.isArray(arr) && arr.length
+      ? `<ul>${arr.map(map).join('')}</ul>`
+      : '<p class="muted">None</p>';
+  const tcs = list(data.tcs, (x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noreferrer noopener">${esc(x.label)}</a></li>`);
+  const denials = list(data.common_denials, (x) => `<li><code>${esc(x.key)}</code> — ${esc(x.label)}</li>`);
+  const fmipEn = list(data.fmip?.steps_en, (x) => `<li>${esc(x)}</li>`);
+  const fmipEs = list(data.fmip?.steps_es, (x) => `<li>${esc(x)}</li>`);
+  const links = list(data.support_links, (x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noreferrer noopener">${esc(x.label)}</a></li>`);
+  return `
+    <h2>${esc(data.name || data.id)}</h2>
+    <section>
+      <h3>Terms & Policies</h3>
+      ${tcs}
+    </section>
+    <section>
+      <h3>Common Denials</h3>
+      ${denials}
+    </section>
+    <section>
+      <h3>RPFR</h3>
+      <p>${esc(data.rpfr?.eligibility_hint || '')}</p>
+      ${data.rpfr?.note_template_en ? `<pre class="preview">${esc(data.rpfr.note_template_en)}</pre>` : ''}
+    </section>
+    <section>
+      <h3>FMIP</h3>
+      <div class="cols">
+        <div><h4>EN</h4>${fmipEn}</div>
+        <div><h4>ES</h4>${fmipEs}</div>
+      </div>
+    </section>
+    <section>
+      <h3>Support</h3>
+      ${links}
+    </section>
+  `;
+}
+
+function getRedirectTarget() {
+  try {
+    const qp = new URLSearchParams(location.search);
+    const nextParam = qp.get('next');
+    if (nextParam) return nextParam;
+  } catch {
+    // ignore
+  }
+  try {
+    if (import.meta && import.meta.env && import.meta.env.VITE_AFTER_SPLASH_URL)
+      return import.meta.env.VITE_AFTER_SPLASH_URL;
+  } catch {
+    // ignore
+  }
+  const ls = localStorage.getItem('redirectAfterSplash');
+  return ls || null;
+}
+
+function safeRedirect(target) {
+  try {
+    if (!target || typeof target !== 'string') return;
+    const same = target === location.href || target === location.pathname;
+    if (same) return;
+    location.href = target;
+  } catch {
+    // ignore
+  }
+}
 
 // --- i18n ---
 async function toggleLang() {
@@ -232,10 +419,20 @@ function hideSplash() {
 
 function waitForSplashFinish() {
   const bar = document.getElementById('splashBar');
+  // Failsafe: always hide splash after 3 seconds
+  const failsafeTimeout = setTimeout(() => {
+  if (!splashAnimDone || !splashAssetsDone) {
+      splashAnimDone = true;
+      splashAssetsDone = true;
+  maybeCloseSplash();
+    }
+  }, 3000);
+
   if (bar) {
     const onEnd = () => {
       splashAnimDone = true;
       maybeCloseSplash();
+      clearTimeout(failsafeTimeout);
     };
     bar.addEventListener('animationend', onEnd, { once: true });
     setTimeout(onEnd, 2600);
@@ -249,14 +446,31 @@ function waitForSplashFinish() {
   ]).then(() => {
     splashAssetsDone = true;
     maybeCloseSplash();
+    clearTimeout(failsafeTimeout);
   });
 }
 
-function maybeCloseSplash() {
+  function maybeCloseSplash() {
   if (splashAnimDone && splashAssetsDone) {
     splashPct = 100;
     updatePct();
     hideSplash();
+  // Redirect (if configured) right after splash hides
+  if (state.redirectTo) setTimeout(() => safeRedirect(state.redirectTo), 60);
+      // Self-test (silent): check Copilot button clickability after splash closes
+      setTimeout(() => {
+        const btn = document.getElementById('copilotRun');
+        if (btn) {
+          try {
+            const rect = btn.getBoundingClientRect();
+            const elAtPoint = document.elementFromPoint(rect.left + 2, rect.top + 2);
+            // compute-only; no console noise in production
+            void (elAtPoint === btn || btn.contains(elAtPoint));
+          } catch {
+            // ignore
+          }
+        }
+      }, 100);
   }
 }
 
@@ -295,14 +509,11 @@ function loadSettings() {
 }
 
 function applyTheme(name) {
-  // Force dark theme for now for debugging
   const el = document.documentElement;
   el.classList.remove('theme-light', 'theme-dark', 'theme-glass');
-  el.classList.add('theme-dark');
-  // If you want to restore dynamic theme, comment the above and uncomment below:
-  // if (name === 'dark') el.classList.add('theme-dark');
-  // else if (name === 'glass') el.classList.add('theme-glass');
-  // else el.classList.add('theme-light');
+  if (name === 'glass') el.classList.add('theme-glass');
+  else if (name === 'light') el.classList.add('theme-light');
+  else el.classList.add('theme-dark');
 }
 
 function forceShowSplash() {
@@ -362,6 +573,8 @@ function preview(obj) {
 
 // --- Copilot ---
 function initCopilot() {
+  // Avoid duplicates if already present
+  if (document.getElementById('copilotSection')) return;
   let main = document.querySelector('.content');
   if (!main) {
     // fallback: create .content if missing
@@ -610,3 +823,56 @@ async function loadHighlights() {
 
 // run on first load and when language toggles
 document.addEventListener('DOMContentLoaded', loadHighlights);
+
+// --- QA quick checks ---
+function runQA() {
+  const misses = [];
+  // quick presence checks for new groups
+  [
+    'virgin.svg',
+    'consumer-cellular.svg',
+    'uscellular.svg',
+    'optimum.svg',
+    'cox.svg',
+    'telus.svg',
+    'koodo.svg',
+    'bell.svg',
+    'samsung.svg',
+    'ubreakifix.svg',
+    'rsg.svg',
+    'homeplus.svg',
+    'applianceplus.svg',
+    'vz-hdp.svg',
+    'att-htp.svg',
+  ]
+    .forEach((n) => {
+      fetch('/assets/' + n, { method: 'HEAD' })
+        .then((r) => {
+          if (!r.ok) {
+            misses.push('/assets/' + n);
+            logQA('Missing asset: /assets/' + n);
+          }
+        })
+        .catch(() => {
+          misses.push('/assets/' + n);
+          logQA('Missing asset: /assets/' + n);
+        });
+    });
+  ['SAMSUNG.json', 'VIRGIN.json'].forEach((n) => {
+    fetch('/carriers/' + n, { method: 'HEAD' })
+      .then((r) => {
+        if (!r.ok) {
+          misses.push('/carriers/' + n);
+          logQA('Missing carrier json: /carriers/' + n);
+        }
+      })
+      .catch(() => {
+        misses.push('/carriers/' + n);
+        logQA('Missing carrier json: /carriers/' + n);
+      });
+  });
+  // final summary (async best-effort; slight delay to collect results)
+  setTimeout(() => {
+    if (misses.length) logQA('QA misses: ' + misses.join(', '));
+  }, 600);
+}

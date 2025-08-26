@@ -3,14 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>CST SmartDesk</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-    <script type="module" crossorigin src="/assets/index-FidNCgRY.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-gnYZ-sga.css">
+  <title data-i18n="AppTitle">CST SmartDesk — Escalation Toolkit</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <script type="module" crossorigin src="/assets/index-CFv6qj7a.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Fpq6kRsd.css">
   </head>
   <body>
-    <header class="topbar"></header>
-    <div class="content"></div>
+    <header class="topbar">
+      <h1>CST SmartDesk</h1>
+      <button id="langToggle" data-i18n="Language">Language</button>
+    </header>
+    <aside class="sidebar">
+      <div class="side-title">USA</div>
+      <ul class="nav">
+  <li data-open="carrier:VZW"><img src="/assets/verizon.svg" alt="Verizon"/><span>Verizon</span></li>
+  <li data-open="carrier:ATT"><img src="/assets/att.svg" alt="AT&amp;T"/><span>AT&amp;T</span></li>
+  <li data-open="carrier:CRK"><img src="/assets/cricket.svg" alt="Cricket"/><span>Cricket</span></li>
+  <li data-open="carrier:LIB"><img src="/assets/liberty.svg" alt="Liberty"/><span>Liberty</span></li>
+  <li data-open="carrier:CC"><img src="/assets/consumer-cellular.svg" alt="Consumer Cellular"/><span>Consumer Cellular</span></li>
+  <li data-open="carrier:USCC"><img src="/assets/uscellular.svg" alt="US Cellular"/><span>US Cellular</span></li>
+  <li data-open="carrier:OPT"><img src="/assets/optimum.svg" alt="Optimum Mobile"/><span>Optimum</span></li>
+  <li data-open="carrier:COX"><img src="/assets/cox.svg" alt="Cox Mobile"/><span>Cox</span></li>
+  <li data-open="carrier:SAMSUNG"><img src="/assets/samsung.svg" alt="Samsung"/><span>Samsung</span></li>
+      </ul>
+      <div class="side-title" style="margin-top:12px">Canada</div>
+      <ul class="nav">
+  <li data-open="carrier:TELUS"><img src="/assets/telus.svg" alt="TELUS"/><span>TELUS</span></li>
+  <li data-open="carrier:KOODO"><img src="/assets/koodo.svg" alt="Koodo"/><span>Koodo</span></li>
+  <li data-open="carrier:BELL"><img src="/assets/bell.svg" alt="Bell"/><span>Bell</span></li>
+  <li data-open="carrier:VIRGIN"><img src="/assets/virgin.svg" alt="Virgin Plus"/><span>Virgin</span></li>
+      </ul>
+      <div class="side-title" style="margin-top:12px">Asurion Products</div>
+      <ul class="nav">
+  <li data-open="product:UBIF"><img src="/assets/ubreakifix.svg" alt="uBreakiFix"/><span>uBreakiFix</span></li>
+  <li data-open="product:RSG"><img src="/assets/rsg.svg" alt="Repair Service Group"/><span>Repair Service Group</span></li>
+  <li data-open="product:HOMEPLUS"><img src="/assets/homeplus.svg" alt="Asurion Home+"/><span>Asurion Home+</span></li>
+  <li data-open="product:APPLIANCEPLUS"><img src="/assets/applianceplus.svg" alt="Asurion Appliance+"/><span>Asurion Appliance+</span></li>
+  <li data-open="product:VZ_HDP"><img src="/assets/vz-hdp.svg" alt="Verizon Home Device Protect"/><span>Verizon HDP</span></li>
+  <li data-open="product:ATT_HTP"><img src="/assets/att-htp.svg" alt="AT&amp;T Home Tech Protection"/><span>AT&amp;T HTP</span></li>
+      </ul>
+      <div class="side-title" style="margin-top:12px">Tools</div>
+      <ul class="nav">
+        <li data-open="tools:copilot">🤖 Copilot</li>
+        <li data-open="tools:rpfr">🧾 RPFR / PFR</li>
+        <li data-open="tools:fmip">🔒 FMIP Script</li>
+        <li data-open="tools:denials">🚨 Denials</li>
+        <li data-open="tools:affidavits">📄 Affidavits</li>
+        <li data-open="tools:byod">💻 BYOD Premium Check</li>
+        <li data-open="tests">🧪 Tests</li>
+        <li data-open="settings">⚙️ Settings</li>
+      </ul>
+    </aside>
+    <div class="content">
+      <section id="systemStatusSection">
+        <h2 data-i18n="System Status">System Status</h2>
+        <ul id="statusList"></ul>
+      </section>
+      <section id="highlights">
+        <h2 data-i18n="Highlights">Highlights</h2>
+        <div id="highlightsList" class="cards"></div>
+      </section>
+    </div>
+    <div id="app"></div>
     <div id="dropzone">Drop files here</div>
     <div id="preview"></div>
     <dialog id="setupWizard">
@@ -43,27 +97,32 @@
         <pre id="testsOutput"></pre>
       </div>
     </dialog>
+    <dialog id="carrierModal">
+      <div class="carrier-wrap">
+        <button id="carrierClose" type="button">Close</button>
+        <div id="carrierContent"></div>
+      </div>
+    </dialog>
     <button id="openTests">Open Tests</button>
-    <ul id="statusList"></ul>
-    <button id="langToggle">Toggle Language</button>
-    <div id="highlightsList"></div>
+    
     <!-- Splash elements -->
     <div id="splash" class="banner overlay" hidden>
       <div class="banner-inner">
-        <h2 id="splashTitle">Welcome to CST SmartDesk</h2>
+        <h2 id="splashTitle" data-i18n="Welcome">Welcome to CST SmartDesk</h2>
         <div class="banner-body">
-          <p id="splashStep">Please wait… loading</p>
+          <p id="splashStep" aria-live="polite" data-i18n="PleaseWait">Please wait… loading</p>
           <div class="progress"><div class="bar" id="splashBar"></div></div>
-          <div class="pct-row"><span id="splashPct">0%</span></div>
+          <div class="pct-row"><span id="splashPct" aria-live="polite">0%</span></div>
           <div class="banner-actions">
-            <button id="splashStart" class="btn-primary">Start</button>
-            <button id="splashDismiss" class="btn-quiet">Dismiss</button>
-            <button id="splashRetry" class="btn-quiet">Retry</button>
+            <button id="splashStart" class="btn-primary" data-i18n="Start">Start</button>
+            <button id="splashDismiss" class="btn-quiet" data-i18n="Dismiss">Dismiss</button>
+            <button id="splashRetry" class="btn-quiet" data-i18n="Retry">Retry</button>
           </div>
         </div>
       </div>
     </div>
     <button id="showWelcome">Show Welcome</button>
     <div id="systemStatus"></div>
+    <!-- Mounting point for main app above -->
   </body>
 </html>

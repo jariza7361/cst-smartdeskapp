@@ -1,0 +1,59 @@
+/* Codex mode overrides: full-page white splash, green progress bar, minimal chrome */
+
+html.codex, body.codex, .codex body {
+  background: #ffffff !important;
+  color: #0b0c0e !important;
+}
+
+/* Make splash a full-screen white overlay */
+.codex #splash.overlay,
+.codex #splash.banner,
+.codex #splash {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+}
+.codex #splash .banner-inner {
+  width: min(720px, 92vw);
+  border-radius: 14px;
+  padding: 24px;
+  background: #ffffff;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+}
+.codex #splash .banner-body {
+  border: none;
+  background: transparent;
+}
+
+/* Green progress bar */
+.codex .progress {
+  height: 12px;
+  border-radius: 999px;
+  background: #e7f6ec;
+  overflow: hidden;
+}
+.codex .progress .bar {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  box-shadow: 0 0 14px rgba(22, 163, 74, 0.35);
+}
+
+/* Reduce chrome while splash shows */
+.codex #splash.show ~ *:not(#splash) {
+  filter: blur(1px) saturate(0.98);
+}
+
+/* Buttons on white */
+.codex .btn-primary {
+  background: #16a34a;
+  border-color: #15803d;
+  color: #fff;
+}
+.codex .btn-quiet {
+  background: #fff;
+  border-color: #d1d5db;
+  color: #111827;
+}

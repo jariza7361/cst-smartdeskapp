@@ -7,7 +7,7 @@ module.exports = {
     'no-console': 'off',
     'no-undef': 'error',
     'no-implied-eval': 'error',
-    'no-alert': 'error'
+    'no-alert': 'error',
   },
-  ignorePatterns: ['node_modules','dist','.vercel']
+  ignorePatterns: ['node_modules', 'dist', '.vercel'],
 };
