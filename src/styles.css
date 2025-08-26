@@ -45,6 +45,33 @@ body {
 .topbar { grid-area: topbar; }
 .sidebar { grid-area: sidebar; position: sticky; top: 0; align-self: start; height: 100%; }
 .content { grid-area: content; }
+.sidebar .tabs{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 5;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.sidebar .tabs [role="tab"]{
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.sidebar .tabs [aria-selected="true"]{
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+.side-panel{ padding: 10px; }
+
 .content section {
   background: var(--card-bg, var(--surface));
   padding: 1rem;

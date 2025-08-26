@@ -137,6 +137,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const top = document.querySelector('header.topbar');
   if (top) top.style.zIndex = '20';
 
+  // Sidebar tabs: fast, accessible switching
+  try {
+    const tabsWrap = document.querySelector('#sidebar .tabs');
+    const tabs = tabsWrap ? Array.from(tabsWrap.querySelectorAll('[role="tab"]')) : [];
+    const panels = Array.from(document.querySelectorAll('#sidebar .side-panel'));
+    const select = (name) => {
+      tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+      panels.forEach((p) => {
+        p.hidden = p.getAttribute('data-panel') !== name;
+      });
+    };
+    tabs.forEach((t) => t.addEventListener('click', () => select(t.dataset.tab)));
+    // Ensure initial selection
+    if (tabs.length) select(tabs.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset.tab || 'carriers');
+  } catch { /* noop */ }
+
   // theme + listeners... Use light theme in Codex mode
   applyTheme(CODEX ? 'light' : 'dark');
   document.getElementById('langToggle').addEventListener('click', toggleLang);
