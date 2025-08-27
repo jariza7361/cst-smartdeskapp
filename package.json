@@ -30,7 +30,9 @@
   "fix": "node doctor.mjs --write",
     "test:ci": "node tests/decode-favicon.smoke.mjs",
   "start:local": "node server.js",
-  "start:local:clean-env": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= node server.js"
+  "start:local:clean-env": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= node server.js",
+  "auto-dev": "node scripts/auto-dev.mjs",
+  "ship": "node scripts/quick-ship.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",

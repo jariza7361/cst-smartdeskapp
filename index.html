@@ -7,7 +7,8 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/src/styles/tokens.css" />
     <link rel="stylesheet" href="/src/styles.css" />
-  <link rel="stylesheet" href="/src/styles/codex.css" />
+    <link rel="stylesheet" href="/src/styles/codex.css" />
+    <link rel="stylesheet" href="/src/styles/dashboard.css" />
   </head>
   <body>
     <header class="topbar">
@@ -93,11 +94,151 @@
       </div>
     </aside>
     <div class="content">
-      <section id="systemStatusSection">
+      <!-- Modern Dashboard Grid -->
+      <section class="dashboard">
+        <div class="dashboard-header">
+          <h1>My Toolkit</h1>
+          <div class="dashboard-actions">
+            <div class="copilot-preview">
+              <span>Ask me anything...</span>
+              <button class="btn-primary" id="generateBtn">Generate</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-grid">
+          <!-- Build Summary Card -->
+          <div class="dashboard-card card-orange" data-action="build-summary">
+            <div class="card-icon">📊</div>
+            <div class="card-content">
+              <h3>Build Summary</h3>
+              <p>System status & metrics</p>
+            </div>
+          </div>
+          
+          <!-- Carrier Escalation Card -->
+          <div class="dashboard-card card-pink" data-action="carrier-escalation">
+            <div class="card-icon">📞</div>
+            <div class="card-content">
+              <h3>Carrier Escalation</h3>
+              <p>Escalation workflows</p>
+            </div>
+          </div>
+          
+          <!-- Denials Guide Card -->
+          <div class="dashboard-card card-red" data-action="denials-guide">
+            <div class="card-icon">⚠️</div>
+            <div class="card-content">
+              <h3>Denials Guide</h3>
+              <p>Denial handling tools</p>
+            </div>
+          </div>
+          
+          <!-- Copilot Card -->
+          <div class="dashboard-card card-blue" data-action="copilot">
+            <div class="card-icon">🤖</div>
+            <div class="card-content">
+              <h3>Copilot</h3>
+              <p>AI assistance portal</p>
+            </div>
+          </div>
+          
+          <!-- Knowledge Base Card -->
+          <div class="dashboard-card card-cyan" data-action="knowledge-base">
+            <div class="card-icon">📚</div>
+            <div class="card-content">
+              <h3>Knowledge Base</h3>
+              <p>Documentation hub</p>
+            </div>
+          </div>
+          
+          <!-- RPFR Grid Card -->
+          <div class="dashboard-card card-teal" data-action="rpfr-grid">
+            <div class="card-icon">🧾</div>
+            <div class="card-content">
+              <h3>RPFR Grid</h3>
+              <p>RPFR management</p>
+            </div>
+          </div>
+          
+          <!-- Script Tracker Card -->
+          <div class="dashboard-card card-purple" data-action="script-tracker">
+            <div class="card-icon">📝</div>
+            <div class="card-content">
+              <h3>Script Tracker</h3>
+              <p>Script management</p>
+            </div>
+          </div>
+          
+          <!-- Terms & Conditions Card -->
+          <div class="dashboard-card card-green" data-action="terms-conditions">
+            <div class="card-icon">📋</div>
+            <div class="card-content">
+              <h3>Terms & Conditions</h3>
+              <p>Policy documents</p>
+            </div>
+          </div>
+          
+          <!-- Quick Start Card -->
+          <div class="dashboard-card card-magenta" data-action="quick-start">
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+              <h3>Quick Start</h3>
+              <p>Setup wizard</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Copilot Workspace (Large) -->
+        <section class="copilot-workspace">
+          <div class="copilot-header">
+            <h2>Copilot</h2>
+            <span class="copilot-status">Try asking:</span>
+          </div>
+          
+          <div class="copilot-suggestions">
+            <button class="suggestion-chip">Generate a specific escalation script</button>
+            <button class="suggestion-chip">What is the deductible for plan X?</button>
+            <button class="suggestion-chip">Show me device claim denials</button>
+          </div>
+          
+          <div class="copilot-interface">
+            <div class="copilot-input">
+              <textarea id="copilotInput" placeholder="Ask me anything..." rows="3"></textarea>
+              <button class="btn-primary" id="copilotGenerate">Generate</button>
+            </div>
+            
+            <div class="copilot-output">
+              <div class="output-header">
+                <span>Response</span>
+                <div class="output-actions">
+                  <button class="btn-secondary" id="copilotCopy">Copy</button>
+                  <button class="btn-secondary" id="copilotCopyAll">Copy EN+ES</button>
+                </div>
+              </div>
+              <textarea id="copilotOutput" placeholder="Response will appear here..." rows="8" readonly></textarea>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Carrier Logos Footer -->
+        <div class="carrier-footer">
+          <img src="/assets/att.svg" alt="AT&T" />
+          <img src="/assets/verizon.svg" alt="Verizon" />
+          <img src="/assets/cricket.svg" alt="Cricket" />
+          <img src="/assets/uscellular.svg" alt="US Cellular" />
+          <img src="/assets/cox.svg" alt="Cox" />
+          <img src="/assets/consumer-cellular.svg" alt="Consumer Cellular" />
+          <img src="/assets/optimum.svg" alt="Optimum" />
+        </div>
+      </section>
+      
+      <!-- Legacy content (hidden initially) -->
+      <section id="systemStatusSection" style="display: none;">
         <h2 data-i18n="System Status">System Status</h2>
         <ul id="statusList"></ul>
       </section>
-      <section id="highlights">
+      <section id="highlights" style="display: none;">
         <h2 data-i18n="Highlights">Highlights</h2>
         <div id="highlightsList" class="cards"></div>
       </section>

@@ -286,6 +286,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Wire global search dropdown (grouped: quick actions + next suggestions)
   try { wireTopSearch(); } catch { /* noop */ }
+  
+  // Wire modern dashboard
+  try { wireDashboard(); } catch { /* noop */ }
 
   // Sidebar: handle [data-open] clicks (carriers, tools, products)
   document.addEventListener('click', (ev) => {
@@ -2205,3 +2208,126 @@ try {
     mo.observe(list, { childList:true, subtree:true });
   }
 })();
+
+// ---- Modern Dashboard ----
+function wireDashboard() {
+  // Dashboard card clicks
+  document.querySelectorAll('.dashboard-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const action = card.getAttribute('data-action');
+      handleDashboardAction(action);
+      
+      // Visual feedback
+      card.classList.add('active');
+      setTimeout(() => card.classList.remove('active'), 300);
+    });
+  });
+
+  // Copilot workspace
+  const copilotInput = document.getElementById('copilotInput');
+  const copilotOutput = document.getElementById('copilotOutput');
+  const generateBtn = document.getElementById('copilotGenerate');
+  const copyBtn = document.getElementById('copilotCopy');
+  const copyAllBtn = document.getElementById('copilotCopyAll');
+
+  // Suggestion chips
+  document.querySelectorAll('.suggestion-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (copilotInput) {
+        copilotInput.value = chip.textContent;
+        copilotInput.focus();
+      }
+    });
+  });
+
+  // Generate button
+  if (generateBtn && copilotInput && copilotOutput) {
+    generateBtn.addEventListener('click', async () => {
+      const prompt = copilotInput.value.trim();
+      if (!prompt) return;
+
+      generateBtn.disabled = true;
+      generateBtn.textContent = 'Generating...';
+      copilotOutput.value = 'Generating response...';
+
+      try {
+        // Use existing copilot functionality
+        const result = await runCopilot(prompt);
+        copilotOutput.value = result || 'Generated response would appear here.';
+      } catch (error) {
+        copilotOutput.value = `Error: ${error.message}`;
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate';
+      }
+    });
+  }
+
+  // Copy buttons
+  if (copyBtn && copilotOutput) {
+    copyBtn.addEventListener('click', () => {
+      copilotOutput.select();
+      document.execCommand('copy');
+      showToast('Response copied to clipboard');
+    });
+  }
+
+  if (copyAllBtn && copilotOutput) {
+    copyAllBtn.addEventListener('click', () => {
+      const text = copilotOutput.value;
+      // Add EN+ES format
+      const formatted = `EN: ${text}\n\nES: [Spanish translation would be generated]`;
+      navigator.clipboard.writeText(formatted).then(() => {
+        showToast('EN+ES response copied to clipboard');
+      }).catch(() => {
+        // Fallback
+        copilotOutput.value = formatted;
+        copilotOutput.select();
+        document.execCommand('copy');
+        showToast('EN+ES response copied to clipboard');
+      });
+    });
+  }
+}
+
+function handleDashboardAction(action) {
+  switch (action) {
+    case 'build-summary':
+      // Show system status
+      openModal('tests');
+      break;
+    case 'carrier-escalation':
+      // Open carrier tools
+      document.querySelector('[data-tab="carriers"]')?.click();
+      break;
+    case 'denials-guide':
+      openDenials();
+      break;
+    case 'copilot':
+      // Focus copilot input
+      document.getElementById('copilotInput')?.focus();
+      break;
+    case 'knowledge-base':
+      // Open knowledge resources
+      showToast('Knowledge Base - Feature coming soon');
+      break;
+    case 'rpfr-grid':
+      // Open RPFR tools
+      document.querySelector('[data-open="tools:rpfr"]')?.click();
+      break;
+    case 'script-tracker':
+      // Open script tracking
+      showToast('Script Tracker - Feature coming soon');
+      break;
+    case 'terms-conditions':
+      // Open terms and conditions
+      showToast('Terms & Conditions - Feature coming soon');
+      break;
+    case 'quick-start':
+      // Open setup wizard
+      openModal('settings');
+      break;
+    default:
+      showToast(`${action} - Feature coming soon`);
+  }
+}

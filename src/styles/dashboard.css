@@ -1,0 +1,351 @@
+/* Modern Dashboard Styles */
+
+.dashboard {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink);
+}
+
+.copilot-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.copilot-preview span {
+  color: var(--ink-subtle);
+  font-style: italic;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.dashboard-card {
+  background: linear-gradient(135deg, var(--card-start), var(--card-end));
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card .card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.dashboard-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.dashboard-card p {
+  font-size: 0.875rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Card Color Variants */
+.card-orange {
+  --card-start: #f97316;
+  --card-end: #ea580c;
+}
+
+.card-pink {
+  --card-start: #ec4899;
+  --card-end: #db2777;
+}
+
+.card-red {
+  --card-start: #ef4444;
+  --card-end: #dc2626;
+}
+
+.card-blue {
+  --card-start: #3b82f6;
+  --card-end: #2563eb;
+}
+
+.card-cyan {
+  --card-start: #06b6d4;
+  --card-end: #0891b2;
+}
+
+.card-teal {
+  --card-start: #14b8a6;
+  --card-end: #0d9488;
+}
+
+.card-purple {
+  --card-start: #8b5cf6;
+  --card-end: #7c3aed;
+}
+
+.card-green {
+  --card-start: #22c55e;
+  --card-end: #16a34a;
+}
+
+.card-magenta {
+  --card-start: #d946ef;
+  --card-end: #c026d3;
+}
+
+/* Copilot Workspace */
+.copilot-workspace {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border);
+}
+
+.copilot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.copilot-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--ink);
+}
+
+.copilot-status {
+  color: var(--ink-subtle);
+  font-size: 0.875rem;
+}
+
+.copilot-suggestions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.suggestion-chip {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-chip:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.copilot-interface {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.copilot-input {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.copilot-input textarea {
+  flex: 1;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.copilot-input textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.copilot-output {
+  background: var(--panel);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.output-header span {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.output-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.copilot-output textarea {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 200px;
+}
+
+.copilot-output textarea:focus {
+  outline: none;
+}
+
+/* Carrier Footer */
+.carrier-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+.carrier-footer img {
+  height: 24px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.carrier-footer img:hover {
+  opacity: 1;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--panel);
+  border-color: var(--accent);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .copilot-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .carrier-footer {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+/* Animation for card interactions */
+@keyframes cardPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.dashboard-card.active {
+  animation: cardPulse 0.3s ease;
+}
