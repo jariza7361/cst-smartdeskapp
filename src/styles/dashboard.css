@@ -811,3 +811,228 @@
   border-radius: 6px;
   margin-top: 20px;
 }
+
+/* Help Modal Styles */
+.help-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.shortcut-section h4 {
+  color: var(--ink);
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.5rem;
+}
+
+.shortcut-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.shortcut-item:hover {
+  background: #e9ecef;
+}
+
+.shortcut-item kbd {
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: bold;
+  min-width: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.help-tips {
+  background: #e3f2fd;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+  border-left: 4px solid #2196f3;
+}
+
+.help-tips h4 {
+  margin: 0 0 1rem 0;
+  color: #1976d2;
+}
+
+.help-tips ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.help-tips li {
+  margin-bottom: 0.5rem;
+  color: #1976d2;
+}
+
+.help-version {
+  text-align: center;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  margin-top: 2rem;
+}
+
+.help-version p {
+  margin: 0.25rem 0;
+}
+
+/* Card Shortcut Hints */
+.card-shortcut {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #666;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.smart-card {
+  position: relative;
+}
+
+.smart-card:hover .card-shortcut {
+  opacity: 1;
+}
+
+/* Responsive help modal */
+@media (max-width: 768px) {
+  .shortcuts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .help-content {
+    padding: 0 1rem;
+  }
+}
+
+/* Performance Metrics Styles */
+.performance-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #495057;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.performance-insights {
+  background: #e8f5e8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+  border-left: 4px solid #28a745;
+}
+
+.performance-insights h4 {
+  margin: 0 0 1rem 0;
+  color: #155724;
+}
+
+.performance-insights ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.performance-insights li {
+  margin-bottom: 0.5rem;
+  color: #155724;
+  line-height: 1.5;
+}
+
+.performance-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Responsive metrics */
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .metric-card {
+    padding: 1rem;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+  }
+  
+  .performance-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}

@@ -37,6 +37,9 @@ async function init() {
   try {
     console.log('Initializing CST SmartDesk v1.0...');
     
+    // Initialize session tracking
+    initializeSession();
+    
     // Initialize i18n
     state.i18n = createI18n();
     await state.i18n.init(currentLanguage);
@@ -321,9 +324,61 @@ function setupEventListeners() {
     endBreakBtn.addEventListener('click', endBreak);
   }
   
+  // Help button
+  const helpBtn = document.getElementById('helpBtn');
+  if (helpBtn) {
+    helpBtn.addEventListener('click', showHelpModal);
+  }
+  
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
+  }
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown', handleKeyboardShortcuts);
+}
+
+// Handle keyboard shortcuts
+function handleKeyboardShortcuts(e) {
+  // Only trigger if not typing in input fields
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    return;
+  }
+  
+  // Check if modal is open, if so handle modal shortcuts
+  const openModal = document.querySelector('.modal[style*="block"]');
+  if (openModal) {
+    if (e.key === 'Escape') {
+      closeModal(openModal);
+    }
+    return;
+  }
+  
+  const key = e.key.toLowerCase();
+  
+  const shortcuts = {
+    'f': 'fmip',
+    'h': 'hero-denial', 
+    'b': 'byod',
+    's': 'spanish-templates',
+    'a': 'auto-fill',
+    'e': 'escalations',
+    'n': 'alpha-notes',
+    'r': 'rpfr',
+    't': 'settings', // 't' for time/schedule settings
+    'l': 'language-toggle',
+    'p': 'performance', // 'p' for performance metrics
+    '?': 'help' // Show help modal
+  };
+  
+  if (shortcuts[key]) {
+    e.preventDefault();
+    if (key === '?') {
+      showHelpModal();
+    } else {
+      handleCardClick(shortcuts[key]);
+    }
   }
 }
 
@@ -368,6 +423,9 @@ function setupCardHandlers() {
 function handleCardClick(cardType) {
   console.log(`Opening ${cardType} modal`);
   
+  // Track SmartPanel usage
+  trackMetric('smartPanelUsage');
+  
   switch (cardType) {
     case 'fmip':
       showFMIPModal();
@@ -399,8 +457,207 @@ function handleCardClick(cardType) {
     case 'language-toggle':
       toggleLanguage();
       break;
+    case 'performance':
+      showPerformanceModal();
+      break;
     default:
       console.log(`No handler for card type: ${cardType}`);
+  }
+}
+
+// Show performance metrics modal
+function showPerformanceModal() {
+  const stats = getPerformanceStats();
+  
+  const modal = createModal('Performance Metrics', `
+    <div class="performance-content">
+      <h3>📊 Expert Performance Dashboard</h3>
+      
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h4>🕒 Session Time</h4>
+          <div class="metric-value">${stats.sessionTime}</div>
+          <div class="metric-label">Current session</div>
+        </div>
+        
+        <div class="metric-card">
+          <h4>🎯 SmartPanel Usage</h4>
+          <div class="metric-value">${stats.smartPanelUsage}</div>
+          <div class="metric-label">Cards opened today</div>
+        </div>
+        
+        <div class="metric-card">
+          <h4>📝 Notes Generated</h4>
+          <div class="metric-value">${stats.notesGenerated}</div>
+          <div class="metric-label">Auto-generated notes</div>
+        </div>
+        
+        <div class="metric-card">
+          <h4>📋 Clipboard Actions</h4>
+          <div class="metric-value">${stats.clipboardActions}</div>
+          <div class="metric-label">Items copied</div>
+        </div>
+        
+        <div class="metric-card">
+          <h4>⚡ Break Compliance</h4>
+          <div class="metric-value">${stats.breakCompliance}%</div>
+          <div class="metric-label">On-time breaks</div>
+        </div>
+        
+        <div class="metric-card">
+          <h4>🚀 Escalations</h4>
+          <div class="metric-value">${stats.escalations}</div>
+          <div class="metric-label">Today's escalations</div>
+        </div>
+      </div>
+      
+      <div class="performance-insights">
+        <h4>💡 Insights & Recommendations</h4>
+        <ul id="performanceInsights">
+          ${generatePerformanceInsights(stats)}
+        </ul>
+      </div>
+      
+      <div class="performance-actions">
+        <button onclick="exportPerformanceData()" class="btn-primary">Export Data</button>
+        <button onclick="resetDailyStats()" class="btn-secondary">Reset Daily Stats</button>
+      </div>
+    </div>
+  `);
+  
+  showModal(modal);
+}
+
+// Get performance statistics
+function getPerformanceStats() {
+  const sessionStart = localStorage.getItem('cst_session_start') || new Date().toISOString();
+  const now = new Date();
+  const sessionStartTime = new Date(sessionStart);
+  const sessionMinutes = Math.floor((now - sessionStartTime) / 60000);
+  
+  const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
+  const today = now.toDateString();
+  
+  const dailyStats = stats[today] || {
+    smartPanelUsage: 0,
+    notesGenerated: 0,
+    clipboardActions: 0,
+    escalations: 0,
+    breaksOnTime: 0,
+    totalBreaks: 0
+  };
+  
+  return {
+    sessionTime: formatDuration(sessionMinutes),
+    smartPanelUsage: dailyStats.smartPanelUsage,
+    notesGenerated: dailyStats.notesGenerated,
+    clipboardActions: dailyStats.clipboardActions,
+    escalations: dailyStats.escalations,
+    breakCompliance: dailyStats.totalBreaks > 0 ? 
+      Math.round((dailyStats.breaksOnTime / dailyStats.totalBreaks) * 100) : 100
+  };
+}
+
+// Generate performance insights
+function generatePerformanceInsights(stats) {
+  const insights = [];
+  
+  if (stats.smartPanelUsage > 10) {
+    insights.push('<li>✅ Great SmartPanel usage! You\'re leveraging automation effectively.</li>');
+  } else {
+    insights.push('<li>💡 Try using more SmartPanel cards to boost productivity.</li>');
+  }
+  
+  if (stats.clipboardActions > 5) {
+    insights.push('<li>⚡ High copy-paste efficiency - you\'re working smart!</li>');
+  }
+  
+  if (stats.breakCompliance >= 80) {
+    insights.push('<li>🎯 Excellent break compliance - great work-life balance!</li>');
+  } else {
+    insights.push('<li>⏰ Consider taking regular breaks to maintain productivity.</li>');
+  }
+  
+  if (stats.escalations === 0) {
+    insights.push('<li>🔥 Zero escalations today - excellent problem resolution!</li>');
+  }
+  
+  if (insights.length === 0) {
+    insights.push('<li>📈 Keep up the great work! Your metrics look good.</li>');
+  }
+  
+  return insights.join('');
+}
+
+// Format duration in minutes to readable format
+function formatDuration(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+}
+
+// Export performance data
+function exportPerformanceData() {
+  const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
+  const expertData = JSON.parse(localStorage.getItem('cst_expert_info') || '{}');
+  
+  const exportData = {
+    expert: expertData,
+    performance: stats,
+    exportDate: new Date().toISOString(),
+    version: 'CST SmartDesk v1.0'
+  };
+  
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `CST_Performance_${expertData.name || 'Expert'}_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showNotification('Performance data exported successfully!');
+}
+
+// Reset daily statistics
+function resetDailyStats() {
+  const today = new Date().toDateString();
+  const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
+  
+  if (stats[today]) {
+    delete stats[today];
+    localStorage.setItem('cst_performance_stats', JSON.stringify(stats));
+    showNotification('Daily statistics reset successfully!');
+    closeModal(document.querySelector('.modal'));
+  }
+}
+
+// Track performance metrics
+function trackMetric(metric, value = 1) {
+  const today = new Date().toDateString();
+  const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
+  
+  if (!stats[today]) {
+    stats[today] = {
+      smartPanelUsage: 0,
+      notesGenerated: 0,
+      clipboardActions: 0,
+      escalations: 0,
+      breaksOnTime: 0,
+      totalBreaks: 0
+    };
+  }
+  
+  stats[today][metric] += value;
+  localStorage.setItem('cst_performance_stats', JSON.stringify(stats));
+}
+
+// Initialize session tracking
+function initializeSession() {
+  if (!localStorage.getItem('cst_session_start')) {
+    localStorage.setItem('cst_session_start', new Date().toISOString());
   }
 }
 
@@ -480,6 +737,57 @@ function handleScheduleFormSubmit(e) {
 // Test alert function
 function testAlert() {
   playAlert('This is a test alert! Your schedule notifications are working correctly.');
+}
+
+// Show help modal with keyboard shortcuts
+function showHelpModal() {
+  const modal = createModal('Keyboard Shortcuts', `
+    <div class="help-content">
+      <h3>⌨️ Keyboard Shortcuts</h3>
+      <div class="shortcuts-grid">
+        <div class="shortcut-section">
+          <h4>SmartPanel Cards</h4>
+          <div class="shortcut-list">
+            <div class="shortcut-item"><kbd>F</kbd> FMIP Workflow</div>
+            <div class="shortcut-item"><kbd>H</kbd> HERO Denial Scripts</div>
+            <div class="shortcut-item"><kbd>B</kbd> BYOD Logic</div>
+            <div class="shortcut-item"><kbd>S</kbd> Spanish Templates</div>
+            <div class="shortcut-item"><kbd>A</kbd> Auto-Fill Forms</div>
+            <div class="shortcut-item"><kbd>E</kbd> Escalations</div>
+            <div class="shortcut-item"><kbd>N</kbd> Alpha Notes</div>
+            <div class="shortcut-item"><kbd>R</kbd> RPFR Guide</div>
+            <div class="shortcut-item"><kbd>P</kbd> Performance Metrics</div>
+          </div>
+        </div>
+        
+        <div class="shortcut-section">
+          <h4>System Functions</h4>
+          <div class="shortcut-list">
+            <div class="shortcut-item"><kbd>T</kbd> Schedule Settings</div>
+            <div class="shortcut-item"><kbd>L</kbd> Language Toggle</div>
+            <div class="shortcut-item"><kbd>?</kbd> Show This Help</div>
+            <div class="shortcut-item"><kbd>Esc</kbd> Close Modal</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="help-tips">
+        <h4>💡 Pro Tips</h4>
+        <ul>
+          <li>Shortcuts work when not typing in input fields</li>
+          <li>Press <kbd>Esc</kbd> to quickly close any modal</li>
+          <li>All shortcuts are case-insensitive</li>
+          <li>Use <kbd>Ctrl+C</kbd> to copy generated content</li>
+        </ul>
+      </div>
+      
+      <div class="help-version">
+        <p><strong>CST SmartDesk v1.0</strong> - Expert Productivity Suite</p>
+        <p>Last updated: ${new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
+  `);
+  showModal(modal);
 }
 
 // FMIP Modal Functions
@@ -797,6 +1105,7 @@ function closeModal(modal) {
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
     showNotification('Copied to clipboard!');
+    trackMetric('clipboardActions');
   }).catch(err => {
     console.error('Failed to copy: ', err);
   });
@@ -965,6 +1274,7 @@ Next Steps:
   `;
   
   showGeneratedContent(note);
+  trackMetric('notesGenerated');
 }
 
 function generateFollowUpEmail() {
@@ -1046,6 +1356,9 @@ function logEscalation() {
   
   // Update display
   updateEscalationHistory();
+  
+  // Track escalation
+  trackMetric('escalations');
   
   // Clear form
   document.getElementById('escalationReason').value = '';
