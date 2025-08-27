@@ -62,6 +62,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.theme-macos{
+  --bg:#0b0c0e;
+  --panel:#11131a;
+  --panel-2:#151827;
+  --ink:#f2f5fb;
+  --ink-subtle:#d9e1ef;
+  --muted:#b8c2d4;
+  --accent:#2997ff; /* macOS blue */
+  --border:#2a2f3b;
+}
 .topbar {
   display: flex;
   justify-content: space-between;

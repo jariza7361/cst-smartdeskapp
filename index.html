@@ -18,6 +18,9 @@
         <div id="searchSuggest" role="listbox" style="position:absolute;top:110%;left:0;right:0;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:6px;display:none;z-index:30;max-height:300px;overflow:auto"></div>
       </div>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button id="openCopilotBtn" class="btn secondary">Copilot</button>
+        <button id="openSettingsTop" class="btn secondary">Setup</button>
+        <button id="themeToggle" class="btn secondary" title="Toggle theme">Theme</button>
         <button id="langToggle" data-i18n="Language">Language</button>
         <div id="helpMenuWrap" style="position:relative">
           <button id="helpMenuBtn" data-testid="help-menu-btn" class="btn secondary" data-i18n="Help">Help</button>
@@ -130,6 +133,8 @@
         <button id="testsClose" type="button">Close</button>
         <button id="testsFetchBtn" type="button">Run Fetch Test</button>
   <button class="btn" id="t_run_doctor" type="button">Run Doctor</button>
+  <button class="btn secondary" id="t_run_ui_audit" type="button">Run UI Text Audit</button>
+  <button class="btn secondary" id="t_run_splash_diag" type="button">Splash Diagnostics</button>
   <span id="ocrBadge" class="pill" title="Local OCR status" style="margin-left:8px">OCR: checking…</span>
         <pre id="testsOutput"></pre>
   <pre id="testLog" style="margin-top:8px;white-space:pre-wrap"></pre>

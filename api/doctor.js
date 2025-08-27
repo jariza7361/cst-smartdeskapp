@@ -6,7 +6,14 @@ export default async function handler(req, res) {
   try {
     async function head(path) {
       try {
-        const r = await fetch(path, { method: 'HEAD', cache: 'no-store' });
+        // Build absolute URL for serverless/node fetch when given a relative path
+        let url = path;
+        if (!/^https?:\/\//i.test(url)) {
+          const proto = req.headers['x-forwarded-proto'] || 'https';
+          const host = req.headers['x-forwarded-host'] || req.headers.host;
+          url = new URL(url, `${proto}://${host}`).toString();
+        }
+        const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
         return r.ok;
       } catch {
         return false;

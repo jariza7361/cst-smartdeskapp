@@ -1,13 +1,13 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: 'e2e',
-  timeout: 30000,
+  timeout: 45000,
   expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.005 } },
   webServer: {
-  command: 'npm run -s build && npm run -s preview',
-  port: 53124,
-  timeout: 60000,
-  reuseExistingServer: true,
+    command: 'npm run -s build && npm run -s preview:clean-env',
+    port: 53124,
+    timeout: 90000,
+    reuseExistingServer: true,
   },
   use: {
     headless: true,

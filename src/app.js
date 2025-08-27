@@ -14,6 +14,7 @@ const state = {
   lang: 'en',
   redirectTo: null,
   engine: localStorage.getItem('cst_engine') || 'templates', // 'templates' | 'local-llm'
+  jsErrors: [],
 };
 let splashMsgTimer = null;
 let splashAnimDone = false;
@@ -21,6 +22,30 @@ let splashAssetsDone = false;
 let splashPct = 0;
 let splashPctTimer = null;
 let splashKeyHandler = null;
+
+// Global error capture (helps diagnose production issues)
+try {
+  const pushErr = (msg) => {
+    try {
+      state.jsErrors = state.jsErrors || [];
+      if (msg && state.jsErrors[0] !== msg) {
+        state.jsErrors.unshift(String(msg));
+        state.jsErrors = state.jsErrors.slice(0, 5);
+      }
+      // reflect in status when available
+      try { renderStatus(); } catch { /* noop */ }
+    } catch { /* noop */ }
+  };
+  window.addEventListener('error', (e) => {
+    const m = e?.error?.message || e?.message || 'Unknown error';
+    pushErr('Error: ' + m);
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    const reason = e?.reason;
+    const m = (reason && (reason.message || reason.toString?.())) || 'Unhandled rejection';
+    pushErr('Promise: ' + m);
+  });
+} catch { /* noop */ }
 
 // Detect if running under automation (e.g., Playwright)
 function isAutomation() {
@@ -153,8 +178,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tabs.length) select(tabs.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset.tab || 'carriers');
   } catch { /* noop */ }
 
-  // theme + listeners... Use light theme in Codex mode
-  applyTheme(CODEX ? 'light' : 'dark');
+  // theme + listeners... Use saved theme if available else light for Codex, dark otherwise
+  try {
+    const saved = (JSON.parse(localStorage.getItem('cst.settings')||'{}')||{}).theme;
+    applyTheme(saved || (CODEX ? 'light' : 'dark'));
+  } catch { applyTheme(CODEX ? 'light' : 'dark'); }
+  document.getElementById('themeToggle')?.addEventListener('click', cycleTheme);
+  document.getElementById('openSettingsTop')?.addEventListener('click', () => openModal('settings'));
+  document.getElementById('openCopilotBtn')?.addEventListener('click', () => {
+    const modal = document.getElementById('modal-copilot');
+    if (modal) openCopilotModal();
+  });
   document.getElementById('langToggle').addEventListener('click', toggleLang);
   // Help menu wiring
   const helpBtn = document.getElementById('helpMenuBtn');
@@ -180,17 +214,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // setup wizard
   const wiz = document.getElementById('setupWizard');
-  document.getElementById('openSettings').addEventListener('click', () => wiz.showModal());
+  const btnOpenSettings = document.getElementById('openSettings');
+  if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => openModal('settings'));
   document.getElementById('wizardSave').addEventListener('click', onSaveWizard);
   state.settings = loadSettings();
 
   // tests modal
   const testsModal = document.getElementById('testsModal');
-  document.getElementById('openTests').addEventListener('click', () => testsModal.showModal());
+  const btnOpenTests = document.getElementById('openTests');
+  if (btnOpenTests) btnOpenTests.addEventListener('click', () => openModal('tests'));
   document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
   document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
   // Tests: wire Doctor and OCR status badge
   document.getElementById('t_run_doctor')?.addEventListener('click', runDoctorTest);
+  // Tests: UI audit + splash diagnostics
+  document.getElementById('t_run_ui_audit')?.addEventListener('click', runUiTextAudit);
+  document.getElementById('t_run_splash_diag')?.addEventListener('click', runSplashDiagnostics);
   checkOCRStatus();
 
   // denials modal
@@ -412,6 +451,23 @@ function showToast(msg) {
   } catch {
     /* ignore */
   }
+}
+function cycleTheme(){
+  try {
+    const root = document.documentElement;
+    const themes = ['theme-dark','theme-light','theme-glass','theme-macos'];
+    const curClass = themes.find(t=>root.classList.contains(t)) || 'theme-dark';
+    const cur = curClass.replace('theme-','');
+    const order = ['dark','light','glass','macos'];
+    const next = order[(order.indexOf(cur)+1) % order.length];
+    applyTheme(next);
+    // persist into settings if present
+    try{
+      const s = JSON.parse(localStorage.getItem('cst.settings')||'{}')||{};
+      s.theme = next; localStorage.setItem('cst.settings', JSON.stringify(s));
+    }catch{}
+    showToast('Theme: '+next);
+  } catch {}
 }
 function logQA(msg) {
   try {
@@ -968,9 +1024,10 @@ function loadSettings() {
 
 function applyTheme(name) {
   const el = document.documentElement;
-  el.classList.remove('theme-light', 'theme-dark', 'theme-glass');
+  el.classList.remove('theme-light', 'theme-dark', 'theme-glass', 'theme-macos');
   if (name === 'glass') el.classList.add('theme-glass');
   else if (name === 'light') el.classList.add('theme-light');
+  else if (name === 'macos') el.classList.add('theme-macos');
   else el.classList.add('theme-dark');
 }
 
@@ -1237,6 +1294,69 @@ async function runDoctorTest() {
     if (log) log.textContent = 'Doctor error: ' + (e?.message || e);
     showToast('Doctor error', 'warn');
   }
+}
+
+// --- UI Text Audit (temporary diagnostics) ---
+function runUiTextAudit(){
+  const out = document.getElementById('testLog') || document.getElementById('testsOutput');
+  if (out) out.textContent = 'UI Text Audit: scanning…';
+  try {
+    // Collect visible text nodes from main content area and modals
+    const isVisible = (el)=>{
+      if (!el) return false;
+      const s = getComputedStyle(el);
+      return s && s.display !== 'none' && s.visibility !== 'hidden' && el.offsetParent !== null;
+    };
+    const roots = [
+      document.querySelector('.content'),
+      document.getElementById('modal-copilot'),
+      document.getElementById('modal-smartdrop'),
+      document.getElementById('modal-welcome'),
+    ].filter(Boolean);
+    const texts = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while ((node = walker.nextNode())){
+      const t = (node.nodeValue||'').replace(/\s+/g,' ').trim();
+      if (!t) continue;
+      const parent = node.parentElement;
+      if (!parent || !isVisible(parent)) continue;
+      // skip code/pre/script/style
+      const tag = parent.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'CODE' || tag === 'PRE') continue;
+      texts.push(t);
+    }
+    // Flag repeated consecutive tokens (>=3) or repeated lines (>=2 identical in a row)
+    const issues = [];
+    const tokenRe = /([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\-']*)(?:\s+\1){2,}/i;
+    texts.forEach((line, i)=>{
+      if (tokenRe.test(line)) issues.push({ i, type:'repeat-token', line });
+      if (i>0 && texts[i-1]===line) issues.push({ i, type:'repeat-line', line });
+    });
+    const report = {
+      totalLines: texts.length,
+      issues: issues.slice(0,50),
+      hint: 'Look for repeat-token or repeat-line entries.'
+    };
+    if (out) out.textContent = JSON.stringify(report, null, 2);
+  } catch (e){ if (out) out.textContent = 'UI Text Audit error: ' + (e?.message||e); }
+}
+
+// --- Splash Diagnostics (temporary) ---
+function runSplashDiagnostics(){
+  const out = document.getElementById('testLog') || document.getElementById('testsOutput');
+  if (out) out.textContent = 'Splash diagnostics: collecting…';
+  try {
+    const el = document.getElementById('splash');
+    const step = document.getElementById('splashStep')?.textContent || '';
+    const pct = document.getElementById('splashPct')?.textContent || '';
+    const hasShow = el?.classList.contains('show');
+    const hidden = !!el?.hidden;
+    const seen = localStorage.getItem('welcomeSeen') || '0';
+    const onboarded = localStorage.getItem('onboarded') || '0';
+    const summary = { showClass: hasShow, hidden, step, pct, welcomeSeen: seen, onboarded };
+    if (out) out.textContent = JSON.stringify(summary, null, 2);
+  } catch (e){ if (out) out.textContent = 'Splash diagnostics error: ' + (e?.message||e); }
 }
 
 // --- Copilot ---
@@ -1590,6 +1710,11 @@ function renderStatus() {
         state.copilotReachable,
       ),
     );
+  }
+
+  // Recent JS errors (if any)
+  if (Array.isArray(state.jsErrors) && state.jsErrors.length) {
+    items.push(mark('Errors', state.jsErrors.join(' | '), false));
   }
 
   document.getElementById('statusList').innerHTML = items
