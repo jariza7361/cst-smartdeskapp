@@ -344,6 +344,51 @@ dialog[open] {
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* Top search styling (theme-aware) */
+#topSearch input[type="search"]{
+  background: var(--panel-2);
+  border: 1px solid var(--border, rgba(0,0,0,.12));
+  color: var(--ink, var(--text));
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset;
+}
+#topSearch input[type="search"]::placeholder{ color: var(--ink-subtle, #8b95a7); }
+#topSearch input[type="search"]:focus{
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+#searchSuggest{
+  background: var(--surface);
+  border: 1px solid var(--border, rgba(0,0,0,.1));
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+.suggest-label{
+  font-size: 11px;
+  letter-spacing: .02em;
+  color: var(--muted, #667085);
+  padding: 6px 8px 2px;
+  text-transform: uppercase;
+}
+.suggest-option{
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.suggest-option.active{
+  background: var(--panel-2, color-mix(in oklab, var(--surface) 86%, white 14%));
+}
+.theme-dark #searchSuggest{
+  background: color-mix(in oklab, var(--surface) 90%, black 10%);
+}
+.theme-glass #searchSuggest{
+  background: color-mix(in oklab, var(--surface) 75%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: color-mix(in oklab, var(--border, #334155) 60%, transparent);
+}
+
 .content {
   display: grid;
   gap: var(--space-3);

@@ -5,7 +5,7 @@ test('Help menu can open Welcome modal and respect Do Not Show Again', async ({ 
   await page.addInitScript(() => {
     localStorage.clear();
   });
-  await page.goto('http://127.0.0.1:53124/');
+  await page.goto('http://localhost:53124/');
 
   // Splash may be skipped under automation; dismiss only if visible
   const splash = page.locator('#splash');

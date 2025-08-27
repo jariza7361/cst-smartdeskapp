@@ -245,6 +245,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Contrast QA: auto-enable high-contrast if needed
   ensureContrast();
 
+  // Wire global search dropdown (grouped: quick actions + next suggestions)
+  try { wireTopSearch(); } catch { /* noop */ }
+
   // Sidebar: handle [data-open] clicks (carriers, tools, products)
   document.addEventListener('click', (ev) => {
     const el = ev.target?.closest?.('[data-open]');
@@ -307,6 +310,92 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+
+// --- Top search (grouped suggestions) ---
+function wireTopSearch(){
+  const host = document.getElementById('topSearch');
+  const input = document.getElementById('searchInput');
+  const list = document.getElementById('searchSuggest');
+  if (!input || !list) return;
+  try { if (localStorage.getItem('ui.search') === '0'){ if (host) host.style.display='none'; return; } } catch { /* noop */ }
+
+  const t = (k)=> (state.i18n?.t ? state.i18n.t(k) : k);
+
+  // Quick actions (no query)
+  const quick = [
+    { id:'qa:copilot', label:()=>t('QuickOpenCopilot'), run:()=>{ const modal=document.getElementById('modal-copilot'); if(modal) openCopilotModal(); else document.getElementById('copilotSection')?.scrollIntoView({behavior:'smooth'}); } },
+    { id:'qa:denials', label:()=>t('QuickOpenDenials'), run:()=>openDenials() },
+    { id:'qa:smartdrop', label:()=>t('QuickOpenSmartDrop'), run:()=>openSmartDrop() },
+    { id:'qa:policies', label:()=>t('QuickOpenPolicies'), run:()=>showToast('Policies hub coming soon') },
+    { id:'qa:xr', label:()=>t('QuickOpenXR'), run:()=>showToast('XR Library coming soon') },
+    { id:'qa:byod', label:()=>t('QuickOpenBYOD'), run:()=>showToast('BYOD Check coming soon') },
+  { id:'qa:rpfr', label:()=>t('QuickOpenRPFR'), run:()=>{ const link = document.querySelector('[data-open="bucket:rpfr"]'); if (link) link.click(); else showToast('RPFR'); } },
+  ];
+
+  // Next suggestions (contextual; minimal heuristic)
+  function nextSuggestions(q){
+    const s = String(q||'').trim().toLowerCase();
+    const arr = [];
+    if (!s) return arr;
+    if (s.includes('denial') || s.includes('no airtime') || s.includes('deneg')) arr.push(quick.find(x=>x.id==='qa:denials'));
+    if (s.includes('rpfr') || s.includes('reimburse')) arr.push(quick.find(x=>x.id==='qa:rpfr'));
+    if (s.includes('fmip') || s.includes('icloud') || s.includes('find my')) arr.push({ id:'qa:fmip', label:()=> 'Open FMIP Script', run:()=> showToast('FMIP Script coming soon') });
+    if (s.includes('scan') || s.includes('pdf') || s.includes('ocr')) arr.push(quick.find(x=>x.id==='qa:smartdrop'));
+    if (!arr.find(x=>x?.id==='qa:copilot')) arr.push(quick.find(x=>x.id==='qa:copilot'));
+    return arr.filter(Boolean).slice(0,4);
+  }
+
+  let items = [];
+  let active = -1;
+
+  function render(q){
+    list.innerHTML = '';
+    const hasText = !!String(q||'').trim();
+  // option list is built directly into DOM; no temp array needed
+    const addLabel = (text)=>{
+      const d = document.createElement('div'); d.className='suggest-label'; d.textContent = text; list.appendChild(d);
+    };
+    const addOption = (it)=>{
+      const d = document.createElement('div'); d.className='suggest-option'; d.setAttribute('role','option'); d.dataset.id=it.id; d.textContent = typeof it.label==='function'? it.label() : it.label; list.appendChild(d); return d; };
+
+    if (!hasText){
+      addLabel(t('QuickActions'));
+      quick.forEach((it)=> addOption(it));
+    } else {
+      // For now we only show Next suggestions when typing
+      addLabel(t('NextSuggestions'));
+      nextSuggestions(q).forEach((it)=> addOption(it));
+    }
+
+    items = Array.from(list.querySelectorAll('[role="option"]'));
+    active = items.length? 0 : -1;
+    updateActive();
+    list.style.display = items.length? 'block' : 'none';
+    input.setAttribute('aria-expanded', items.length? 'true':'false');
+  }
+  function updateActive(){
+    items.forEach((el,i)=> el.classList.toggle('active', i===active));
+  }
+  function runActive(){
+    const el = items[active]; if(!el) return; const id = el.dataset.id; const it = [...quick, ...nextSuggestions(input.value)].find(x=>x?.id===id);
+  if (it && typeof it.run==='function'){ try{ it.run(); } catch { /* noop */ } }
+    list.style.display='none'; input.setAttribute('aria-expanded','false');
+  }
+
+  input.addEventListener('input', ()=> render(input.value));
+  input.addEventListener('focus', ()=> render(input.value));
+  input.addEventListener('blur', ()=> setTimeout(()=>{ list.style.display='none'; input.setAttribute('aria-expanded','false'); }, 120));
+  input.addEventListener('keydown', (e)=>{
+    if (e.key==='ArrowDown'){ e.preventDefault(); if(items.length){ active = (active+1) % items.length; updateActive(); } }
+    else if (e.key==='ArrowUp'){ e.preventDefault(); if(items.length){ active = (active-1+items.length) % items.length; updateActive(); } }
+    else if (e.key==='Enter'){ if (active>-1){ e.preventDefault(); runActive(); } }
+    else if (e.key==='Escape'){ list.style.display='none'; input.setAttribute('aria-expanded','false'); }
+  });
+
+  list.addEventListener('mousedown', (e)=>{
+    const el = e.target?.closest?.('[role="option"]'); if(!el) return; const idx = items.indexOf(el); if(idx>-1){ active=idx; updateActive(); runActive(); }
+  });
+}
 
 // Minimal helpers (safe no-ops if UI not present)
 function openModal(name) {

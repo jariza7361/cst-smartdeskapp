@@ -59,4 +59,16 @@
   ,
   "Output": "Output",
   "Bilingual": "Bilingual"
+  ,
+  "SearchPlaceholder": "Search playbooks, policies, scripts…",
+  "QuickOpenCopilot": "Open Copilot",
+  "QuickOpenDenials": "Open Denials",
+  "QuickOpenSmartDrop": "Open SmartDrop",
+  "QuickOpenPolicies": "Open Policies",
+  "QuickOpenXR": "Open XR Library",
+  "QuickOpenBYOD": "Open BYOD Check",
+  "QuickOpenRPFR": "Open RPFR"
+  ,
+  "QuickActions": "Quick actions",
+  "NextSuggestions": "Next suggestions"
 }

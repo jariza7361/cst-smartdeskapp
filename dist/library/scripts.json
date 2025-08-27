@@ -1,0 +1,16 @@
+[
+  {
+    "id": "script-fmip",
+    "title": "FMIP override coaching (Apple)",
+    "summary": "Safe coaching when customer forgot Apple ID; never ask for password.",
+    "content": "Confirm device ownership. Guide to iforgot.apple.com. Do not handle credentials. Document Alpha note.",
+    "tags": ["fmip","apple","security"]
+  },
+  {
+    "id": "script-rpfr",
+    "title": "RPFR reimbursement call flow",
+    "summary": "Gather receipt, device details, and explain reimbursement timeline.",
+    "content": "Verify eligibility. Capture purchase proof. Set expectations on processing time and follow-up.",
+    "tags": ["rpfr","reimbursement"]
+  }
+]

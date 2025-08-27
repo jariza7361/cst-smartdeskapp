@@ -12,6 +12,11 @@
   <body>
     <header class="topbar">
       <h1>CST SmartDesk</h1>
+      <!-- Global Search (additive, non-breaking) -->
+      <div id="topSearch" aria-label="Search" style="margin-left:24px;flex:1;max-width:560px;position:relative;display:flex;align-items:center;gap:8px">
+        <input id="searchInput" type="search" data-i18n-placeholder="SearchPlaceholder" aria-autocomplete="list" aria-controls="searchSuggest" aria-expanded="false" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--ink)"/>
+        <div id="searchSuggest" role="listbox" style="position:absolute;top:110%;left:0;right:0;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:6px;display:none;z-index:30;max-height:300px;overflow:auto"></div>
+      </div>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
         <button id="langToggle" data-i18n="Language">Language</button>
         <div id="helpMenuWrap" style="position:relative">

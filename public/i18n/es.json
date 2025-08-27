@@ -52,11 +52,20 @@
   "LoadingTranslations": "Cargando traducciones…",
   "CheckingCore": "Verificando recursos básicos…",
   "StartingApp": "Iniciando la aplicación…",
-  "Retry": "Reintentar"
-  ,
+  "Retry": "Reintentar",
   "EngineOfflineLocked": "Motor: Sin conexión (bloqueado)",
-  "LockedOfflineEngine": "Bloqueado al motor sin conexión"
-  ,
+  "LockedOfflineEngine": "Bloqueado al motor sin conexión",
   "Output": "Salida",
-  "Bilingual": "Bilingüe"
+  "Bilingual": "Bilingüe",
+  "SearchPlaceholder": "Buscar playbooks, políticas, scripts…",
+  "QuickOpenCopilot": "Abrir Copiloto",
+  "QuickOpenDenials": "Abrir Denegaciones",
+  "QuickOpenSmartDrop": "Abrir SmartDrop",
+  "QuickOpenPolicies": "Abrir Políticas",
+  "QuickOpenXR": "Abrir Biblioteca XR",
+  "QuickOpenBYOD": "Abrir Verificación BYOD",
+  "QuickOpenRPFR": "Abrir RPFR"
+  ,
+  "QuickActions": "Acciones rápidas",
+  "NextSuggestions": "Siguientes sugerencias"
 }

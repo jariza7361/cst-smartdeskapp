@@ -5,7 +5,7 @@ const url = '/';
 test('copilot generates and copies', async ({ page, context }) => {
   // grant clipboard permissions for this origin
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-  origin: 'http://127.0.0.1:53124',
+  origin: 'http://localhost:53124',
   });
   // Register API route before navigation to catch any early calls
   await page.route('**/api/copilot', (route) => {

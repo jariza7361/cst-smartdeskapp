@@ -8,6 +8,11 @@ export default [
       '.vercel/**',
       'playwright-report/**',
       'test-results/**',
+  // vendored/minified libs (lint noise)
+  'libs/tesseract/**',
+  'public/libs/tesseract/**',
+  // exclude example subproject (typed, separate config)
+  'search-next-playbooks/**',
     ],
   },
   {
