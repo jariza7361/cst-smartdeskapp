@@ -1283,16 +1283,49 @@ async function checkOCRStatus() {
 
 async function runDoctorTest() {
   const log = document.getElementById('testLog') || document.getElementById('testsOutput');
-  if (log) log.textContent = 'Doctor: running…';
+  const btn = document.getElementById('t_run_doctor');
+  const timestamp = new Date().toISOString();
+  
+  // Prevent double-clicking
+  if (btn) {
+    if (btn.disabled) {
+      console.log(`[${timestamp}] Doctor test already running, ignoring request`);
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Running...';
+  }
+  
+  console.log(`[${timestamp}] Doctor test started`);
+  if (log) log.textContent = `Doctor: running… [${timestamp}]`;
+  
   try {
-    const r = await fetch('/api/doctor');
+    console.log(`[${timestamp}] Fetching /api/doctor`);
+    const r = await fetch('/api/doctor', {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        'X-Request-ID': `doctor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      }
+    });
+    
+    console.log(`[${timestamp}] Doctor response status:`, r.status);
     const j = await r.json();
+    console.log(`[${timestamp}] Doctor response:`, j);
+    
     if (log) log.textContent = JSON.stringify(j, null, 2);
     checkOCRStatus();
     showToast(j.ok ? 'Doctor passed' : 'Doctor found issues');
   } catch (e) {
+    console.error(`[${timestamp}] Doctor error:`, e);
     if (log) log.textContent = 'Doctor error: ' + (e?.message || e);
     showToast('Doctor error', 'warn');
+  } finally {
+    // Re-enable button
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Doctor';
+    }
   }
 }
 
