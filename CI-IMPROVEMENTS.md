@@ -64,6 +64,28 @@ npm run precommit      # Full pre-commit validation
 # 1. File validation
 # 2. Format checking
 # 3. Prevents commit if issues found
+
+# Pre-push hook automatically runs:
+# 1. All pre-commit checks
+# 2. Unit tests
+# 3. Build process
+# 4. Enhanced validation for main/master branches
+```
+
+### PR Preparation Workflow
+
+```bash
+# For draft PRs (faster validation, skips E2E)
+npm run pr-prep:draft     # Validate + prepare draft PR
+
+# For final PRs (comprehensive validation)
+npm run pr-prep          # Full validation including E2E tests
+
+# Quick validation (development)
+npm run pr-prep:quick    # Skip E2E and security checks
+
+# Setup GitHub CLI for PR creation
+npm run pr-setup         # Check setup and show workflow
 ```
 
 ### CI Pipeline Protection
@@ -83,14 +105,34 @@ npm run precommit      # Full pre-commit validation
 ### For Developers
 
 ```bash
-# Before committing changes
-npm run precommit
+# Complete PR workflow
+npm run pr-prep          # Full validation for final PR
+npm run pr-prep:draft     # Validation for draft PR
+npm run pr-prep:quick     # Quick validation during development
+
+# Individual validation steps
+npm run precommit         # Pre-commit validation
+npm run prepush          # Pre-push validation (includes tests & build)
 
 # Manual health check
 node scripts/doctor-enhanced.mjs
 
+# Setup PR workflow
+npm run pr-setup         # GitHub CLI setup guide
+
 # Auto-fix formatting (when safe)
 npm run format
+```
+
+### GitHub CLI PR Creation
+
+```bash
+# After running pr-prep, create PRs with:
+gh pr create --draft      # Create draft PR
+gh pr create             # Create final PR
+gh pr create --web       # Open web interface
+
+# Or use GitHub web interface after pushing
 ```
 
 ### For CI/CD
@@ -139,10 +181,33 @@ The validation script detects:
 
 ## 📈 Results
 
+- ✅ **Pre-commit Hooks**: Automatically validate files, formatting, and linting before commits
+- ✅ **Pre-push Hooks**: Comprehensive validation including tests and build before pushing
+- ✅ **PR Preparation**: Structured workflow for draft and final PRs with appropriate validation
 - ✅ **CI Pipeline**: Now passes all validation and formatting checks
 - ✅ **Build Process**: Successfully builds without corrupted file interference
 - ✅ **Deployment**: Vercel deployments should now succeed
 - ✅ **Prevention**: Multiple safeguards prevent future corruption issues
 - ✅ **Monitoring**: Enhanced health checking and reporting
+- ✅ **Developer Experience**: Clear workflow with GitHub CLI integration
+
+## 🚀 Complete PR Workflow
+
+```bash
+# 1. Make changes and commit (pre-commit hooks run automatically)
+git add .
+git commit -m "your changes"
+
+# 2. Validate for PR type
+npm run pr-prep:draft     # For draft PRs (faster)
+npm run pr-prep          # For final PRs (comprehensive)
+
+# 3. Push changes (pre-push hooks run automatically)
+git push
+
+# 4. Create PR using GitHub CLI or web interface
+gh pr create --draft      # Draft PR
+gh pr create             # Final PR
+```
 
 The repository is now protected against file corruption and CI/CD failures with multiple layers of validation and prevention mechanisms.
