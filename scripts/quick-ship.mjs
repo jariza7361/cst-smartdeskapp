@@ -6,7 +6,8 @@
 
 import { execSync } from 'child_process';
 
-const commitMessage = process.argv[2] || `feat: UI improvements - ${new Date().toISOString().split('T')[0]}`;
+const commitMessage =
+  process.argv[2] || `feat: UI improvements - ${new Date().toISOString().split('T')[0]}`;
 
 console.log('🚀 Quick Ship Pipeline Starting...\n');
 
@@ -21,7 +22,7 @@ try {
   try {
     execSync('npm run test', { stdio: 'inherit' });
     console.log('✅ Tests passed\n');
-  } catch (error) {
+  } catch {
     console.log('⚠️ Tests failed, continuing...\n');
   }
 
@@ -37,10 +38,9 @@ try {
   console.log('🌍 Preview will be available at: http://localhost:53124');
   console.log('🔗 Live site: https://cst-smartdeskapp-jariza7361s-projects.vercel.app');
   console.log('\n🎉 Ready for review! Check both URLs above.\n');
-  
+
   // Start preview server (non-blocking)
   execSync('npm run preview', { stdio: 'inherit' });
-
 } catch (error) {
   console.error('❌ Pipeline failed:', error.message);
   process.exit(1);

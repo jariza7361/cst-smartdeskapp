@@ -42,10 +42,20 @@ body {
     'sidebar content';
   min-height: 100vh;
 }
-.topbar { grid-area: topbar; }
-.sidebar { grid-area: sidebar; position: sticky; top: 0; align-self: start; height: 100%; }
-.content { grid-area: content; }
-.sidebar .tabs{
+.topbar {
+  grid-area: topbar;
+}
+.sidebar {
+  grid-area: sidebar;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100%;
+}
+.content {
+  grid-area: content;
+}
+.sidebar .tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
@@ -54,9 +64,9 @@ body {
   top: 0;
   background: var(--surface);
   z-index: 5;
-  border-bottom: 1px solid rgba(0,0,0,.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
-.sidebar .tabs [role="tab"]{
+.sidebar .tabs [role='tab'] {
   background: var(--panel-2);
   border: 1px solid var(--border);
   color: var(--ink);
@@ -65,12 +75,14 @@ body {
   cursor: pointer;
   font-weight: 600;
 }
-.sidebar .tabs [aria-selected="true"]{
+.sidebar .tabs [aria-selected='true'] {
   background: var(--accent);
   color: #fff;
   border-color: transparent;
 }
-.side-panel{ padding: 10px; }
+.side-panel {
+  padding: 10px;
+}
 
 .content section {
   background: var(--card-bg, var(--surface));
@@ -171,13 +183,15 @@ body {
   min-width: 280px;
 }
 /* Copilot header with engine badge */
-.copilot-header{
-  display:flex;
-  align-items:center;
-  gap:8px;
+.copilot-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.copilot-header h2{ margin: 0; }
-.copilot-header .pill{
+.copilot-header h2 {
+  margin: 0;
+}
+.copilot-header .pill {
   font-size: 12px;
   padding: 4px 8px;
 }
@@ -345,44 +359,46 @@ dialog[open] {
 }
 
 /* Top search styling (theme-aware) */
-#topSearch input[type="search"]{
+#topSearch input[type='search'] {
   background: var(--panel-2);
-  border: 1px solid var(--border, rgba(0,0,0,.12));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
   color: var(--ink, var(--text));
   border-radius: 10px;
   padding: 10px 12px;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
 }
-#topSearch input[type="search"]::placeholder{ color: var(--ink-subtle, #8b95a7); }
-#topSearch input[type="search"]:focus{
+#topSearch input[type='search']::placeholder {
+  color: var(--ink-subtle, #8b95a7);
+}
+#topSearch input[type='search']:focus {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
-#searchSuggest{
+#searchSuggest {
   background: var(--surface);
-  border: 1px solid var(--border, rgba(0,0,0,.1));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
-.suggest-label{
+.suggest-label {
   font-size: 11px;
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
   color: var(--muted, #667085);
   padding: 6px 8px 2px;
   text-transform: uppercase;
 }
-.suggest-option{
+.suggest-option {
   padding: 6px 8px;
   border-radius: 6px;
   cursor: pointer;
 }
-.suggest-option.active{
+.suggest-option.active {
   background: var(--panel-2, color-mix(in oklab, var(--surface) 86%, white 14%));
 }
-.theme-dark #searchSuggest{
+.theme-dark #searchSuggest {
   background: color-mix(in oklab, var(--surface) 90%, black 10%);
 }
-.theme-glass #searchSuggest{
+.theme-glass #searchSuggest {
   background: color-mix(in oklab, var(--surface) 75%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -417,7 +433,7 @@ dialog[open] {
 
 .dropzone {
   background: var(--panel-2, var(--surface));
-  border: 1px solid var(--border, rgba(0,0,0,.06));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
   border-radius: var(--radius);
   padding: var(--space-3);
 }
@@ -504,17 +520,21 @@ dialog[open] {
 }
 
 /* Generic UI bits using tokens */
-.muted{ color: var(--muted); }
-.subtle{ color: var(--ink-subtle); }
+.muted {
+  color: var(--muted);
+}
+.subtle {
+  color: var(--ink-subtle);
+}
 
-.tile{
+.tile {
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px;
   box-shadow: var(--shadow);
 }
-.pill{
+.pill {
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -523,7 +543,7 @@ dialog[open] {
   gap: 8px;
   align-items: center;
 }
-.btn{
+.btn {
   background: var(--accent);
   border: none;
   color: #fff;
@@ -532,17 +552,17 @@ dialog[open] {
   cursor: pointer;
   font-weight: 600;
 }
-.btn.secondary{
+.btn.secondary {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--ink);
 }
-.btn:focus-visible{
+.btn:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: 10px;
 }
-.nav li{
+.nav li {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -552,18 +572,30 @@ dialog[open] {
   border: 1px solid var(--border);
   cursor: pointer;
 }
-.nav li span{ color: var(--ink); }
-.nav li:focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; }
+.nav li span {
+  color: var(--ink);
+}
+.nav li:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
 
-.form input,.form select,.form textarea{
+.form input,
+.form select,
+.form textarea {
   background: var(--panel-2);
   border: 1px solid var(--border);
   color: var(--ink);
   padding: 10px;
   border-radius: 10px;
 }
-.form input::placeholder,.form textarea::placeholder{ color: var(--ink-subtle); }
-.form input:focus-visible,.form select:focus-visible,.form textarea:focus-visible{
+.form input::placeholder,
+.form textarea::placeholder {
+  color: var(--ink-subtle);
+}
+.form input:focus-visible,
+.form select:focus-visible,
+.form textarea:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }

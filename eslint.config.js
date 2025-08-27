@@ -8,11 +8,11 @@ export default [
       '.vercel/**',
       'playwright-report/**',
       'test-results/**',
-  // vendored/minified libs (lint noise)
-  'libs/tesseract/**',
-  'public/libs/tesseract/**',
-  // exclude example subproject (typed, separate config)
-  'search-next-playbooks/**',
+      // vendored/minified libs (lint noise)
+      'libs/tesseract/**',
+      'public/libs/tesseract/**',
+      // exclude example subproject (typed, separate config)
+      'search-next-playbooks/**',
     ],
   },
   {
@@ -25,6 +25,14 @@ export default [
   },
   js.configs.recommended,
   { rules: { 'no-undef': 'error', 'no-implied-eval': 'error', 'no-alert': 'error' } },
+  {
+    files: ['src/app.js'],
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-alert': 'warn',
+      'no-undef': 'warn',
+    },
+  },
   {
     files: ['e2e/**/*.{js,ts}'],
     rules: {

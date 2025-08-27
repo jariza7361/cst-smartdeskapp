@@ -127,7 +127,11 @@ async function checkVercel() {
       ? hdr.headers.find((kv) => kv.key === 'Content-Security-Policy')?.value || ''
       : '';
     const good = /script-src 'self'/.test(csp);
-    return { file: 'vercel.json', ok: Boolean(good), fix: good ? '' : "Ensure CSP includes script-src 'self'" };
+    return {
+      file: 'vercel.json',
+      ok: Boolean(good),
+      fix: good ? '' : "Ensure CSP includes script-src 'self'",
+    };
   } catch {
     return { file: 'vercel.json', ok: false, fix: 'Add vercel.json with CSP headers' };
   }
@@ -182,7 +186,9 @@ async function run() {
     }
   }
   if (ocrMissing) {
-    console.log(`OCR: ${ocrMissing} missing — copy tesseract.min.js, worker.min.js, tesseract-core.wasm into libs/tesseract`);
+    console.log(
+      `OCR: ${ocrMissing} missing — copy tesseract.min.js, worker.min.js, tesseract-core.wasm into libs/tesseract`,
+    );
     if (writeMode) {
       await ensureDir(ocrDir);
       try {

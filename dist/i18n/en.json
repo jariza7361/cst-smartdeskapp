@@ -52,14 +52,11 @@
   "LoadingTranslations": "Loading translations…",
   "CheckingCore": "Checking core assets…",
   "StartingApp": "Starting app…",
-  "Retry": "Retry"
-  ,
+  "Retry": "Retry",
   "EngineOfflineLocked": "Engine: Offline (locked)",
-  "LockedOfflineEngine": "Locked to offline engine"
-  ,
+  "LockedOfflineEngine": "Locked to offline engine",
   "Output": "Output",
-  "Bilingual": "Bilingual"
-  ,
+  "Bilingual": "Bilingual",
   "SearchPlaceholder": "Search playbooks, policies, scripts…",
   "QuickOpenCopilot": "Open Copilot",
   "QuickOpenDenials": "Open Denials",
@@ -67,8 +64,7 @@
   "QuickOpenPolicies": "Open Policies",
   "QuickOpenXR": "Open XR Library",
   "QuickOpenBYOD": "Open BYOD Check",
-  "QuickOpenRPFR": "Open RPFR"
-  ,
+  "QuickOpenRPFR": "Open RPFR",
   "QuickActions": "Quick actions",
   "NextSuggestions": "Next suggestions"
 }

@@ -9,7 +9,7 @@ let expertInfo = {
   empId: '',
   extension: '',
   coach: '',
-  type: 'english'
+  type: 'english',
 };
 
 let scheduleInfo = {
@@ -21,7 +21,7 @@ let scheduleInfo = {
   nextBreak: null,
   nextLunch: null,
   onBreak: false,
-  breakStartTime: null
+  breakStartTime: null,
 };
 
 const state = {
@@ -36,24 +36,24 @@ const state = {
 async function init() {
   try {
     console.log('Initializing CST SmartDesk v1.0...');
-    
+
     // Initialize session tracking
     initializeSession();
-    
+
     // Initialize i18n
     state.i18n = createI18n();
     await state.i18n.init(currentLanguage);
-    
+
     // Load expert info
     loadExpertInfo();
-    
+
     // Setup event listeners
     setupEventListeners();
-    
+
     // Start clock
     updateClock();
     setInterval(updateClock, 1000);
-    
+
     console.log('CST SmartDesk v1.0 initialized successfully');
   } catch (error) {
     console.error('Failed to initialize app:', error);
@@ -69,7 +69,7 @@ function loadExpertInfo() {
   } else {
     showSetupWizard();
   }
-  
+
   // Load schedule info
   const storedSchedule = localStorage.getItem('cst_schedule_info');
   if (storedSchedule) {
@@ -90,7 +90,7 @@ function updateExpertDisplay() {
   const empIdEl = document.getElementById('expertEmpId');
   const extEl = document.getElementById('expertExtension');
   const coachEl = document.getElementById('expertCoach');
-  
+
   if (nameEl) nameEl.textContent = expertInfo.name || 'Not Set';
   if (empIdEl) empIdEl.textContent = expertInfo.empId || 'Not Set';
   if (extEl) extEl.textContent = expertInfo.extension || 'Not Set';
@@ -102,12 +102,12 @@ function updateClock() {
   const now = new Date();
   const timeString = now.toLocaleTimeString();
   const dateString = now.toLocaleDateString();
-  
+
   const clockEl = document.getElementById('currentTime');
   if (clockEl) {
     clockEl.textContent = `${timeString} - ${dateString}`;
   }
-  
+
   // Update schedule status
   updateScheduleStatus(now);
 }
@@ -121,14 +121,14 @@ function updateScheduleStatus(now) {
     }
     return;
   }
-  
+
   const statusEl = document.getElementById('scheduleStatus');
-  
+
   if (scheduleInfo.onBreak) {
     const breakStartTime = new Date(scheduleInfo.breakStartTime);
-    const breakEndTime = new Date(breakStartTime.getTime() + (scheduleInfo.breakDuration * 60000));
+    const breakEndTime = new Date(breakStartTime.getTime() + scheduleInfo.breakDuration * 60000);
     const timeLeft = Math.ceil((breakEndTime - now) / 60000);
-    
+
     if (timeLeft <= 0) {
       // Break time over
       endBreak();
@@ -146,7 +146,7 @@ function updateScheduleStatus(now) {
     if (statusEl) {
       statusEl.textContent = `Available - ${scheduleInfo.currentStatus}`;
     }
-    
+
     // Check if it's time for break alerts
     checkBreakAlerts(now);
   }
@@ -155,23 +155,25 @@ function updateScheduleStatus(now) {
 // Check for break and lunch alerts
 function checkBreakAlerts(now) {
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  
+
   // Check for lunch break (typically around 12:00-14:00)
-  if (currentMinutes >= 720 && currentMinutes <= 840) { // 12:00 PM - 2:00 PM
+  if (currentMinutes >= 720 && currentMinutes <= 840) {
+    // 12:00 PM - 2:00 PM
     const lastLunchAlert = localStorage.getItem('cst_last_lunch_alert');
     const today = now.toDateString();
-    
+
     if (lastLunchAlert !== today) {
       localStorage.setItem('cst_last_lunch_alert', today);
       showBreakAlert('lunch', 'Time for lunch break!');
     }
   }
-  
+
   // Check for afternoon break (typically around 15:00)
-  if (currentMinutes >= 900 && currentMinutes <= 960) { // 3:00 PM - 4:00 PM
+  if (currentMinutes >= 900 && currentMinutes <= 960) {
+    // 3:00 PM - 4:00 PM
     const lastBreakAlert = localStorage.getItem('cst_last_break_alert');
     const today = now.toDateString();
-    
+
     if (lastBreakAlert !== today) {
       localStorage.setItem('cst_last_break_alert', today);
       showBreakAlert('break', 'Time for your afternoon break!');
@@ -182,7 +184,7 @@ function checkBreakAlerts(now) {
 // Show break alert notification
 function showBreakAlert(type, message) {
   playAlert(message);
-  
+
   const alert = document.createElement('div');
   alert.className = 'break-alert';
   alert.innerHTML = `
@@ -194,10 +196,10 @@ function showBreakAlert(type, message) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(alert);
   alert.style.display = 'block';
-  
+
   // Auto-dismiss after 30 seconds
   setTimeout(() => {
     if (alert.parentNode) {
@@ -209,7 +211,9 @@ function showBreakAlert(type, message) {
 // Play audio alert
 function playAlert(message) {
   // Create audio notification
-  const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcCDuM0fPTgjMGH3PE8OObTgwOWK/n77JiGg');
+  const audio = new Audio(
+    'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcCDuM0fPTgjMGH3PE8OObTgwOWK/n77JiGg',
+  );
   audio.volume = 0.3;
   audio.play().catch(() => {
     // Fallback to system notification if audio fails
@@ -217,7 +221,7 @@ function playAlert(message) {
       new Notification('CST SmartDesk', { body: message });
     }
   });
-  
+
   // Visual notification
   showNotification(message);
 }
@@ -227,12 +231,12 @@ function startBreak(type) {
   scheduleInfo.onBreak = true;
   scheduleInfo.breakStartTime = new Date().toISOString();
   scheduleInfo.currentStatus = type;
-  
+
   const breakTimerEl = document.getElementById('breakTimer');
   if (breakTimerEl) {
     breakTimerEl.style.display = 'block';
   }
-  
+
   saveScheduleInfo();
   dismissBreakAlert();
 }
@@ -242,12 +246,12 @@ function endBreak() {
   scheduleInfo.onBreak = false;
   scheduleInfo.breakStartTime = null;
   scheduleInfo.currentStatus = 'available';
-  
+
   const breakTimerEl = document.getElementById('breakTimer');
   if (breakTimerEl) {
     breakTimerEl.style.display = 'none';
   }
-  
+
   saveScheduleInfo();
   showNotification('Break ended - Status: Available');
 }
@@ -273,9 +277,9 @@ function updateScheduleDisplay() {
     if (scheduleInfo.onBreak) {
       statusEl.textContent = `On ${scheduleInfo.currentStatus}`;
     } else {
-      statusEl.textContent = scheduleInfo.shiftStart ? 
-        `Available (${scheduleInfo.shiftStart} - ${scheduleInfo.shiftEnd})` : 
-        'Schedule not set';
+      statusEl.textContent = scheduleInfo.shiftStart
+        ? `Available (${scheduleInfo.shiftStart} - ${scheduleInfo.shiftEnd})`
+        : 'Schedule not set';
     }
   }
 }
@@ -295,46 +299,46 @@ function setupEventListeners() {
   if (setupForm) {
     setupForm.addEventListener('submit', handleSetupSubmit);
   }
-  
+
   // Close buttons for modals
   document.addEventListener('click', (e) => {
     if (e.target.classList.contains('close-modal')) {
       closeModal(e.target.closest('.modal'));
     }
   });
-  
+
   // Card click handlers
   setupCardHandlers();
-  
+
   // Language toggle
   const langToggle = document.getElementById('languageToggle');
   if (langToggle) {
     langToggle.addEventListener('click', toggleLanguage);
   }
-  
+
   // Schedule settings button
   const scheduleSettings = document.getElementById('scheduleSettings');
   if (scheduleSettings) {
     scheduleSettings.addEventListener('click', showScheduleSettings);
   }
-  
+
   // End break button
   const endBreakBtn = document.getElementById('endBreak');
   if (endBreakBtn) {
     endBreakBtn.addEventListener('click', endBreak);
   }
-  
+
   // Help button
   const helpBtn = document.getElementById('helpBtn');
   if (helpBtn) {
     helpBtn.addEventListener('click', showHelpModal);
   }
-  
+
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
   }
-  
+
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeyboardShortcuts);
 }
@@ -345,7 +349,7 @@ function handleKeyboardShortcuts(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
     return;
   }
-  
+
   // Check if modal is open, if so handle modal shortcuts
   const openModal = document.querySelector('.modal[style*="block"]');
   if (openModal) {
@@ -354,24 +358,24 @@ function handleKeyboardShortcuts(e) {
     }
     return;
   }
-  
+
   const key = e.key.toLowerCase();
-  
+
   const shortcuts = {
-    'f': 'fmip',
-    'h': 'hero-denial', 
-    'b': 'byod',
-    's': 'spanish-templates',
-    'a': 'auto-fill',
-    'e': 'escalations',
-    'n': 'alpha-notes',
-    'r': 'rpfr',
-    't': 'settings', // 't' for time/schedule settings
-    'l': 'language-toggle',
-    'p': 'performance', // 'p' for performance metrics
-    '?': 'help' // Show help modal
+    f: 'fmip',
+    h: 'hero-denial',
+    b: 'byod',
+    s: 'spanish-templates',
+    a: 'auto-fill',
+    e: 'escalations',
+    n: 'alpha-notes',
+    r: 'rpfr',
+    t: 'settings', // 't' for time/schedule settings
+    l: 'language-toggle',
+    p: 'performance', // 'p' for performance metrics
+    '?': 'help', // Show help modal
   };
-  
+
   if (shortcuts[key]) {
     e.preventDefault();
     if (key === '?') {
@@ -386,13 +390,13 @@ function handleKeyboardShortcuts(e) {
 function handleSetupSubmit(e) {
   e.preventDefault();
   const formData = new FormData(e.target);
-  
+
   expertInfo.name = formData.get('name');
   expertInfo.empId = formData.get('empId');
   expertInfo.extension = formData.get('extension');
   expertInfo.coach = formData.get('coach');
   expertInfo.type = formData.get('type');
-  
+
   // Also save schedule information from setup
   if (formData.get('shiftStart')) {
     scheduleInfo.shiftStart = formData.get('shiftStart');
@@ -402,7 +406,7 @@ function handleSetupSubmit(e) {
     scheduleInfo.enableAudioAlerts = true;
     saveScheduleInfo();
   }
-  
+
   saveExpertInfo();
   closeModal(document.getElementById('setupWizard'));
   showNotification('Welcome to CST SmartDesk v1.0! Setup complete.');
@@ -411,7 +415,7 @@ function handleSetupSubmit(e) {
 // Setup card click handlers
 function setupCardHandlers() {
   const cards = document.querySelectorAll('.smart-card');
-  cards.forEach(card => {
+  cards.forEach((card) => {
     card.addEventListener('click', () => {
       const cardType = card.dataset.card;
       handleCardClick(cardType);
@@ -422,10 +426,10 @@ function setupCardHandlers() {
 // Handle card clicks
 function handleCardClick(cardType) {
   console.log(`Opening ${cardType} modal`);
-  
+
   // Track SmartPanel usage
   trackMetric('smartPanelUsage');
-  
+
   switch (cardType) {
     case 'fmip':
       showFMIPModal();
@@ -468,8 +472,10 @@ function handleCardClick(cardType) {
 // Show performance metrics modal
 function showPerformanceModal() {
   const stats = getPerformanceStats();
-  
-  const modal = createModal('Performance Metrics', `
+
+  const modal = createModal(
+    'Performance Metrics',
+    `
     <div class="performance-content">
       <h3>📊 Expert Performance Dashboard</h3>
       
@@ -523,8 +529,9 @@ function showPerformanceModal() {
         <button onclick="resetDailyStats()" class="btn-secondary">Reset Daily Stats</button>
       </div>
     </div>
-  `);
-  
+  `,
+  );
+
   showModal(modal);
 }
 
@@ -534,58 +541,60 @@ function getPerformanceStats() {
   const now = new Date();
   const sessionStartTime = new Date(sessionStart);
   const sessionMinutes = Math.floor((now - sessionStartTime) / 60000);
-  
+
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
   const today = now.toDateString();
-  
+
   const dailyStats = stats[today] || {
     smartPanelUsage: 0,
     notesGenerated: 0,
     clipboardActions: 0,
     escalations: 0,
     breaksOnTime: 0,
-    totalBreaks: 0
+    totalBreaks: 0,
   };
-  
+
   return {
     sessionTime: formatDuration(sessionMinutes),
     smartPanelUsage: dailyStats.smartPanelUsage,
     notesGenerated: dailyStats.notesGenerated,
     clipboardActions: dailyStats.clipboardActions,
     escalations: dailyStats.escalations,
-    breakCompliance: dailyStats.totalBreaks > 0 ? 
-      Math.round((dailyStats.breaksOnTime / dailyStats.totalBreaks) * 100) : 100
+    breakCompliance:
+      dailyStats.totalBreaks > 0
+        ? Math.round((dailyStats.breaksOnTime / dailyStats.totalBreaks) * 100)
+        : 100,
   };
 }
 
 // Generate performance insights
 function generatePerformanceInsights(stats) {
   const insights = [];
-  
+
   if (stats.smartPanelUsage > 10) {
-    insights.push('<li>✅ Great SmartPanel usage! You\'re leveraging automation effectively.</li>');
+    insights.push("<li>✅ Great SmartPanel usage! You're leveraging automation effectively.</li>");
   } else {
     insights.push('<li>💡 Try using more SmartPanel cards to boost productivity.</li>');
   }
-  
+
   if (stats.clipboardActions > 5) {
-    insights.push('<li>⚡ High copy-paste efficiency - you\'re working smart!</li>');
+    insights.push("<li>⚡ High copy-paste efficiency - you're working smart!</li>");
   }
-  
+
   if (stats.breakCompliance >= 80) {
     insights.push('<li>🎯 Excellent break compliance - great work-life balance!</li>');
   } else {
     insights.push('<li>⏰ Consider taking regular breaks to maintain productivity.</li>');
   }
-  
+
   if (stats.escalations === 0) {
     insights.push('<li>🔥 Zero escalations today - excellent problem resolution!</li>');
   }
-  
+
   if (insights.length === 0) {
     insights.push('<li>📈 Keep up the great work! Your metrics look good.</li>');
   }
-  
+
   return insights.join('');
 }
 
@@ -600,14 +609,14 @@ function formatDuration(minutes) {
 function exportPerformanceData() {
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
   const expertData = JSON.parse(localStorage.getItem('cst_expert_info') || '{}');
-  
+
   const exportData = {
     expert: expertData,
     performance: stats,
     exportDate: new Date().toISOString(),
-    version: 'CST SmartDesk v1.0'
+    version: 'CST SmartDesk v1.0',
   };
-  
+
   const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -617,7 +626,7 @@ function exportPerformanceData() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
+
   showNotification('Performance data exported successfully!');
 }
 
@@ -625,7 +634,7 @@ function exportPerformanceData() {
 function resetDailyStats() {
   const today = new Date().toDateString();
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
-  
+
   if (stats[today]) {
     delete stats[today];
     localStorage.setItem('cst_performance_stats', JSON.stringify(stats));
@@ -638,7 +647,7 @@ function resetDailyStats() {
 function trackMetric(metric, value = 1) {
   const today = new Date().toDateString();
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
-  
+
   if (!stats[today]) {
     stats[today] = {
       smartPanelUsage: 0,
@@ -646,10 +655,10 @@ function trackMetric(metric, value = 1) {
       clipboardActions: 0,
       escalations: 0,
       breaksOnTime: 0,
-      totalBreaks: 0
+      totalBreaks: 0,
     };
   }
-  
+
   stats[today][metric] += value;
   localStorage.setItem('cst_performance_stats', JSON.stringify(stats));
 }
@@ -663,7 +672,9 @@ function initializeSession() {
 
 // Show schedule settings modal
 function showScheduleSettings() {
-  const modal = createModal('Schedule Settings', `
+  const modal = createModal(
+    'Schedule Settings',
+    `
     <div class="schedule-settings-content">
       <h3>⏰ Work Schedule Configuration</h3>
       <form id="scheduleForm">
@@ -706,10 +717,11 @@ function showScheduleSettings() {
         <p><strong>Lunch Duration:</strong> ${scheduleInfo.lunchDuration} minutes</p>
       </div>
     </div>
-  `);
-  
+  `,
+  );
+
   showModal(modal);
-  
+
   // Add form submit handler
   const form = document.getElementById('scheduleForm');
   if (form) {
@@ -721,14 +733,14 @@ function showScheduleSettings() {
 function handleScheduleFormSubmit(e) {
   e.preventDefault();
   const formData = new FormData(e.target);
-  
+
   scheduleInfo.shiftStart = formData.get('shiftStart');
   scheduleInfo.shiftEnd = formData.get('shiftEnd');
   scheduleInfo.breakDuration = parseInt(formData.get('breakDuration'));
   scheduleInfo.lunchDuration = parseInt(formData.get('lunchDuration'));
   scheduleInfo.enableBreakAlerts = document.getElementById('enableBreakAlerts').checked;
   scheduleInfo.enableAudioAlerts = document.getElementById('enableAudioAlerts').checked;
-  
+
   saveScheduleInfo();
   closeModal(document.querySelector('.modal'));
   showNotification('Schedule settings saved successfully!');
@@ -741,7 +753,9 @@ function testAlert() {
 
 // Show help modal with keyboard shortcuts
 function showHelpModal() {
-  const modal = createModal('Keyboard Shortcuts', `
+  const modal = createModal(
+    'Keyboard Shortcuts',
+    `
     <div class="help-content">
       <h3>⌨️ Keyboard Shortcuts</h3>
       <div class="shortcuts-grid">
@@ -786,13 +800,16 @@ function showHelpModal() {
         <p>Last updated: ${new Date().toLocaleDateString()}</p>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // FMIP Modal Functions
 function showFMIPModal() {
-  const modal = createModal('FMIP Workflow Assistant', `
+  const modal = createModal(
+    'FMIP Workflow Assistant',
+    `
     <div class="fmip-content">
       <h3>Find My iPhone/iPad Workflow</h3>
       <div class="workflow-steps">
@@ -813,13 +830,16 @@ function showFMIPModal() {
         </div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // Hero Denial Scripts Modal
 function showHeroDenialModal() {
-  const modal = createModal('HERO Denial Scripts', `
+  const modal = createModal(
+    'HERO Denial Scripts',
+    `
     <div class="hero-denial-content">
       <h3>Carrier-Specific Denial Scripts</h3>
       <div class="carrier-selector">
@@ -835,13 +855,16 @@ function showHeroDenialModal() {
         <p>Please select a carrier to view denial scripts.</p>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // BYOD Logic Modal
 function showBYODModal() {
-  const modal = createModal('BYOD Logic Helper', `
+  const modal = createModal(
+    'BYOD Logic Helper',
+    `
     <div class="byod-content">
       <h3>Bring Your Own Device Logic</h3>
       <div class="device-checker">
@@ -864,13 +887,16 @@ function showBYODModal() {
         </div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // Spanish Templates Modal
 function showSpanishTemplatesModal() {
-  const modal = createModal('Spanish Templates', `
+  const modal = createModal(
+    'Spanish Templates',
+    `
     <div class="spanish-templates-content">
       <h3>Plantillas en Español</h3>
       <div class="template-categories">
@@ -892,13 +918,16 @@ function showSpanishTemplatesModal() {
         </div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // Auto Fill Forms Modal
 function showAutoFillModal() {
-  const modal = createModal('Auto-Fill Forms', `
+  const modal = createModal(
+    'Auto-Fill Forms',
+    `
     <div class="auto-fill-content">
       <h3>Auto-Fill Customer Forms</h3>
       <div class="form-generator">
@@ -930,13 +959,16 @@ function showAutoFillModal() {
         </div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // Escalations Tracking Modal
 function showEscalationsModal() {
-  const modal = createModal('Escalations Tracking', `
+  const modal = createModal(
+    'Escalations Tracking',
+    `
     <div class="escalations-content">
       <h3>Assistant Escalations Toolkit</h3>
       <div class="escalation-tracker">
@@ -969,13 +1001,16 @@ function showEscalationsModal() {
         </div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // Alpha Notes Modal
 function showAlphaNotesModal() {
-  const modal = createModal('Alpha Notes Generator', `
+  const modal = createModal(
+    'Alpha Notes Generator',
+    `
     <div class="alpha-notes-content">
       <h3>Alpha Notes Generator</h3>
       <div class="note-generator">
@@ -1015,13 +1050,16 @@ function showAlphaNotesModal() {
         </div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
 // RPFR Modal (updated to show PFR vs RPFR distinction)
 function showRPFRModal() {
-  const modal = createModal('RPFR vs PFR Guide', `
+  const modal = createModal(
+    'RPFR vs PFR Guide',
+    `
     <div class="rpfr-content">
       <h3>RPFR vs PFR - What's the Difference?</h3>
       <div class="comparison-grid">
@@ -1061,7 +1099,8 @@ function showRPFRModal() {
         <div id="rpfrRecommendation" style="display: none;"></div>
       </div>
     </div>
-  `);
+  `,
+  );
   showModal(modal);
 }
 
@@ -1103,12 +1142,15 @@ function closeModal(modal) {
 
 // Copy text to clipboard
 function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showNotification('Copied to clipboard!');
-    trackMetric('clipboardActions');
-  }).catch(err => {
-    console.error('Failed to copy: ', err);
-  });
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      showNotification('Copied to clipboard!');
+      trackMetric('clipboardActions');
+    })
+    .catch((err) => {
+      console.error('Failed to copy: ', err);
+    });
 }
 
 // Show notification
@@ -1117,11 +1159,11 @@ function showNotification(message) {
   notification.className = 'notification';
   notification.textContent = message;
   document.body.appendChild(notification);
-  
+
   setTimeout(() => {
     notification.classList.add('show');
   }, 100);
-  
+
   setTimeout(() => {
     notification.classList.remove('show');
     setTimeout(() => {
@@ -1160,31 +1202,35 @@ FMIP Removal Steps:
 function loadDenialScript() {
   const carrier = document.getElementById('carrierSelect').value;
   const contentDiv = document.getElementById('denialScriptContent');
-  
+
   if (!carrier) {
     contentDiv.innerHTML = '<p>Please select a carrier to view denial scripts.</p>';
     return;
   }
-  
+
   const scripts = {
     VZW: {
       title: 'Verizon HERO Denial Script',
-      content: 'I understand your frustration. Unfortunately, this particular request falls outside of Verizon\'s current policy guidelines. However, I\'d like to explore alternative solutions that might meet your needs...'
+      content:
+        "I understand your frustration. Unfortunately, this particular request falls outside of Verizon's current policy guidelines. However, I'd like to explore alternative solutions that might meet your needs...",
     },
     ATT: {
       title: 'AT&T HERO Denial Script',
-      content: 'I appreciate you bringing this to my attention. While AT&T\'s current policies don\'t allow for this specific request, I want to work with you to find a solution that addresses your concerns...'
+      content:
+        "I appreciate you bringing this to my attention. While AT&T's current policies don't allow for this specific request, I want to work with you to find a solution that addresses your concerns...",
     },
     TMO: {
       title: 'T-Mobile HERO Denial Script',
-      content: 'Thank you for your patience. T-Mobile values your business, and while this particular request isn\'t something we can accommodate under current guidelines, let me see what other options we have available...'
+      content:
+        "Thank you for your patience. T-Mobile values your business, and while this particular request isn't something we can accommodate under current guidelines, let me see what other options we have available...",
     },
     SPR: {
       title: 'Sprint HERO Denial Script',
-      content: 'I understand this isn\'t the answer you were hoping for. Sprint\'s current policies don\'t permit this type of adjustment, but I\'d like to review your account to see if there are other ways we can help...'
-    }
+      content:
+        "I understand this isn't the answer you were hoping for. Sprint's current policies don't permit this type of adjustment, but I'd like to review your account to see if there are other ways we can help...",
+    },
   };
-  
+
   const script = scripts[carrier];
   if (script) {
     contentDiv.innerHTML = `
@@ -1201,25 +1247,26 @@ function checkBYODCompatibility() {
   const carrier = document.getElementById('targetCarrier').value;
   const resultsDiv = document.getElementById('byodResults');
   const outputDiv = document.getElementById('compatibilityResults');
-  
+
   if (!device || !carrier) {
     alert('Please enter both device model and target carrier.');
     return;
   }
-  
+
   // Simplified compatibility check
   const compatible = Math.random() > 0.3; // Simulate compatibility check
-  
+
   outputDiv.innerHTML = `
     <p><strong>Device:</strong> ${device}</p>
     <p><strong>Carrier:</strong> ${carrier}</p>
     <p><strong>Status:</strong> <span class="${compatible ? 'compatible' : 'incompatible'}">${compatible ? 'Compatible' : 'Not Compatible'}</span></p>
-    ${compatible ? 
-      '<p>✅ This device should work with the selected carrier.</p>' : 
-      '<p>❌ This device may not be fully compatible. Check with carrier for details.</p>'
+    ${
+      compatible
+        ? '<p>✅ This device should work with the selected carrier.</p>'
+        : '<p>❌ This device may not be fully compatible. Check with carrier for details.</p>'
     }
   `;
-  
+
   resultsDiv.style.display = 'block';
 }
 
@@ -1229,9 +1276,9 @@ function copySpanishTemplate(templateType) {
     greeting: 'Hola, mi nombre es ' + expertInfo.name + '. ¿En qué puedo ayudarle hoy?',
     tech_support: 'Entiendo su problema técnico. Voy a ayudarle a resolverlo paso a paso.',
     billing: 'Voy a revisar su facturación y explicarle todos los cargos detalladamente.',
-    closing: 'Gracias por contactar nuestro servicio. ¿Hay algo más en lo que pueda ayudarle?'
+    closing: 'Gracias por contactar nuestro servicio. ¿Hay algo más en lo que pueda ayudarle?',
   };
-  
+
   const template = templates[templateType];
   if (template) {
     copyToClipboard(template);
@@ -1244,12 +1291,12 @@ function generateClaimNote() {
   const phone = document.getElementById('customerPhone').value;
   const email = document.getElementById('customerEmail').value;
   const issue = document.getElementById('issueDescription').value;
-  
+
   if (!name || !issue) {
     alert('Please enter at least customer name and issue description.');
     return;
   }
-  
+
   const timestamp = new Date().toLocaleString();
   const note = `
 CLAIM NOTE - ${timestamp}
@@ -1272,7 +1319,7 @@ Outcome:
 Next Steps:
 [To be completed]
   `;
-  
+
   showGeneratedContent(note);
   trackMetric('notesGenerated');
 }
@@ -1280,12 +1327,12 @@ Next Steps:
 function generateFollowUpEmail() {
   const name = document.getElementById('customerName').value;
   const email = document.getElementById('customerEmail').value;
-  
+
   if (!name || !email) {
     alert('Please enter customer name and email for follow-up.');
     return;
   }
-  
+
   const followUpEmail = `
 Subject: Follow-up on Your Recent Service Request
 
@@ -1299,19 +1346,19 @@ Best regards,
 ${expertInfo.name}
 ${expertInfo.extension ? 'Extension: ' + expertInfo.extension : ''}
   `;
-  
+
   showGeneratedContent(followUpEmail);
 }
 
 function fillCommonForms() {
   const name = document.getElementById('customerName').value;
   const phone = document.getElementById('customerPhone').value;
-  
+
   if (!name) {
     alert('Please enter customer name first.');
     return;
   }
-  
+
   // Simulate filling common forms
   showNotification('Common forms auto-filled with customer information');
 }
@@ -1319,7 +1366,7 @@ function fillCommonForms() {
 function showGeneratedContent(content) {
   const contentDiv = document.getElementById('generatedContent');
   const outputTextarea = document.getElementById('contentOutput');
-  
+
   outputTextarea.value = content;
   contentDiv.style.display = 'block';
 }
@@ -1334,48 +1381,50 @@ function logEscalation() {
   const type = document.getElementById('escalationType').value;
   const reason = document.getElementById('escalationReason').value;
   const mood = document.getElementById('customerMood').value;
-  
+
   if (!reason) {
     alert('Please enter escalation reason.');
     return;
   }
-  
+
   const escalation = {
     id: Date.now(),
     type,
     reason,
     mood,
     timestamp: new Date().toLocaleString(),
-    expert: expertInfo.name
+    expert: expertInfo.name,
   };
-  
+
   // Store escalation
   const escalations = JSON.parse(localStorage.getItem('cst_escalations') || '[]');
   escalations.unshift(escalation);
   localStorage.setItem('cst_escalations', JSON.stringify(escalations.slice(0, 10))); // Keep last 10
-  
+
   // Update display
   updateEscalationHistory();
-  
+
   // Track escalation
   trackMetric('escalations');
-  
+
   // Clear form
   document.getElementById('escalationReason').value = '';
-  
+
   showNotification('Escalation logged successfully');
 }
 
 function updateEscalationHistory() {
   const escalations = JSON.parse(localStorage.getItem('cst_escalations') || '[]');
   const listDiv = document.getElementById('escalationList');
-  
+
   if (escalations.length === 0) {
     listDiv.innerHTML = '<p>No recent escalations</p>';
     return;
   }
-  
-  listDiv.innerHTML = escalations.map(esc => `
+
+  listDiv.innerHTML = escalations
+    .map(
+      (esc) => `
     <div class="escalation-item">
       <div class="escalation-header">
         <strong>${esc.type}</strong> - ${esc.timestamp}
@@ -1386,7 +1435,9 @@ function updateEscalationHistory() {
         <p><strong>Expert:</strong> ${esc.expert}</p>
       </div>
     </div>
-  `).join('');
+  `,
+    )
+    .join('');
 }
 
 // Alpha Notes Functions
@@ -1395,12 +1446,12 @@ function generateAlphaNote() {
   const details = document.getElementById('interactionDetails').value;
   const steps = document.getElementById('resolutionSteps').value;
   const outcome = document.getElementById('outcomeStatus').value;
-  
+
   if (!details) {
     alert('Please enter interaction details.');
     return;
   }
-  
+
   const timestamp = new Date().toLocaleString();
   const note = `
 ALPHA NOTE - ${noteType.toUpperCase()}
@@ -1421,10 +1472,10 @@ ${outcome === 'escalated' ? 'Escalated To: [Specify department/person]' : ''}
 ---
 Note generated by CST SmartDesk v1.0
   `;
-  
+
   const outputDiv = document.getElementById('alphaNoteOutput');
   const textArea = document.getElementById('alphaNoteText');
-  
+
   textArea.value = note;
   outputDiv.style.display = 'block';
 }
@@ -1435,9 +1486,9 @@ function saveNoteDraft() {
     details: document.getElementById('interactionDetails').value,
     steps: document.getElementById('resolutionSteps').value,
     outcome: document.getElementById('outcomeStatus').value,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   localStorage.setItem('cst_note_draft', JSON.stringify(noteData));
   showNotification('Note draft saved');
 }
@@ -1458,7 +1509,7 @@ No special handling required.
 
 Expert: ${expertInfo.name}
 Date: ${new Date().toLocaleDateString()}`;
-  
+
   copyToClipboard(template);
 }
 
@@ -1473,25 +1524,28 @@ Additional documentation may be needed.
 
 Expert: ${expertInfo.name}
 Date: ${new Date().toLocaleDateString()}`;
-  
+
   copyToClipboard(template);
 }
 
 function evaluateRPFRNeed() {
   const checkboxes = document.querySelectorAll('.rpfr-checklist input[type="checkbox"]');
-  const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-  
+  const checkedCount = Array.from(checkboxes).filter((cb) => cb.checked).length;
+
   const recommendationDiv = document.getElementById('rpfrRecommendation');
-  
+
   let recommendation;
   if (checkedCount >= 3) {
-    recommendation = '🔴 <strong>RPFR RECOMMENDED</strong> - This case shows multiple complexity indicators requiring special handling.';
+    recommendation =
+      '🔴 <strong>RPFR RECOMMENDED</strong> - This case shows multiple complexity indicators requiring special handling.';
   } else if (checkedCount >= 1) {
-    recommendation = '🟡 <strong>CONSIDER RPFR</strong> - This case may benefit from extended review processes.';
+    recommendation =
+      '🟡 <strong>CONSIDER RPFR</strong> - This case may benefit from extended review processes.';
   } else {
-    recommendation = '🟢 <strong>STANDARD PFR</strong> - This case can follow normal review processes.';
+    recommendation =
+      '🟢 <strong>STANDARD PFR</strong> - This case can follow normal review processes.';
   }
-  
+
   recommendationDiv.innerHTML = `<div class="rpfr-result">${recommendation}</div>`;
   recommendationDiv.style.display = 'block';
 }
@@ -1506,7 +1560,7 @@ window.addEventListener('error', (error) => {
     message: error.message,
     filename: error.filename,
     line: error.lineno,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -1516,7 +1570,7 @@ if (typeof module !== 'undefined' && module.exports) {
     expertInfo,
     state,
     init,
-    handleCardClick
+    handleCardClick,
   };
 }
 let splashMsgTimer = null;
@@ -1536,8 +1590,14 @@ try {
         state.jsErrors = state.jsErrors.slice(0, 5);
       }
       // reflect in status when available
-      try { renderStatus(); } catch { /* noop */ }
-    } catch { /* noop */ }
+      try {
+        renderStatus();
+      } catch {
+        /* noop */
+      }
+    } catch {
+      /* noop */
+    }
   };
   window.addEventListener('error', (e) => {
     const m = e?.error?.message || e?.message || 'Unknown error';
@@ -1548,7 +1608,9 @@ try {
     const m = (reason && (reason.message || reason.toString?.())) || 'Unhandled rejection';
     pushErr('Promise: ' + m);
   });
-} catch { /* noop */ }
+} catch {
+  /* noop */
+}
 
 // Detect if running under automation (e.g., Playwright)
 function isAutomation() {
@@ -1618,9 +1680,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   // In automation, suppress unhandled promise rejections to avoid debugger pauses
   try {
     if (typeof isAutomation === 'function' && isAutomation()) {
-      window.addEventListener('unhandledrejection', (e) => { e.preventDefault?.(); }, { capture: true });
+      window.addEventListener(
+        'unhandledrejection',
+        (e) => {
+          e.preventDefault?.();
+        },
+        { capture: true },
+      );
     }
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
   // language
   const lang = localStorage.getItem('lang') || 'en';
   state.i18n = await createI18n(lang);
@@ -1678,16 +1748,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     tabs.forEach((t) => t.addEventListener('click', () => select(t.dataset.tab)));
     // Ensure initial selection
-    if (tabs.length) select(tabs.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset.tab || 'carriers');
-  } catch { /* noop */ }
+    if (tabs.length)
+      select(
+        tabs.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset.tab || 'carriers',
+      );
+  } catch {
+    /* noop */
+  }
 
   // theme + listeners... Use saved theme if available else light for Codex, dark otherwise
   try {
-    const saved = (JSON.parse(localStorage.getItem('cst.settings')||'{}')||{}).theme;
+    const saved = (JSON.parse(localStorage.getItem('cst.settings') || '{}') || {}).theme;
     applyTheme(saved || (CODEX ? 'light' : 'dark'));
-  } catch { applyTheme(CODEX ? 'light' : 'dark'); }
+  } catch {
+    applyTheme(CODEX ? 'light' : 'dark');
+  }
   document.getElementById('themeToggle')?.addEventListener('click', cycleTheme);
-  document.getElementById('openSettingsTop')?.addEventListener('click', () => openModal('settings'));
+  document
+    .getElementById('openSettingsTop')
+    ?.addEventListener('click', () => openModal('settings'));
   document.getElementById('openCopilotBtn')?.addEventListener('click', () => {
     const modal = document.getElementById('modal-copilot');
     if (modal) openCopilotModal();
@@ -1700,18 +1779,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   const helpWelcome = document.getElementById('helpWelcomeItem');
   if (helpBtn && helpMenu) {
     let open = false;
-    const setOpen = (v)=>{ open = v; helpMenu.style.display = v ? 'block' : 'none'; };
-    helpBtn.addEventListener('click', (e)=>{ e.stopPropagation(); setOpen(!open); });
-    document.addEventListener('click', (e)=>{
+    const setOpen = (v) => {
+      open = v;
+      helpMenu.style.display = v ? 'block' : 'none';
+    };
+    helpBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setOpen(!open);
+    });
+    document.addEventListener('click', (e) => {
       if (!open) return;
       if (helpWrap && helpWrap.contains(e.target)) return;
       setOpen(false);
     });
   }
   if (helpWelcome) {
-    helpWelcome.addEventListener('click', ()=>{
-      try { ensureWelcomeModal(); renderWelcomeModal(); showWelcomeModal(); } catch { /* noop */ }
-      const helpMenu = document.getElementById('helpMenu'); if (helpMenu) helpMenu.style.display = 'none';
+    helpWelcome.addEventListener('click', () => {
+      try {
+        ensureWelcomeModal();
+        renderWelcomeModal();
+        showWelcomeModal();
+      } catch {
+        /* noop */
+      }
+      const helpMenu = document.getElementById('helpMenu');
+      if (helpMenu) helpMenu.style.display = 'none';
     });
   }
 
@@ -1788,10 +1880,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   ensureContrast();
 
   // Wire global search dropdown (grouped: quick actions + next suggestions)
-  try { wireTopSearch(); } catch { /* noop */ }
-  
+  try {
+    wireTopSearch();
+  } catch {
+    /* noop */
+  }
+
   // Wire modern dashboard
-  try { wireDashboard(); } catch { /* noop */ }
+  try {
+    wireDashboard();
+  } catch {
+    /* noop */
+  }
 
   // Sidebar: handle [data-open] clicks (carriers, tools, products)
   document.addEventListener('click', (ev) => {
@@ -1800,7 +1900,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const key = el.getAttribute('data-open');
     if (!key) return;
     // Known quick actions
-  if (key === 'tests') return openModal('tests');
+    if (key === 'tests') return openModal('tests');
     if (key === 'tools:denials') {
       openDenials();
       return;
@@ -1830,7 +1930,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'tools:byod': 'BYOD Premium Check',
       'tools:smartdrop': 'SmartDrop (OCR)',
       // compatibility if a plain key is used in markup
-      smartdrop: 'SmartDrop (OCR)'
+      smartdrop: 'SmartDrop (OCR)',
     };
     const productMap = {
       'product:UBIF': 'uBreakiFix',
@@ -1857,88 +1957,179 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // --- Top search (grouped suggestions) ---
-function wireTopSearch(){
+function wireTopSearch() {
   const host = document.getElementById('topSearch');
   const input = document.getElementById('searchInput');
   const list = document.getElementById('searchSuggest');
   if (!input || !list) return;
-  try { if (localStorage.getItem('ui.search') === '0'){ if (host) host.style.display='none'; return; } } catch { /* noop */ }
+  try {
+    if (localStorage.getItem('ui.search') === '0') {
+      if (host) host.style.display = 'none';
+      return;
+    }
+  } catch {
+    /* noop */
+  }
 
-  const t = (k)=> (state.i18n?.t ? state.i18n.t(k) : k);
+  const t = (k) => (state.i18n?.t ? state.i18n.t(k) : k);
 
   // Quick actions (no query)
   const quick = [
-    { id:'qa:copilot', label:()=>t('QuickOpenCopilot'), run:()=>{ const modal=document.getElementById('modal-copilot'); if(modal) openCopilotModal(); else document.getElementById('copilotSection')?.scrollIntoView({behavior:'smooth'}); } },
-    { id:'qa:denials', label:()=>t('QuickOpenDenials'), run:()=>openDenials() },
-    { id:'qa:smartdrop', label:()=>t('QuickOpenSmartDrop'), run:()=>openSmartDrop() },
-    { id:'qa:policies', label:()=>t('QuickOpenPolicies'), run:()=>showToast('Policies hub coming soon') },
-    { id:'qa:xr', label:()=>t('QuickOpenXR'), run:()=>showToast('XR Library coming soon') },
-    { id:'qa:byod', label:()=>t('QuickOpenBYOD'), run:()=>showToast('BYOD Check coming soon') },
-  { id:'qa:rpfr', label:()=>t('QuickOpenRPFR'), run:()=>{ const link = document.querySelector('[data-open="bucket:rpfr"]'); if (link) link.click(); else showToast('RPFR'); } },
+    {
+      id: 'qa:copilot',
+      label: () => t('QuickOpenCopilot'),
+      run: () => {
+        const modal = document.getElementById('modal-copilot');
+        if (modal) openCopilotModal();
+        else document.getElementById('copilotSection')?.scrollIntoView({ behavior: 'smooth' });
+      },
+    },
+    { id: 'qa:denials', label: () => t('QuickOpenDenials'), run: () => openDenials() },
+    { id: 'qa:smartdrop', label: () => t('QuickOpenSmartDrop'), run: () => openSmartDrop() },
+    {
+      id: 'qa:policies',
+      label: () => t('QuickOpenPolicies'),
+      run: () => showToast('Policies hub coming soon'),
+    },
+    { id: 'qa:xr', label: () => t('QuickOpenXR'), run: () => showToast('XR Library coming soon') },
+    {
+      id: 'qa:byod',
+      label: () => t('QuickOpenBYOD'),
+      run: () => showToast('BYOD Check coming soon'),
+    },
+    {
+      id: 'qa:rpfr',
+      label: () => t('QuickOpenRPFR'),
+      run: () => {
+        const link = document.querySelector('[data-open="bucket:rpfr"]');
+        if (link) link.click();
+        else showToast('RPFR');
+      },
+    },
   ];
 
   // Next suggestions (contextual; minimal heuristic)
-  function nextSuggestions(q){
-    const s = String(q||'').trim().toLowerCase();
+  function nextSuggestions(q) {
+    const s = String(q || '')
+      .trim()
+      .toLowerCase();
     const arr = [];
     if (!s) return arr;
-    if (s.includes('denial') || s.includes('no airtime') || s.includes('deneg')) arr.push(quick.find(x=>x.id==='qa:denials'));
-    if (s.includes('rpfr') || s.includes('reimburse')) arr.push(quick.find(x=>x.id==='qa:rpfr'));
-    if (s.includes('fmip') || s.includes('icloud') || s.includes('find my')) arr.push({ id:'qa:fmip', label:()=> 'Open FMIP Script', run:()=> showToast('FMIP Script coming soon') });
-    if (s.includes('scan') || s.includes('pdf') || s.includes('ocr')) arr.push(quick.find(x=>x.id==='qa:smartdrop'));
-    if (!arr.find(x=>x?.id==='qa:copilot')) arr.push(quick.find(x=>x.id==='qa:copilot'));
-    return arr.filter(Boolean).slice(0,4);
+    if (s.includes('denial') || s.includes('no airtime') || s.includes('deneg'))
+      arr.push(quick.find((x) => x.id === 'qa:denials'));
+    if (s.includes('rpfr') || s.includes('reimburse'))
+      arr.push(quick.find((x) => x.id === 'qa:rpfr'));
+    if (s.includes('fmip') || s.includes('icloud') || s.includes('find my'))
+      arr.push({
+        id: 'qa:fmip',
+        label: () => 'Open FMIP Script',
+        run: () => showToast('FMIP Script coming soon'),
+      });
+    if (s.includes('scan') || s.includes('pdf') || s.includes('ocr'))
+      arr.push(quick.find((x) => x.id === 'qa:smartdrop'));
+    if (!arr.find((x) => x?.id === 'qa:copilot'))
+      arr.push(quick.find((x) => x.id === 'qa:copilot'));
+    return arr.filter(Boolean).slice(0, 4);
   }
 
   let items = [];
   let active = -1;
 
-  function render(q){
+  function render(q) {
     list.innerHTML = '';
-    const hasText = !!String(q||'').trim();
-  // option list is built directly into DOM; no temp array needed
-    const addLabel = (text)=>{
-      const d = document.createElement('div'); d.className='suggest-label'; d.textContent = text; list.appendChild(d);
+    const hasText = !!String(q || '').trim();
+    // option list is built directly into DOM; no temp array needed
+    const addLabel = (text) => {
+      const d = document.createElement('div');
+      d.className = 'suggest-label';
+      d.textContent = text;
+      list.appendChild(d);
     };
-    const addOption = (it)=>{
-      const d = document.createElement('div'); d.className='suggest-option'; d.setAttribute('role','option'); d.dataset.id=it.id; d.textContent = typeof it.label==='function'? it.label() : it.label; list.appendChild(d); return d; };
+    const addOption = (it) => {
+      const d = document.createElement('div');
+      d.className = 'suggest-option';
+      d.setAttribute('role', 'option');
+      d.dataset.id = it.id;
+      d.textContent = typeof it.label === 'function' ? it.label() : it.label;
+      list.appendChild(d);
+      return d;
+    };
 
-    if (!hasText){
+    if (!hasText) {
       addLabel(t('QuickActions'));
-      quick.forEach((it)=> addOption(it));
+      quick.forEach((it) => addOption(it));
     } else {
       // For now we only show Next suggestions when typing
       addLabel(t('NextSuggestions'));
-      nextSuggestions(q).forEach((it)=> addOption(it));
+      nextSuggestions(q).forEach((it) => addOption(it));
     }
 
     items = Array.from(list.querySelectorAll('[role="option"]'));
-    active = items.length? 0 : -1;
+    active = items.length ? 0 : -1;
     updateActive();
-    list.style.display = items.length? 'block' : 'none';
-    input.setAttribute('aria-expanded', items.length? 'true':'false');
+    list.style.display = items.length ? 'block' : 'none';
+    input.setAttribute('aria-expanded', items.length ? 'true' : 'false');
   }
-  function updateActive(){
-    items.forEach((el,i)=> el.classList.toggle('active', i===active));
+  function updateActive() {
+    items.forEach((el, i) => el.classList.toggle('active', i === active));
   }
-  function runActive(){
-    const el = items[active]; if(!el) return; const id = el.dataset.id; const it = [...quick, ...nextSuggestions(input.value)].find(x=>x?.id===id);
-  if (it && typeof it.run==='function'){ try{ it.run(); } catch { /* noop */ } }
-    list.style.display='none'; input.setAttribute('aria-expanded','false');
+  function runActive() {
+    const el = items[active];
+    if (!el) return;
+    const id = el.dataset.id;
+    const it = [...quick, ...nextSuggestions(input.value)].find((x) => x?.id === id);
+    if (it && typeof it.run === 'function') {
+      try {
+        it.run();
+      } catch {
+        /* noop */
+      }
+    }
+    list.style.display = 'none';
+    input.setAttribute('aria-expanded', 'false');
   }
 
-  input.addEventListener('input', ()=> render(input.value));
-  input.addEventListener('focus', ()=> render(input.value));
-  input.addEventListener('blur', ()=> setTimeout(()=>{ list.style.display='none'; input.setAttribute('aria-expanded','false'); }, 120));
-  input.addEventListener('keydown', (e)=>{
-    if (e.key==='ArrowDown'){ e.preventDefault(); if(items.length){ active = (active+1) % items.length; updateActive(); } }
-    else if (e.key==='ArrowUp'){ e.preventDefault(); if(items.length){ active = (active-1+items.length) % items.length; updateActive(); } }
-    else if (e.key==='Enter'){ if (active>-1){ e.preventDefault(); runActive(); } }
-    else if (e.key==='Escape'){ list.style.display='none'; input.setAttribute('aria-expanded','false'); }
+  input.addEventListener('input', () => render(input.value));
+  input.addEventListener('focus', () => render(input.value));
+  input.addEventListener('blur', () =>
+    setTimeout(() => {
+      list.style.display = 'none';
+      input.setAttribute('aria-expanded', 'false');
+    }, 120),
+  );
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (items.length) {
+        active = (active + 1) % items.length;
+        updateActive();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (items.length) {
+        active = (active - 1 + items.length) % items.length;
+        updateActive();
+      }
+    } else if (e.key === 'Enter') {
+      if (active > -1) {
+        e.preventDefault();
+        runActive();
+      }
+    } else if (e.key === 'Escape') {
+      list.style.display = 'none';
+      input.setAttribute('aria-expanded', 'false');
+    }
   });
 
-  list.addEventListener('mousedown', (e)=>{
-    const el = e.target?.closest?.('[role="option"]'); if(!el) return; const idx = items.indexOf(el); if(idx>-1){ active=idx; updateActive(); runActive(); }
+  list.addEventListener('mousedown', (e) => {
+    const el = e.target?.closest?.('[role="option"]');
+    if (!el) return;
+    const idx = items.indexOf(el);
+    if (idx > -1) {
+      active = idx;
+      updateActive();
+      runActive();
+    }
   });
 }
 
@@ -1958,22 +2149,27 @@ function showToast(msg) {
     /* ignore */
   }
 }
-function cycleTheme(){
+function cycleTheme() {
   try {
     const root = document.documentElement;
-    const themes = ['theme-dark','theme-light','theme-glass','theme-macos'];
-    const curClass = themes.find(t=>root.classList.contains(t)) || 'theme-dark';
-    const cur = curClass.replace('theme-','');
-    const order = ['dark','light','glass','macos'];
-    const next = order[(order.indexOf(cur)+1) % order.length];
+    const themes = ['theme-dark', 'theme-light', 'theme-glass', 'theme-macos'];
+    const curClass = themes.find((t) => root.classList.contains(t)) || 'theme-dark';
+    const cur = curClass.replace('theme-', '');
+    const order = ['dark', 'light', 'glass', 'macos'];
+    const next = order[(order.indexOf(cur) + 1) % order.length];
     applyTheme(next);
     // persist into settings if present
-    try{
-      const s = JSON.parse(localStorage.getItem('cst.settings')||'{}')||{};
-      s.theme = next; localStorage.setItem('cst.settings', JSON.stringify(s));
-    } catch { /* ignore theme save errors */ }
-    showToast('Theme: '+next);
-  } catch { /* ignore theme errors */ }
+    try {
+      const s = JSON.parse(localStorage.getItem('cst.settings') || '{}') || {};
+      s.theme = next;
+      localStorage.setItem('cst.settings', JSON.stringify(s));
+    } catch {
+      /* ignore theme save errors */
+    }
+    showToast('Theme: ' + next);
+  } catch {
+    /* ignore theme errors */
+  }
 }
 function logQA(msg) {
   try {
@@ -2011,7 +2207,7 @@ function openSmartDrop() {
       (
         'a,an,the,of,to,in,for,on,and,or,if,then,with,by,be,is,are,was,were,as,at,from,that,this,it,its,into,you,your,' +
         'de,la,el,los,las,un,una,para,por,con,en,es,son,era,eran,como,que,esto,este,su'
-      ).split(',')
+      ).split(','),
     );
     return (s || '')
       .toLowerCase()
@@ -2031,7 +2227,11 @@ function openSmartDrop() {
     localStorage.setItem(key, JSON.stringify(val));
   }
   function saveToBucket(dest, text, meta = {}) {
-    const ROUTE_KEYS = { denials: 'cst_bucket_denials', rpfr: 'cst_bucket_rpfr', fmip: 'cst_bucket_fmip' };
+    const ROUTE_KEYS = {
+      denials: 'cst_bucket_denials',
+      rpfr: 'cst_bucket_rpfr',
+      fmip: 'cst_bucket_fmip',
+    };
     const legacyKey = ROUTE_KEYS[dest];
     const unifiedKey = 'cst_bucket:' + dest;
     if (!dest) return;
@@ -2088,14 +2288,14 @@ function openSmartDrop() {
       e.preventDefault();
       e.stopPropagation();
       drop.style.background = '#141422';
-    })
+    }),
   );
   ['dragleave', 'drop'].forEach((evt) =>
     drop.addEventListener(evt, (e) => {
       e.preventDefault();
       e.stopPropagation();
       drop.style.background = '';
-    })
+    }),
   );
 
   drop.addEventListener('drop', async (e) => {
@@ -2160,13 +2360,15 @@ function openSmartDrop() {
 const DENIAL = {
   DEVICE_INELIGIBLE: {
     en: {
-      reason: "This device isn’t eligible under the plan.",
-      rebuttal: 'We can review alternate coverage options or repair pathways that might fit your device.'
+      reason: 'This device isn’t eligible under the plan.',
+      rebuttal:
+        'We can review alternate coverage options or repair pathways that might fit your device.',
     },
     es: {
       reason: 'Este equipo no es elegible bajo el plan.',
-      rebuttal: 'Podemos revisar opciones alternativas de cobertura o reparación que podrían ajustarse a su equipo.'
-    }
+      rebuttal:
+        'Podemos revisar opciones alternativas de cobertura o reparación que podrían ajustarse a su equipo.',
+    },
   },
 };
 
@@ -2230,11 +2432,22 @@ function renderCarrierHtml(data) {
     Array.isArray(arr) && arr.length
       ? `<ul>${arr.map(map).join('')}</ul>`
       : '<p class="muted">None</p>';
-  const tcs = list(data.tcs, (x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noreferrer noopener">${esc(x.label)}</a></li>`);
-  const denials = list(data.common_denials, (x) => `<li><code>${esc(x.key)}</code> — ${esc(x.label)}</li>`);
+  const tcs = list(
+    data.tcs,
+    (x) =>
+      `<li><a href="${esc(x.url)}" target="_blank" rel="noreferrer noopener">${esc(x.label)}</a></li>`,
+  );
+  const denials = list(
+    data.common_denials,
+    (x) => `<li><code>${esc(x.key)}</code> — ${esc(x.label)}</li>`,
+  );
   const fmipEn = list(data.fmip?.steps_en, (x) => `<li>${esc(x)}</li>`);
   const fmipEs = list(data.fmip?.steps_es, (x) => `<li>${esc(x)}</li>`);
-  const links = list(data.support_links, (x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noreferrer noopener">${esc(x.label)}</a></li>`);
+  const links = list(
+    data.support_links,
+    (x) =>
+      `<li><a href="${esc(x.url)}" target="_blank" rel="noreferrer noopener">${esc(x.label)}</a></li>`,
+  );
   return `
     <h2>${esc(data.name || data.id)}</h2>
     <section>
@@ -2284,8 +2497,8 @@ function getRedirectTarget() {
 
 function safeRedirect(target) {
   try {
-  // Avoid redirects during automation to keep frames stable in tests
-  if (typeof isAutomation === 'function' && isAutomation()) return;
+    // Avoid redirects during automation to keep frames stable in tests
+    if (typeof isAutomation === 'function' && isAutomation()) return;
     if (!target || typeof target !== 'string') return;
     const same = target === location.href || target === location.pathname;
     if (same) return;
@@ -2339,13 +2552,17 @@ function showSplash() {
       tag.className = 'muted';
       tag.style.marginTop = '4px';
       tag.style.fontSize = '14px';
-      tag.textContent = state.i18n ? state.i18n.t('SplashTagline') : 'White-glove support. Faster workflows. Gold-standard results.';
+      tag.textContent = state.i18n
+        ? state.i18n.t('SplashTagline')
+        : 'White-glove support. Faster workflows. Gold-standard results.';
       title.insertAdjacentElement('afterend', tag);
     } else if (title) {
       const tag = document.getElementById('splashTagline');
       if (tag) tag.textContent = state.i18n ? state.i18n.t('SplashTagline') : tag.textContent;
     }
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
   const bar = document.getElementById('splashBar');
   if (bar) {
     bar.classList.remove('run');
@@ -2423,10 +2640,10 @@ function waitForSplashFinish() {
   const bar = document.getElementById('splashBar');
   // Failsafe: always hide splash after 3 seconds
   const failsafeTimeout = setTimeout(() => {
-  if (!splashAnimDone || !splashAssetsDone) {
+    if (!splashAnimDone || !splashAssetsDone) {
       splashAnimDone = true;
       splashAssetsDone = true;
-  maybeCloseSplash();
+      maybeCloseSplash();
     }
   }, 3000);
 
@@ -2452,33 +2669,33 @@ function waitForSplashFinish() {
   });
 }
 
-  function maybeCloseSplash() {
+function maybeCloseSplash() {
   if (splashAnimDone && splashAssetsDone) {
     splashPct = 100;
     updatePct();
     hideSplash();
-  // Open setup on first run; else redirect if configured
-  const onboarded = localStorage.getItem('onboarded') === '1';
-  if (!onboarded) {
-    const wiz = document.getElementById('setupWizard');
-    if (wiz && typeof wiz.showModal === 'function') setTimeout(()=>wiz.showModal(), 80);
-  } else if (state.redirectTo) {
-    setTimeout(() => safeRedirect(state.redirectTo), 60);
-  }
-      // Self-test (silent): check Copilot button clickability after splash closes
-      setTimeout(() => {
-        const btn = document.getElementById('copilotRun');
-        if (btn) {
-          try {
-            const rect = btn.getBoundingClientRect();
-            const elAtPoint = document.elementFromPoint(rect.left + 2, rect.top + 2);
-            // compute-only; no console noise in production
-            void (elAtPoint === btn || btn.contains(elAtPoint));
-          } catch {
-            // ignore
-          }
+    // Open setup on first run; else redirect if configured
+    const onboarded = localStorage.getItem('onboarded') === '1';
+    if (!onboarded) {
+      const wiz = document.getElementById('setupWizard');
+      if (wiz && typeof wiz.showModal === 'function') setTimeout(() => wiz.showModal(), 80);
+    } else if (state.redirectTo) {
+      setTimeout(() => safeRedirect(state.redirectTo), 60);
+    }
+    // Self-test (silent): check Copilot button clickability after splash closes
+    setTimeout(() => {
+      const btn = document.getElementById('copilotRun');
+      if (btn) {
+        try {
+          const rect = btn.getBoundingClientRect();
+          const elAtPoint = document.elementFromPoint(rect.left + 2, rect.top + 2);
+          // compute-only; no console noise in production
+          void (elAtPoint === btn || btn.contains(elAtPoint));
+        } catch {
+          // ignore
         }
-      }, 100);
+      }
+    }, 100);
   }
 }
 
@@ -2491,7 +2708,7 @@ function onSaveWizard() {
     empId: val('#wEmpId'),
     ext: val('#wExt'),
     theme: val('#wTheme'),
-    expertType: (document.getElementById('wExpertType')?.value)||'english',
+    expertType: document.getElementById('wExpertType')?.value || 'english',
   };
   if (!s.name || !s.empId || !s.ext) return; // native required also guards
   saveSettings(s);
@@ -2509,7 +2726,13 @@ function onSaveWizard() {
   renderStatus();
   // Show welcome modal once after setup save
   if (localStorage.getItem('welcomeShown') !== '1') {
-    try { ensureWelcomeModal(); renderWelcomeModal(); showWelcomeModal(); } catch { /* noop */ }
+    try {
+      ensureWelcomeModal();
+      renderWelcomeModal();
+      showWelcomeModal();
+    } catch {
+      /* noop */
+    }
   }
 }
 function val(sel) {
@@ -2552,7 +2775,7 @@ function forceShowSplash() {
 }
 
 // --- Welcome Modal (post-setup intro) ---
-function ensureWelcomeModal(){
+function ensureWelcomeModal() {
   if (document.getElementById('modal-welcome')) return;
   const wrap = document.createElement('div');
   wrap.className = 'modal-backdrop';
@@ -2578,22 +2801,37 @@ function ensureWelcomeModal(){
     </div>`;
   document.body.appendChild(wrap);
   // Close handlers
-  wrap.addEventListener('click', (e)=>{ if (e.target === wrap) { hideWelcomeModal(true); } });
-  wrap.querySelector('[data-close]')?.addEventListener('click', ()=> hideWelcomeModal(true));
-  document.getElementById('welOpenCopilot')?.addEventListener('click', ()=>{
+  wrap.addEventListener('click', (e) => {
+    if (e.target === wrap) {
+      hideWelcomeModal(true);
+    }
+  });
+  wrap.querySelector('[data-close]')?.addEventListener('click', () => hideWelcomeModal(true));
+  document.getElementById('welOpenCopilot')?.addEventListener('click', () => {
     hideWelcomeModal(true);
     try {
       const modal = document.getElementById('modal-copilot');
       if (modal) openCopilotModal();
       else {
-  if (!document.getElementById('copilotSection')) { try { initCopilot(); renderCopilotUI(); } catch { /* noop */ } }
-        document.getElementById('copilotSection')?.scrollIntoView({ behavior:'smooth', block:'start' });
+        if (!document.getElementById('copilotSection')) {
+          try {
+            initCopilot();
+            renderCopilotUI();
+          } catch {
+            /* noop */
+          }
+        }
+        document
+          .getElementById('copilotSection')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   });
 }
-function renderWelcomeModal(){
-  const t = (s)=> state.i18n ? state.i18n.t(s) : s;
+function renderWelcomeModal() {
+  const t = (s) => (state.i18n ? state.i18n.t(s) : s);
   const title = document.getElementById('welTitle');
   const blocks = document.getElementById('welBlocks');
   const cta = document.getElementById('welOpenCopilot');
@@ -2606,7 +2844,7 @@ function renderWelcomeModal(){
   const mode = getOutputMode();
   const wantEN = mode === 'en' || mode === 'both';
   const wantES = mode === 'es' || mode === 'both';
-  const mk = (lang)=>{
+  const mk = (lang) => {
     const wrap = document.createElement('section');
     wrap.className = 'wel-block';
     const h = document.createElement('h4');
@@ -2616,11 +2854,11 @@ function renderWelcomeModal(){
     h.textContent = lang === 'es' ? 'Español' : 'English';
     const sub = document.createElement('p');
     sub.style.margin = '6px 0 0 0';
-  sub.textContent = t('WelcomeSubheadline');
+    sub.textContent = t('WelcomeSubheadline');
     const body = document.createElement('p');
     body.className = 'muted';
     body.style.margin = '6px 0 0 0';
-  body.textContent = t('WelcomeBody');
+    body.textContent = t('WelcomeBody');
     wrap.appendChild(h);
     wrap.appendChild(sub);
     wrap.appendChild(body);
@@ -2630,22 +2868,25 @@ function renderWelcomeModal(){
   if (wantEN) blocks.appendChild(mk('en'));
   if (wantES) blocks.appendChild(mk('es'));
 }
-function showWelcomeModal(){
-  const el = document.getElementById('modal-welcome'); if (!el) return;
-  const chk = document.getElementById('welDontShow'); if (chk) chk.checked = false;
+function showWelcomeModal() {
+  const el = document.getElementById('modal-welcome');
+  if (!el) return;
+  const chk = document.getElementById('welDontShow');
+  if (chk) chk.checked = false;
   el.hidden = false;
 }
-function hideWelcomeModal(markSeen){
-  const el = document.getElementById('modal-welcome'); if (!el) return;
+function hideWelcomeModal(markSeen) {
+  const el = document.getElementById('modal-welcome');
+  if (!el) return;
   el.hidden = true;
   if (markSeen) {
     const chk = document.getElementById('welDontShow');
-    if (chk?.checked) localStorage.setItem('welcomeShown','1');
+    if (chk?.checked) localStorage.setItem('welcomeShown', '1');
   }
 }
 
 // --- Copilot Modal wiring (proxies to existing Copilot engine) ---
-function openCopilotModal(){
+function openCopilotModal() {
   const modal = document.getElementById('modal-copilot');
   if (!modal) return;
   modal.hidden = false;
@@ -2657,46 +2898,60 @@ function openCopilotModal(){
   const q1 = document.getElementById('cp_quick_rpfr');
   const q2 = document.getElementById('cp_quick_fmip');
   const input = document.getElementById('cp_in');
-  if (q1) q1.onclick = () => (input.value = 'RPFR: customer purchased accessory at retail; requesting reimbursement.');
-  if (q2) q2.onclick = () => (input.value = 'FMIP override: customer forgot Apple ID; need safe coaching and Alpha note.');
+  if (q1)
+    q1.onclick = () =>
+      (input.value = 'RPFR: customer purchased accessory at retail; requesting reimbursement.');
+  if (q2)
+    q2.onclick = () =>
+      (input.value = 'FMIP override: customer forgot Apple ID; need safe coaching and Alpha note.');
 
   // run bridges to main copilot
   const runBtn = document.getElementById('cp_run');
-  if (runBtn) runBtn.onclick = async () => {
-    // ensure main Copilot exists
-  try { initCopilot(); renderCopilotUI(); } catch { /* noop */ }
-    const box = document.getElementById('copilotInput');
-    if (box) box.value = input.value;
-    const btn = document.getElementById('copilotRun');
-    if (btn) btn.click();
-    // After a short delay, mirror outputs into modal textarea
-    setTimeout(() => {
+  if (runBtn)
+    runBtn.onclick = async () => {
+      // ensure main Copilot exists
+      try {
+        initCopilot();
+        renderCopilotUI();
+      } catch {
+        /* noop */
+      }
+      const box = document.getElementById('copilotInput');
+      if (box) box.value = input.value;
+      const btn = document.getElementById('copilotRun');
+      if (btn) btn.click();
+      // After a short delay, mirror outputs into modal textarea
+      setTimeout(() => {
+        const en = document.getElementById('copilotEn')?.textContent || '';
+        const es = document.getElementById('copilotEs')?.textContent || '';
+        const out = document.getElementById('cp_out');
+        if (out) out.value = [en, es && '\n\n— ES —\n' + es].filter(Boolean).join('\n');
+      }, 400);
+    };
+  const copy = document.getElementById('cp_copy');
+  if (copy)
+    copy.onclick = () => {
       const en = document.getElementById('copilotEn')?.textContent || '';
       const es = document.getElementById('copilotEs')?.textContent || '';
-      const out = document.getElementById('cp_out');
-      if (out) out.value = [en, es && '\n\n— ES —\n' + es].filter(Boolean).join('\n');
-    }, 400);
-  };
-  const copy = document.getElementById('cp_copy');
-  if (copy) copy.onclick = () => {
-    const en = document.getElementById('copilotEn')?.textContent || '';
-    const es = document.getElementById('copilotEs')?.textContent || '';
-    const mode = getOutputMode();
-    const txt = mode === 'en' ? en : mode === 'es' ? es : (state.lang === 'es' ? es : en);
-    navigator.clipboard.writeText(txt).then(()=>showToast('Copied'));
-  };
+      const mode = getOutputMode();
+      const txt = mode === 'en' ? en : mode === 'es' ? es : state.lang === 'es' ? es : en;
+      navigator.clipboard.writeText(txt).then(() => showToast('Copied'));
+    };
   const copyAll = document.getElementById('cp_copy_all');
-  if (copyAll) { copyAll.style.display = 'none'; }
+  if (copyAll) {
+    copyAll.style.display = 'none';
+  }
   updateModalCopyLabel();
 }
 
-function updateModalCopyLabel(){
-  const btn = document.getElementById('cp_copy'); if (!btn) return;
-  const t = (s)=> state.i18n ? state.i18n.t(s) : s;
+function updateModalCopyLabel() {
+  const btn = document.getElementById('cp_copy');
+  if (!btn) return;
+  const t = (s) => (state.i18n ? state.i18n.t(s) : s);
   const mode = getOutputMode();
   if (mode === 'en') btn.textContent = t('Copy EN');
   else if (mode === 'es') btn.textContent = t('Copy ES');
-  else btn.textContent = (state.lang === 'es') ? t('Copy ES') : t('Copy EN');
+  else btn.textContent = state.lang === 'es' ? t('Copy ES') : t('Copy EN');
 }
 
 // --- Tests Modal action ---
@@ -2760,7 +3015,9 @@ async function checkOCRStatus() {
       }
       return;
     }
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
   const targets = [
     '/libs/tesseract/tesseract.min.js',
     '/libs/tesseract/worker.min.js',
@@ -2791,7 +3048,7 @@ async function runDoctorTest() {
   const log = document.getElementById('testLog') || document.getElementById('testsOutput');
   const btn = document.getElementById('t_run_doctor');
   const timestamp = new Date().toISOString();
-  
+
   // Prevent double-clicking
   if (btn) {
     if (btn.disabled) {
@@ -2801,24 +3058,24 @@ async function runDoctorTest() {
     btn.disabled = true;
     btn.textContent = 'Running...';
   }
-  
+
   console.log(`[${timestamp}] Doctor test started`);
   if (log) log.textContent = `Doctor: running… [${timestamp}]`;
-  
+
   try {
     console.log(`[${timestamp}] Fetching /api/doctor`);
     const r = await fetch('/api/doctor', {
       method: 'GET',
       cache: 'no-store',
       headers: {
-        'X-Request-ID': `doctor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      }
+        'X-Request-ID': `doctor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      },
     });
-    
+
     console.log(`[${timestamp}] Doctor response status:`, r.status);
     const j = await r.json();
     console.log(`[${timestamp}] Doctor response:`, j);
-    
+
     if (log) log.textContent = JSON.stringify(j, null, 2);
     checkOCRStatus();
     showToast(j.ok ? 'Doctor passed' : 'Doctor found issues');
@@ -2836,12 +3093,12 @@ async function runDoctorTest() {
 }
 
 // --- UI Text Audit (temporary diagnostics) ---
-function runUiTextAudit(){
+function runUiTextAudit() {
   const out = document.getElementById('testLog') || document.getElementById('testsOutput');
   if (out) out.textContent = 'UI Text Audit: scanning…';
   try {
     // Collect visible text nodes from main content area and modals
-    const isVisible = (el)=>{
+    const isVisible = (el) => {
       if (!el) return false;
       const s = getComputedStyle(el);
       return s && s.display !== 'none' && s.visibility !== 'hidden' && el.offsetParent !== null;
@@ -2850,8 +3107,8 @@ function runUiTextAudit(){
     const texts = [];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     let node;
-    while ((node = walker.nextNode())){
-      const t = (node.nodeValue||'').replace(/\s+/g,' ').trim();
+    while ((node = walker.nextNode())) {
+      const t = (node.nodeValue || '').replace(/\s+/g, ' ').trim();
       if (!t) continue;
       const parent = node.parentElement;
       if (!parent || !isVisible(parent)) continue;
@@ -2863,21 +3120,23 @@ function runUiTextAudit(){
     // Flag repeated consecutive tokens (>=3) or repeated lines (>=2 identical in a row)
     const issues = [];
     const tokenRe = /([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\-']*)(?:\s+\1){2,}/i;
-    texts.forEach((line, i)=>{
-      if (tokenRe.test(line)) issues.push({ i, type:'repeat-token', line });
-      if (i>0 && texts[i-1]===line) issues.push({ i, type:'repeat-line', line });
+    texts.forEach((line, i) => {
+      if (tokenRe.test(line)) issues.push({ i, type: 'repeat-token', line });
+      if (i > 0 && texts[i - 1] === line) issues.push({ i, type: 'repeat-line', line });
     });
     const report = {
       totalLines: texts.length,
-      issues: issues.slice(0,50),
-      hint: 'Look for repeat-token or repeat-line entries.'
+      issues: issues.slice(0, 50),
+      hint: 'Look for repeat-token or repeat-line entries.',
     };
     if (out) out.textContent = JSON.stringify(report, null, 2);
-  } catch (e){ if (out) out.textContent = 'UI Text Audit error: ' + (e?.message||e); }
+  } catch (e) {
+    if (out) out.textContent = 'UI Text Audit error: ' + (e?.message || e);
+  }
 }
 
 // --- Splash Diagnostics (temporary) ---
-function runSplashDiagnostics(){
+function runSplashDiagnostics() {
   const out = document.getElementById('testLog') || document.getElementById('testsOutput');
   if (out) out.textContent = 'Splash diagnostics: collecting…';
   try {
@@ -2890,7 +3149,9 @@ function runSplashDiagnostics(){
     const onboarded = localStorage.getItem('onboarded') || '0';
     const summary = { showClass: hasShow, hidden, step, pct, welcomeSeen: seen, onboarded };
     if (out) out.textContent = JSON.stringify(summary, null, 2);
-  } catch (e){ if (out) out.textContent = 'Splash diagnostics error: ' + (e?.message||e); }
+  } catch (e) {
+    if (out) out.textContent = 'Splash diagnostics error: ' + (e?.message || e);
+  }
 }
 
 // --- Copilot ---
@@ -2961,7 +3222,8 @@ function renderCopilotUI() {
     let isLocked = true;
     try {
       if (localStorage.getItem('freeLock') === '0') isLocked = false;
-      else if (import.meta && import.meta.env && import.meta.env.VITE_FREE_LOCK === '0') isLocked = false;
+      else if (import.meta && import.meta.env && import.meta.env.VITE_FREE_LOCK === '0')
+        isLocked = false;
     } catch {
       /* ignore */
     }
@@ -3007,7 +3269,11 @@ function renderCopilotUI() {
       modeSel.addEventListener('change', () => {
         setOutputMode(modeSel.value);
         applyOutputModeVisibility();
-  try { updateModalCopyLabel(); } catch { /* noop */ }
+        try {
+          updateModalCopyLabel();
+        } catch {
+          /* noop */
+        }
       });
       applyOutputModeVisibility();
     } else if (modeSel) {
@@ -3019,7 +3285,9 @@ function renderCopilotUI() {
       modeSel.value = getOutputMode();
       applyOutputModeVisibility();
     }
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 async function onCopilotRun() {
   const sel = document.getElementById('copilotSample');
@@ -3064,7 +3332,10 @@ async function onCopilotRun() {
   } catch {
     if (state.engine === 'templates') {
       // Provide a graceful offline draft instead of a hard failure
-      const offline = 'Draft: ' + (user || '').trim() + '\n\n(Select a specific denial or switch engine to Local LLM beta.)';
+      const offline =
+        'Draft: ' +
+        (user || '').trim() +
+        '\n\n(Select a specific denial or switch engine to Local LLM beta.)';
       outEn.textContent = offline;
       outEs.textContent = offline;
       msg.hidden = true;
@@ -3077,16 +3348,16 @@ async function onCopilotRun() {
   applyOutputModeVisibility();
 }
 // ---- Output mode helpers (EN / ES / Both) ----
-function getOutputMode(){
+function getOutputMode() {
   const saved = localStorage.getItem('cst_output_mode');
   if (saved === 'en' || saved === 'es' || saved === 'both') return saved;
   return localStorage.getItem('cst_bilingual') === '1' ? 'both' : 'en';
 }
-function setOutputMode(v){
+function setOutputMode(v) {
   const val = v === 'es' ? 'es' : v === 'both' ? 'both' : 'en';
   localStorage.setItem('cst_output_mode', val);
 }
-function applyOutputModeVisibility(){
+function applyOutputModeVisibility() {
   const mode = getOutputMode();
   const colEn = document.getElementById('copilotEn')?.parentElement;
   const colEs = document.getElementById('copilotEs')?.parentElement;
@@ -3317,20 +3588,19 @@ function runQA() {
     'applianceplus.svg',
     'vz-hdp.svg',
     'att-htp.svg',
-  ]
-    .forEach((n) => {
-      fetch('/assets/' + n, { method: 'HEAD' })
-        .then((r) => {
-          if (!r.ok) {
-            misses.push('/assets/' + n);
-            logQA('Missing asset: /assets/' + n);
-          }
-        })
-        .catch(() => {
+  ].forEach((n) => {
+    fetch('/assets/' + n, { method: 'HEAD' })
+      .then((r) => {
+        if (!r.ok) {
           misses.push('/assets/' + n);
           logQA('Missing asset: /assets/' + n);
-        });
-    });
+        }
+      })
+      .catch(() => {
+        misses.push('/assets/' + n);
+        logQA('Missing asset: /assets/' + n);
+      });
+  });
   ['SAMSUNG.json', 'VIRGIN.json'].forEach((n) => {
     fetch('/carriers/' + n, { method: 'HEAD' })
       .then((r) => {
@@ -3355,9 +3625,9 @@ function runQA() {
    Single paste: drop at the bottom of /app.js
    ================================ */
 
-(function bucketViewsInit(){
-  const $ = (s, c=document) => c.querySelector(s);
-  const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+(function bucketViewsInit() {
+  const $ = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
 
   // ---- 1) Create "Routed Buckets" section in the sidebar (no HTML edits needed)
   const sidebar = $('#sidebar');
@@ -3380,10 +3650,10 @@ function runQA() {
     sidebar.appendChild(list);
 
     // hook the new openers
-    list.querySelectorAll('[data-open]').forEach(el=>{
-      el.addEventListener('click', ()=>{
+    list.querySelectorAll('[data-open]').forEach((el) => {
+      el.addEventListener('click', () => {
         const key = el.getAttribute('data-open');
-        if(key?.startsWith('bucket:')){
+        if (key?.startsWith('bucket:')) {
           const name = key.split(':')[1];
           openBucket(name);
         }
@@ -3416,42 +3686,67 @@ function runQA() {
     document.body.appendChild(wrap);
 
     // close handlers (backdrop & button)
-    wrap.addEventListener('click', (e)=>{ if(e.target===wrap) closeModal(wrap); });
-    wrap.querySelector('[data-close]')?.addEventListener('click', ()=> closeModal(wrap));
+    wrap.addEventListener('click', (e) => {
+      if (e.target === wrap) closeModal(wrap);
+    });
+    wrap.querySelector('[data-close]')?.addEventListener('click', () => closeModal(wrap));
   }
 
   // ---- 3) Local helpers
   const BKT_LABEL = { denials: 'Denials', rpfr: 'RPFR', fmip: 'FMIP' };
-  function readBucket(name){
-    try { return JSON.parse(localStorage.getItem('cst_bucket:'+name) || '[]'); }
-    catch { return []; }
+  function readBucket(name) {
+    try {
+      return JSON.parse(localStorage.getItem('cst_bucket:' + name) || '[]');
+    } catch {
+      return [];
+    }
   }
-  function writeBucket(name, arr){
-    localStorage.setItem('cst_bucket:'+name, JSON.stringify(arr||[]));
+  function writeBucket(name, arr) {
+    localStorage.setItem('cst_bucket:' + name, JSON.stringify(arr || []));
   }
-  function fmtDate(ts){
-    try{ return new Date(ts).toLocaleString(); } catch { return ''+ts; }
+  function fmtDate(ts) {
+    try {
+      return new Date(ts).toLocaleString();
+    } catch {
+      return '' + ts;
+    }
   }
-  function fmtBytes(n){
-    const b = Number(n)||0; if(b<1024) return b+' B';
-    const u=['KB','MB','GB']; let i=-1, s=b;
-    do { s/=1024; i++; } while (s>=1024 && i<u.length-1);
-    return s.toFixed(s<10?2:1)+' '+u[i];
+  function fmtBytes(n) {
+    const b = Number(n) || 0;
+    if (b < 1024) return b + ' B';
+    const u = ['KB', 'MB', 'GB'];
+    let i = -1,
+      s = b;
+    do {
+      s /= 1024;
+      i++;
+    } while (s >= 1024 && i < u.length - 1);
+    return s.toFixed(s < 10 ? 2 : 1) + ' ' + u[i];
   }
-  async function copyText(s){
-    try{ await navigator.clipboard.writeText(s||''); showToast?.('Copied'); }catch{ showToast?.('Copy failed','warn'); }
+  async function copyText(s) {
+    try {
+      await navigator.clipboard.writeText(s || '');
+      showToast?.('Copied');
+    } catch {
+      showToast?.('Copy failed', 'warn');
+    }
   }
-  function downloadJSON(filename, data){
-    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  function downloadJSON(filename, data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href=url; a.download=filename;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
   }
 
   // ---- 4) Renderer
-  function renderBucket(name){
+  function renderBucket(name) {
     const arr = readBucket(name);
     const modal = $('#modal-bucket');
     const list = $('#bucketList');
@@ -3463,7 +3758,7 @@ function runQA() {
     meta.textContent = `${arr.length} item(s) · key: cst_bucket:${name}`;
 
     list.innerHTML = '';
-    if (!arr.length){
+    if (!arr.length) {
       empty.style.display = 'block';
       list.style.display = 'none';
       return;
@@ -3472,19 +3767,20 @@ function runQA() {
     list.style.display = 'grid';
 
     arr
-    // newest first
-    .slice().sort((a,b)=>(b?.ts||0)-(a?.ts||0))
-    .forEach((it, idx)=>{
-      // tolerant fields
-      const title = it?.name || it?.fileName || `Item ${idx+1}`;
-      const when = fmtDate(it?.ts || Date.now());
-      const type = it?.type || it?.mime || 'text/plain';
-      const size = fmtBytes(it?.size || (it?.text? it.text.length : 0));
-      const text = (it?.text || it?.content || '').toString();
+      // newest first
+      .slice()
+      .sort((a, b) => (b?.ts || 0) - (a?.ts || 0))
+      .forEach((it, idx) => {
+        // tolerant fields
+        const title = it?.name || it?.fileName || `Item ${idx + 1}`;
+        const when = fmtDate(it?.ts || Date.now());
+        const type = it?.type || it?.mime || 'text/plain';
+        const size = fmtBytes(it?.size || (it?.text ? it.text.length : 0));
+        const text = (it?.text || it?.content || '').toString();
 
-      const card = document.createElement('article');
-      card.className = 'tile';
-      card.innerHTML = `
+        const card = document.createElement('article');
+        card.className = 'tile';
+        card.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
           <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</div>
           <div class="muted" style="font-size:12px">${when}</div>
@@ -3496,24 +3792,27 @@ function runQA() {
           <button class="btn secondary" data-act="remove">Remove</button>
         </div>
       `;
-      card.querySelector('[data-act="copy"]')?.addEventListener('click', ()=> copyText(text));
-      card.querySelector('[data-act="remove"]')?.addEventListener('click', ()=>{
-        const fresh = readBucket(name);
-        const idxToRemove = fresh.findIndex(x => (x?.id && x.id===it.id) || x===it);
-        if (idxToRemove>-1) { fresh.splice(idxToRemove,1); writeBucket(name, fresh); }
-        renderBucket(name);
+        card.querySelector('[data-act="copy"]')?.addEventListener('click', () => copyText(text));
+        card.querySelector('[data-act="remove"]')?.addEventListener('click', () => {
+          const fresh = readBucket(name);
+          const idxToRemove = fresh.findIndex((x) => (x?.id && x.id === it.id) || x === it);
+          if (idxToRemove > -1) {
+            fresh.splice(idxToRemove, 1);
+            writeBucket(name, fresh);
+          }
+          renderBucket(name);
+        });
+        list.appendChild(card);
       });
-      list.appendChild(card);
-    });
 
     // wire Export/Clear
-    $('#bucketExport')?.addEventListener('click', ()=> {
+    $('#bucketExport')?.addEventListener('click', () => {
       const data = readBucket(name);
       downloadJSON(`cst-${name}-bucket.json`, data);
     });
-    $('#bucketClear')?.addEventListener('click', ()=> {
+    $('#bucketClear')?.addEventListener('click', () => {
       // eslint-disable-next-line no-alert
-      if (!window.confirm(`Clear all items from ${BKT_LABEL[name]||name}?`)) return;
+      if (!window.confirm(`Clear all items from ${BKT_LABEL[name] || name}?`)) return;
       writeBucket(name, []);
       renderBucket(name);
       showToast?.('Bucket cleared.');
@@ -3521,101 +3820,122 @@ function runQA() {
   }
 
   // ---- 5) Open/Close helpers (reuse app modal UX)
-  function openBucket(name){
+  function openBucket(name) {
     renderBucket(name);
     const modal = $('#modal-bucket');
     if (!modal) return;
-    modal.style.display='flex';
-    document.body.style.overflow='hidden';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   }
-  function closeModal(el){
+  function closeModal(el) {
     const mb = el?.closest?.('.modal-backdrop') || el;
-    if(mb){ mb.style.display='none'; document.body.style.overflow=''; }
+    if (mb) {
+      mb.style.display = 'none';
+      document.body.style.overflow = '';
+    }
   }
 
   // ---- 6) Also hook global [data-open] if app added more later
-  $$('[data-open]').forEach(el=>{
-    el.addEventListener('click', ()=>{
+  $$('[data-open]').forEach((el) => {
+    el.addEventListener('click', () => {
       const key = el.getAttribute('data-open');
-      if(key?.startsWith?.('bucket:')) openBucket(key.split(':')[1]);
+      if (key?.startsWith?.('bucket:')) openBucket(key.split(':')[1]);
     });
   });
 
   // Optional: QA log hint
   try {
-    const sizes = ['denials','rpfr','fmip'].map(n=>`${n}:${(readBucket(n)||[]).length}`).join(' | ');
-    (window.logQA||console.debug)(`Buckets: ${sizes}`);
-  } catch { /* noop */ }
+    const sizes = ['denials', 'rpfr', 'fmip']
+      .map((n) => `${n}:${(readBucket(n) || []).length}`)
+      .join(' | ');
+    (window.logQA || console.debug)(`Buckets: ${sizes}`);
+  } catch {
+    /* noop */
+  }
 })();
 
 // ---- Contrast safety: enable .high-contrast when ratios are low ----
-function ensureContrast(){
-  try{
-    const cs = (el,prop) => getComputedStyle(el).getPropertyValue(prop).trim();
+function ensureContrast() {
+  try {
+    const cs = (el, prop) => getComputedStyle(el).getPropertyValue(prop).trim();
     const body = document.body;
-    const bg = cs(body,'background-color');
-    const ink = cs(body,'color');
+    const bg = cs(body, 'background-color');
+    const ink = cs(body, 'color');
     const ratio = contrastRatio(bg, ink);
     const tile = document.querySelector('.tile') || body;
-    const tbg = cs(tile,'background-color');
-    const tink = cs(tile,'color') || ink;
+    const tbg = cs(tile, 'background-color');
+    const tink = cs(tile, 'color') || ink;
     const tratio = contrastRatio(tbg, tink);
-    if (ratio < 4.3 || tratio < 4.3){
+    if (ratio < 4.3 || tratio < 4.3) {
       document.documentElement.classList.add('high-contrast');
     }
-  }catch{/* noop */}
+  } catch {
+    /* noop */
+  }
 }
-function contrastRatio(bg, fg){
-  function toRGB(x){
-    const m = x && x.match && x.match(/rgba?\(([^)]+)\)/i); if(!m) return [0,0,0];
-    const p = m[1].split(',').map(s=>parseFloat(s.trim()));
-    return p.length>=3? [p[0],p[1],p[2]] : [0,0,0];
+function contrastRatio(bg, fg) {
+  function toRGB(x) {
+    const m = x && x.match && x.match(/rgba?\(([^)]+)\)/i);
+    if (!m) return [0, 0, 0];
+    const p = m[1].split(',').map((s) => parseFloat(s.trim()));
+    return p.length >= 3 ? [p[0], p[1], p[2]] : [0, 0, 0];
   }
-  function rel(c){
-    const s = c/255; return s<=0.03928? s/12.92 : Math.pow((s+0.055)/1.055, 2.4);
+  function rel(c) {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   }
-  const [r1,g1,b1] = toRGB(bg), [r2,g2,b2] = toRGB(fg);
-  const L1 = 0.2126*rel(r1)+0.7152*rel(g1)+0.0722*rel(b1)+1e-4;
-  const L2 = 0.2126*rel(r2)+0.7152*rel(g2)+0.0722*rel(b2)+1e-4;
-  const a = Math.max(L1,L2), b = Math.min(L1,L2);
-  return (a+0.05)/(b+0.05);
+  const [r1, g1, b1] = toRGB(bg),
+    [r2, g2, b2] = toRGB(fg);
+  const L1 = 0.2126 * rel(r1) + 0.7152 * rel(g1) + 0.0722 * rel(b1) + 1e-4;
+  const L2 = 0.2126 * rel(r2) + 0.7152 * rel(g2) + 0.0722 * rel(b2) + 1e-4;
+  const a = Math.max(L1, L2),
+    b = Math.min(L1, L2);
+  return (a + 0.05) / (b + 0.05);
 }
 
 // Dev helper: cycle themes and print contrast ratios
 try {
-  window._themeAudit = function(){
-    const themes = ['theme-dark','theme-light','theme-glass'];
+  window._themeAudit = function () {
+    const themes = ['theme-dark', 'theme-light', 'theme-glass'];
     const root = document.documentElement;
-    themes.forEach((t, i)=>{
-      setTimeout(()=>{
-        root.classList.remove('theme-dark','theme-light','theme-glass');
+    themes.forEach((t, i) => {
+      setTimeout(() => {
+        root.classList.remove('theme-dark', 'theme-light', 'theme-glass');
         root.classList.add(t);
-        setTimeout(()=>{
+        setTimeout(() => {
           const bg = getComputedStyle(document.body).backgroundColor;
           const ink = getComputedStyle(document.body).color;
           console.log(`[${t}] body contrast`, contrastRatio(bg, ink).toFixed(2));
         }, 30);
-      }, i*80);
+      }, i * 80);
     });
   };
-} catch { /* noop */ }
+} catch {
+  /* noop */
+}
 
 /* =========================================
    BUCKET ➜ COPILOT COMPOSE WIRING
    Drop at the bottom of /app.js
    ========================================= */
 
-(function bucketToCopilot(){
+(function bucketToCopilot() {
   // (intentionally no local $/$$ helpers to satisfy lint rules)
 
   // ---- Templates per bucket
-  function buildBucketPrompt(kind, itemText){
-    const who = (JSON.parse(localStorage.getItem('cst_profile')||'null')?.first) || 'Agent';
-    const lang = (localStorage.getItem('cst_lang')||localStorage.getItem('lang')||'en').toUpperCase();
-    const bilingual = localStorage.getItem('cst_bilingual')==='1';
+  function buildBucketPrompt(kind, itemText) {
+    const who = JSON.parse(localStorage.getItem('cst_profile') || 'null')?.first || 'Agent';
+    const lang = (
+      localStorage.getItem('cst_lang') ||
+      localStorage.getItem('lang') ||
+      'en'
+    ).toUpperCase();
+    const bilingual = localStorage.getItem('cst_bilingual') === '1';
 
-    const header = `You are CST Copilot. Return:\n1) Chat Script (${lang}${bilingual?'+ES':''})\n2) Alpha Note\n3) Tag\n4) Email (if needed)\n`;
-    const context = `Expert: ${who}\nSource bucket: ${String(kind||'general').toUpperCase()}\n---\n` + (itemText||'').trim();
+    const header = `You are CST Copilot. Return:\n1) Chat Script (${lang}${bilingual ? '+ES' : ''})\n2) Alpha Note\n3) Tag\n4) Email (if needed)\n`;
+    const context =
+      `Expert: ${who}\nSource bucket: ${String(kind || 'general').toUpperCase()}\n---\n` +
+      (itemText || '').trim();
 
     if (kind === 'denials') {
       return `${header}\nDenial context below. Produce SERVE/SOLVE/SELL.\n${context}`;
@@ -3630,15 +3950,23 @@ try {
   }
 
   // ---- Open Copilot with text (adapts to existing Copilot UI in this app)
-  function openCopilotWith(kind, text){
+  function openCopilotWith(kind, text) {
     // Ensure Copilot section exists
     if (!document.getElementById('copilotSection')) {
-      try { initCopilot(); renderCopilotUI(); } catch { /* noop */ }
+      try {
+        initCopilot();
+        renderCopilotUI();
+      } catch {
+        /* noop */
+      }
     }
     // Fill the additional instructions textarea with the built prompt
-    const prompt = buildBucketPrompt(kind, text||'');
+    const prompt = buildBucketPrompt(kind, text || '');
     const box = document.getElementById('copilotInput');
-    if (box){ box.value = prompt; box.focus(); }
+    if (box) {
+      box.value = prompt;
+      box.focus();
+    }
     // Scroll into view and auto-trigger generation
     const sec = document.getElementById('copilotSection');
     if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3647,32 +3975,52 @@ try {
   }
 
   // expose globally so other modules can call later if needed
-  try { window.openCopilotWith = openCopilotWith; } catch { /* noop */ }
+  try {
+    window.openCopilotWith = openCopilotWith;
+  } catch {
+    /* noop */
+  }
 
   // ---- Patch bucket modal to add "Compose All"
   const patchComposeHeader = () => {
     const bucketModal = document.getElementById('modal-bucket');
-    if (bucketModal && !bucketModal.dataset.composePatched){
+    if (bucketModal && !bucketModal.dataset.composePatched) {
       bucketModal.dataset.composePatched = '1';
       const hdr = bucketModal.querySelector('header div');
-      if (hdr){
+      if (hdr) {
         const btn = document.createElement('button');
         btn.className = 'btn secondary';
         btn.id = 'bucketComposeAll';
         btn.textContent = 'Compose All';
         hdr.insertBefore(btn, hdr.firstChild);
 
-        btn.addEventListener('click', ()=>{
-          const title = (document.getElementById('bucketTitle')?.textContent || 'Bucket').toLowerCase();
-          const name = title.includes('denials') ? 'denials' : title.includes('rpfr') ? 'rpfr' : title.includes('fmip') ? 'fmip' : 'general';
+        btn.addEventListener('click', () => {
+          const title = (
+            document.getElementById('bucketTitle')?.textContent || 'Bucket'
+          ).toLowerCase();
+          const name = title.includes('denials')
+            ? 'denials'
+            : title.includes('rpfr')
+              ? 'rpfr'
+              : title.includes('fmip')
+                ? 'fmip'
+                : 'general';
           let data = [];
-          try { data = JSON.parse(localStorage.getItem('cst_bucket:'+name) || '[]'); } catch { /* noop */ }
-          const merged = (data||[])
+          try {
+            data = JSON.parse(localStorage.getItem('cst_bucket:' + name) || '[]');
+          } catch {
+            /* noop */
+          }
+          const merged = (data || [])
             .slice()
-            .sort((a,b)=>(b?.ts||0)-(a?.ts||0))
-            .map(it => (it?.text || it?.content || '')).filter(Boolean)
+            .sort((a, b) => (b?.ts || 0) - (a?.ts || 0))
+            .map((it) => it?.text || it?.content || '')
+            .filter(Boolean)
             .join('\n\n—\n\n');
-          if (!merged) { (window.showToast||alert)('Bucket is empty.'); return; }
+          if (!merged) {
+            (window.showToast || alert)('Bucket is empty.');
+            return;
+          }
           openCopilotWith(name, merged);
         });
       }
@@ -3682,39 +4030,45 @@ try {
 
   // ---- Add per-item "Compose" button when bucket renders (observe list)
   const list = document.getElementById('bucketList');
-  if (list){
-    const mo = new MutationObserver(()=>{
+  if (list) {
+    const mo = new MutationObserver(() => {
       patchComposeHeader();
-      list.querySelectorAll('article.tile').forEach(card=>{
+      list.querySelectorAll('article.tile').forEach((card) => {
         if (card.dataset.composeWired) return;
         card.dataset.composeWired = '1';
         const btnRow = card.querySelector('div[style*="justify-content:flex-end"]');
-        if (btnRow){
+        if (btnRow) {
           const compose = document.createElement('button');
           compose.className = 'btn secondary';
           compose.textContent = 'Compose';
-          compose.addEventListener('click', ()=>{
-            const txt = (card.querySelector('textarea')?.value || '');
+          compose.addEventListener('click', () => {
+            const txt = card.querySelector('textarea')?.value || '';
             const title = (document.getElementById('bucketTitle')?.textContent || '').toLowerCase();
-            const name = title.includes('denials') ? 'denials' : title.includes('rpfr') ? 'rpfr' : title.includes('fmip') ? 'fmip' : 'general';
+            const name = title.includes('denials')
+              ? 'denials'
+              : title.includes('rpfr')
+                ? 'rpfr'
+                : title.includes('fmip')
+                  ? 'fmip'
+                  : 'general';
             openCopilotWith(name, txt);
           });
           btnRow.insertBefore(compose, btnRow.firstChild);
         }
       });
     });
-    mo.observe(list, { childList:true, subtree:true });
+    mo.observe(list, { childList: true, subtree: true });
   }
 })();
 
 // ---- Modern Dashboard ----
 function wireDashboard() {
   // Dashboard card clicks
-  document.querySelectorAll('.dashboard-card').forEach(card => {
+  document.querySelectorAll('.dashboard-card').forEach((card) => {
     card.addEventListener('click', () => {
       const action = card.getAttribute('data-action');
       handleDashboardAction(action);
-      
+
       // Visual feedback
       card.classList.add('active');
       setTimeout(() => card.classList.remove('active'), 300);
@@ -3729,7 +4083,7 @@ function wireDashboard() {
   const copyAllBtn = document.getElementById('dashboardCopilotCopyAll');
 
   // Suggestion chips
-  document.querySelectorAll('.suggestion-chip').forEach(chip => {
+  document.querySelectorAll('.suggestion-chip').forEach((chip) => {
     chip.addEventListener('click', () => {
       if (copilotInput) {
         copilotInput.value = chip.textContent;
@@ -3784,15 +4138,18 @@ function wireDashboard() {
       const text = copilotOutput.value;
       // Add EN+ES format
       const formatted = `EN: ${text}\n\nES: [Spanish translation would be generated]`;
-      navigator.clipboard.writeText(formatted).then(() => {
-        showToast('EN+ES response copied to clipboard');
-      }).catch(() => {
-        // Fallback
-        copilotOutput.value = formatted;
-        copilotOutput.select();
-        document.execCommand('copy');
-        showToast('EN+ES response copied to clipboard');
-      });
+      navigator.clipboard
+        .writeText(formatted)
+        .then(() => {
+          showToast('EN+ES response copied to clipboard');
+        })
+        .catch(() => {
+          // Fallback
+          copilotOutput.value = formatted;
+          copilotOutput.select();
+          document.execCommand('copy');
+          showToast('EN+ES response copied to clipboard');
+        });
     });
   }
 }

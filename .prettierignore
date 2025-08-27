@@ -1,0 +1,9 @@
+# Ignore generated and build files
+dist/
+build/
+# Ignore minified libraries
+**/*.min.js
+**/*.min.css
+# Ignore tesseract assets (they are generated)
+libs/tesseract/*
+public/libs/tesseract/*

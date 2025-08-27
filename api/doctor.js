@@ -3,14 +3,14 @@ export default async function handler(req, res) {
   // Set cache control headers to prevent duplicate requests
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('X-Request-ID', req.headers['x-request-id'] || `doctor-${Date.now()}`);
-  
+
   if (req.method !== 'GET') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
-  
+
   const requestId = req.headers['x-request-id'] || 'unknown';
   console.log(`[Doctor API] Request ${requestId} started at ${new Date().toISOString()}`);
-  
+
   try {
     async function head(path) {
       try {
@@ -43,11 +43,11 @@ export default async function handler(req, res) {
       },
       notes: [
         'Serverless doctor cannot write files (expected).',
-        'Use the local "doctor" script for autofix scaffolding.'
+        'Use the local "doctor" script for autofix scaffolding.',
       ],
       requestId, // Include request ID for debugging
     };
-    
+
     console.log(`[Doctor API] Request ${requestId} completed:`, payload);
     return res.status(200).json(payload);
   } catch (e) {

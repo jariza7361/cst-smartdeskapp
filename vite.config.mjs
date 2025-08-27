@@ -5,8 +5,8 @@ export default defineConfig({
   root: '.',
   publicDir: 'public',
   server: {
-  host: 'localhost', // use localhost for Safari stability
-  port: 53123,
+    host: 'localhost', // use localhost for Safari stability
+    port: 53123,
     strictPort: true,
     // Force HMR to reuse the page port (avoid default 24678) for Safari/firewall friendliness
     hmr: {
@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   preview: {
-  host: 'localhost', // use localhost for Safari stability
+    host: 'localhost', // use localhost for Safari stability
     port: 53124,
     strictPort: true,
   },

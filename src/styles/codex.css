@@ -1,6 +1,8 @@
 /* Codex mode overrides: full-page white splash, green progress bar, minimal chrome */
 
-html.codex, body.codex, .codex body {
+html.codex,
+body.codex,
+.codex body {
   background: #ffffff !important;
   color: #0b0c0e !important;
 }
@@ -22,7 +24,7 @@ html.codex, body.codex, .codex body {
   border-radius: 14px;
   padding: 24px;
   background: #ffffff;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
 }
 .codex #splash .banner-body {
   border: none;

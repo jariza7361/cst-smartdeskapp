@@ -6,7 +6,8 @@
 
 import { execSync } from 'child_process';
 
-const commitMessage = process.argv[2] || `feat: UI improvements - ${new Date().toISOString().split('T')[0]}`;
+const commitMessage =
+  process.argv[2] || `feat: UI improvements - ${new Date().toISOString().split('T')[0]}`;
 
 console.log('🚀 Quick Ship Pipeline Starting...\n');
 
@@ -32,16 +33,16 @@ function runCommand(command, description, required = true) {
 try {
   // Step 1: Pre-commit checks
   console.log('🔍 Running pre-commit checks...');
-  
+
   // Lint check
   runCommand('npm run lint', '📋 Linting code', false);
-  
+
   // Type checking
   runCommand('npm run type-check', '🔎 Type checking', true);
-  
+
   // Format check
   runCommand('npm run format:check', '💅 Format checking', false);
-  
+
   // Security audit
   runCommand('npm audit --audit-level moderate', '🔒 Security audit', false);
 
@@ -50,63 +51,63 @@ try {
 
   // Step 3: Comprehensive Testing
   console.log('🧪 Running comprehensive test suite...');
-  
+
   // Unit tests
   runCommand('npm run test:unit', '🔬 Unit tests', true);
-  
+
   // Integration tests
   runCommand('npm run test:integration', '🔗 Integration tests', false);
-  
+
   // E2E tests (if available)
   runCommand('npm run test:e2e', '🌐 End-to-end tests', false);
-  
+
   // Coverage check
   runCommand('npm run test:coverage', '📊 Coverage analysis', false);
 
   // Step 4: Quality Gates
   console.log('🚪 Checking quality gates...');
-  
+
   // Bundle size check
   runCommand('npm run analyze:bundle', '📏 Bundle size analysis', false);
-  
+
   // Performance check
   runCommand('npm run test:performance', '⚡ Performance tests', false);
-  
+
   // Accessibility check
   runCommand('npm run test:a11y', '♿ Accessibility tests', false);
 
   // Step 5: Final validation
   console.log('✨ Final validation...');
-  
+
   // Check for uncommitted changes
   try {
     execSync('git diff --exit-code', { stdio: 'pipe' });
     execSync('git diff --cached --exit-code', { stdio: 'pipe' });
-  } catch (error) {
+  } catch {
     console.log('📝 Changes detected, proceeding with commit...\n');
   }
 
   // Step 6: Commit & Push
   console.log('📤 Committing changes...');
   execSync('git add -A', { stdio: 'inherit' });
-  
+
   // Pre-commit hook simulation
   runCommand('npm run pre-commit', '🪝 Pre-commit hooks', false);
-  
+
   execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' });
-  
+
   // Run pre-push checks
   runCommand('npm run pre-push', '🚀 Pre-push validation', false);
-  
+
   execSync('git push', { stdio: 'inherit' });
   console.log('✅ Changes pushed successfully\n');
 
   // Step 7: Post-deployment validation
   console.log('🔄 Post-deployment checks...');
-  
+
   // Health check
   runCommand('npm run health-check', '❤️ Health check', false);
-  
+
   // Smoke tests
   runCommand('npm run test:smoke', '💨 Smoke tests', false);
 
@@ -121,10 +122,9 @@ try {
   console.log('   ✅ Tests completed');
   console.log('   ✅ Deployment successful');
   console.log('   ✅ Quality gates validated\n');
-  
+
   // Start preview server (non-blocking)
   execSync('npm run preview', { stdio: 'inherit' });
-
 } catch (error) {
   console.error('❌ Pipeline failed:', error.message);
   console.log('\n🔧 Troubleshooting tips:');

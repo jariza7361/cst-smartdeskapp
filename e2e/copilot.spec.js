@@ -5,7 +5,7 @@ const url = '/';
 test('copilot generates and copies', async ({ page, context }) => {
   // grant clipboard permissions for this origin
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-  origin: 'http://localhost:53124',
+    origin: 'http://localhost:53124',
   });
   // Register API route before navigation to catch any early calls
   await page.route('**/api/copilot', (route) => {
@@ -22,7 +22,9 @@ test('copilot generates and copies', async ({ page, context }) => {
       localStorage.setItem('cst_bilingual', '1');
       localStorage.setItem('welcomeSeen', '1');
       localStorage.setItem('onboarded', '1');
-  } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   });
   await page.goto(url);
   // Wait for copilot UI to render

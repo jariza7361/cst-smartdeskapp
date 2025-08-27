@@ -5,7 +5,6 @@
  */
 
 import { execSync, spawn } from 'child_process';
-import { readFileSync, writeFileSync } from 'fs';
 import { createServer } from 'http';
 
 const CONFIG = {
@@ -23,20 +22,21 @@ class AutoDevPipeline {
       preview: null,
       deployment: null,
       validation: null,
-      recommendations: []
+      recommendations: [],
     };
   }
 
   log(step, message, status = 'info') {
     const timestamp = new Date().toISOString();
-    const prefix = {
-      'info': '📋',
-      'success': '✅', 
-      'error': '❌',
-      'warning': '⚠️',
-      'working': '🔄'
-    }[status] || '📋';
-    
+    const prefix =
+      {
+        info: '📋',
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        working: '🔄',
+      }[status] || '📋';
+
     console.log(`[${timestamp}] ${prefix} ${step}: ${message}`);
   }
 
@@ -46,25 +46,24 @@ class AutoDevPipeline {
     try {
       // Step 1: Commit and Push
       await this.commitAndPush(commitMessage);
-      
+
       // Step 2: Build
       await this.build();
-      
+
       // Step 3: Run Tests
       await this.runTests();
-      
+
       // Step 4: Start Preview
       await this.startPreview();
-      
+
       // Step 5: Validate Functionality
       await this.validateFunctionality();
-      
+
       // Step 6: Check Deployment
       await this.checkDeployment();
-      
+
       // Step 7: Generate Report
       this.generateReport();
-
     } catch (error) {
       this.log('Pipeline', `Failed: ${error.message}`, 'error');
       process.exit(1);
@@ -121,8 +120,8 @@ class AutoDevPipeline {
   async startPreview() {
     this.log('Preview', 'Starting preview server...', 'working');
     return new Promise((resolve) => {
-      const preview = spawn('npm', ['run', 'preview'], { 
-        stdio: ['ignore', 'pipe', 'pipe'] 
+      const preview = spawn('npm', ['run', 'preview'], {
+        stdio: ['ignore', 'pipe', 'pipe'],
       });
 
       let output = '';
@@ -147,12 +146,12 @@ class AutoDevPipeline {
 
   async validateFunctionality() {
     this.log('Validation', 'Validating core functionality...', 'working');
-    
+
     const tests = [
       { name: 'Homepage Load', test: () => this.testPageLoad('/') },
       { name: 'Doctor API', test: () => this.testApi('/api/doctor') },
       { name: 'Search Functionality', test: () => this.testSearch() },
-      { name: 'Theme System', test: () => this.testThemes() }
+      { name: 'Theme System', test: () => this.testThemes() },
     ];
 
     const results = [];
@@ -171,38 +170,39 @@ class AutoDevPipeline {
   }
 
   async testPageLoad(path = '/') {
-    const url = `http://localhost:${CONFIG.port}${path}`;
-    
     return new Promise((resolve, reject) => {
       const options = {
         hostname: 'localhost',
         port: CONFIG.port,
         path,
-        method: 'GET'
+        method: 'GET',
       };
 
-      const req = createServer.request ? 
-        createServer.request(options, (res) => {
-          if (res.statusCode !== 200) {
-            reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
-            return;
-          }
-          
-          let html = '';
-          res.on('data', chunk => html += chunk);
-          res.on('end', () => {
-            if (!html.includes('CST SmartDesk')) {
-              reject(new Error('Page content validation failed'));
+      const req = createServer.request
+        ? createServer.request(options, (res) => {
+            if (res.statusCode !== 200) {
+              reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
               return;
             }
-            resolve({ status: res.statusCode, size: html.length, result: html });
-          });
-        }) : null;
+
+            let html = '';
+            res.on('data', (chunk) => (html += chunk));
+            res.on('end', () => {
+              if (!html.includes('CST SmartDesk')) {
+                reject(new Error('Page content validation failed'));
+                return;
+              }
+              resolve({ status: res.statusCode, size: html.length, result: html });
+            });
+          })
+        : null;
 
       if (!req) {
         // Fallback using curl
         try {
-          const html = execSync(`curl -s http://localhost:${CONFIG.port}${path}`, { encoding: 'utf8' });
+          const html = execSync(`curl -s http://localhost:${CONFIG.port}${path}`, {
+            encoding: 'utf8',
+          });
           if (!html.includes('CST SmartDesk')) {
             reject(new Error('Page content validation failed'));
             return;
@@ -221,16 +221,11 @@ class AutoDevPipeline {
 
   async testApi(endpoint) {
     return new Promise((resolve, reject) => {
-      const options = {
-        hostname: 'localhost',
-        port: CONFIG.port,
-        path: endpoint,
-        method: 'GET'
-      };
-
       // Fallback using curl for API testing
       try {
-        const output = execSync(`curl -s http://localhost:${CONFIG.port}${endpoint}`, { encoding: 'utf8' });
+        const output = execSync(`curl -s http://localhost:${CONFIG.port}${endpoint}`, {
+          encoding: 'utf8',
+        });
         const data = JSON.parse(output);
         resolve(data);
       } catch (error) {
@@ -260,9 +255,11 @@ class AutoDevPipeline {
   async checkDeployment() {
     this.log('Deployment', 'Checking live deployment...', 'working');
     try {
-      const output = execSync(`curl -s -o /dev/null -w "%{http_code}" ${CONFIG.deployUrl}`, { encoding: 'utf8' });
+      const output = execSync(`curl -s -o /dev/null -w "%{http_code}" ${CONFIG.deployUrl}`, {
+        encoding: 'utf8',
+      });
       const statusCode = parseInt(output.trim());
-      
+
       if (statusCode === 200) {
         this.results.deployment = { success: true, url: CONFIG.deployUrl };
         this.log('Deployment', 'Live site is accessible', 'success');
@@ -277,20 +274,24 @@ class AutoDevPipeline {
 
   generateReport() {
     this.log('Report', 'Generating development report...', 'working');
-    
+
     console.log('\n' + '='.repeat(60));
     console.log('🚀 AUTO-DEVELOPMENT PIPELINE REPORT');
     console.log('='.repeat(60));
 
     // Build Status
     console.log(`\n📦 BUILD: ${this.results.build?.success ? '✅ PASSED' : '❌ FAILED'}`);
-    
+
     // Tests Status
     const unitStatus = this.results.tests.unit?.success ? '✅' : '❌';
     const e2eStatus = this.results.tests.e2e?.success ? '✅' : '❌';
     console.log(`\n🧪 TESTS:`);
-    console.log(`   Unit Tests: ${unitStatus} ${this.results.tests.unit?.success ? 'PASSED' : 'FAILED'}`);
-    console.log(`   E2E Tests: ${e2eStatus} ${this.results.tests.e2e?.success ? 'PASSED' : 'FAILED'}`);
+    console.log(
+      `   Unit Tests: ${unitStatus} ${this.results.tests.unit?.success ? 'PASSED' : 'FAILED'}`,
+    );
+    console.log(
+      `   E2E Tests: ${e2eStatus} ${this.results.tests.e2e?.success ? 'PASSED' : 'FAILED'}`,
+    );
 
     // Preview Status
     console.log(`\n👀 PREVIEW: ${this.results.preview?.success ? '✅ RUNNING' : '❌ FAILED'}`);
@@ -306,7 +307,9 @@ class AutoDevPipeline {
     });
 
     // Deployment Status
-    console.log(`\n🌍 DEPLOYMENT: ${this.results.deployment?.success ? '✅ LIVE' : '⚠️ CHECK NEEDED'}`);
+    console.log(
+      `\n🌍 DEPLOYMENT: ${this.results.deployment?.success ? '✅ LIVE' : '⚠️ CHECK NEEDED'}`,
+    );
     if (this.results.deployment?.success) {
       console.log(`   URL: ${CONFIG.deployUrl}`);
     }
@@ -342,7 +345,7 @@ class AutoDevPipeline {
     }
 
     // Validation recommendations
-    const failedValidations = this.results.validation?.filter(v => !v.success) || [];
+    const failedValidations = this.results.validation?.filter((v) => !v.success) || [];
     if (failedValidations.length > 0) {
       recs.push(`${failedValidations.length} functionality test(s) failed - review implementation`);
     }

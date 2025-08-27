@@ -2,8 +2,23 @@
   "id": "observe-rubric-chat-1",
   "title": "Observe AI - Chat Quality Rubric (Lite)",
   "criteria": [
-    { "id": "empathy", "label": "Empathy & Acknowledgement", "good": "Agent acknowledges and empathizes in first response.", "bad": "Agent ignores sentiment or blames the customer." },
-    { "id": "accuracy", "label": "Accuracy & Policy", "good": "Agent provides correct info, follows guardrails.", "bad": "Misstates policy or suggests unsupported actions." },
-    { "id": "structure", "label": "Structure", "good": "Serve → Solve → Close present in the flow.", "bad": "Disorganized or missing close/next steps." }
+    {
+      "id": "empathy",
+      "label": "Empathy & Acknowledgement",
+      "good": "Agent acknowledges and empathizes in first response.",
+      "bad": "Agent ignores sentiment or blames the customer."
+    },
+    {
+      "id": "accuracy",
+      "label": "Accuracy & Policy",
+      "good": "Agent provides correct info, follows guardrails.",
+      "bad": "Misstates policy or suggests unsupported actions."
+    },
+    {
+      "id": "structure",
+      "label": "Structure",
+      "good": "Serve → Solve → Close present in the flow.",
+      "bad": "Disorganized or missing close/next steps."
+    }
   ]
 }

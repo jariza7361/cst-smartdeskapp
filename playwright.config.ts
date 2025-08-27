@@ -15,6 +15,6 @@ export default defineConfig({
     colorScheme: 'dark',
     locale: 'en-US',
     timezoneId: 'America/New_York',
-  baseURL: 'http://localhost:53124',
+    baseURL: 'http://localhost:53124',
   },
 });
