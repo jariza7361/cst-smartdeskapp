@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title data-i18n="AppTitle">CST SmartDesk — Escalation Toolkit</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <script type="module" crossorigin src="/assets/index-Bbxq6oQr.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Ct_7WhqN.css">
+    <script type="module" crossorigin src="/assets/index-BLK3sraq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C8EmNx0s.css">
   </head>
   <body>
     <header class="topbar">
@@ -95,90 +95,186 @@
       <!-- Modern Dashboard Grid -->
       <section class="dashboard">
         <div class="dashboard-header">
-          <h1>My Toolkit</h1>
-          <div class="dashboard-actions">
-            <div class="copilot-preview">
-              <span>Ask me anything...</span>
-              <button class="btn-primary" id="generateBtn">Generate</button>
+          <h1>CST SmartDesk v1.0</h1>
+          <div class="expert-info">
+            <div class="info-item">
+              <span class="label">Expert:</span>
+              <span id="expertName">Not Set</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Emp ID:</span>
+              <span id="expertEmpId">Not Set</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Extension:</span>
+              <span id="expertExtension">Not Set</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Coach:</span>
+              <span id="expertCoach">Not Set</span>
+            </div>
+          </div>
+          
+          <div class="schedule-tracker">
+            <div class="clock">
+              <span id="currentTime">Loading...</span>
+            </div>
+            <div class="schedule-status">
+              <span id="scheduleStatus">Setting up schedule...</span>
+              <button id="scheduleSettings" class="schedule-btn">⚙️</button>
+            </div>
+            <div class="break-timer" id="breakTimer" style="display: none;">
+              <span id="breakTimeLeft"></span>
+              <button id="endBreak" class="break-btn">End Break</button>
             </div>
           </div>
         </div>
         
         <div class="dashboard-grid">
+          <!-- SmartPanel Cards -->
+          <!-- FMIP Workflow Card -->
+          <div class="smart-card card-orange" data-card="fmip">
+            <div class="card-icon">�</div>
+            <div class="card-content">
+              <h3>FMIP Workflow</h3>
+              <p>Find My iPhone/iPad assistance</p>
+            </div>
+          </div>
+          
+          <!-- HERO Denial Scripts Card -->
+          <div class="smart-card card-pink" data-card="hero-denial">
+            <div class="card-icon">�️</div>
+            <div class="card-content">
+              <h3>HERO Denial Scripts</h3>
+              <p>Carrier-specific denial templates</p>
+            </div>
+          </div>
+          
+          <!-- BYOD Logic Card -->
+          <div class="smart-card card-red" data-card="byod">
+            <div class="card-icon">📱</div>
+            <div class="card-content">
+              <h3>BYOD Logic</h3>
+              <p>Device compatibility checker</p>
+            </div>
+          </div>
+          
+          <!-- Spanish Templates Card -->
+          <div class="smart-card card-blue" data-card="spanish-templates">
+            <div class="card-icon">🌐</div>
+            <div class="card-content">
+              <h3>Spanish Templates</h3>
+              <p>Bilingual customer support</p>
+            </div>
+          </div>
+          
+          <!-- Auto-Fill Forms Card -->
+          <div class="smart-card card-cyan" data-card="auto-fill">
+            <div class="card-icon">�</div>
+            <div class="card-content">
+              <h3>Auto-Fill Forms</h3>
+              <p>Generate customer notes</p>
+            </div>
+          </div>
+          
+          <!-- Assistant Escalations Card -->
+          <div class="smart-card card-teal" data-card="escalations">
+            <div class="card-icon">🚀</div>
+            <div class="card-content">
+              <h3>Assistant Escalations</h3>
+              <p>Track supervisor requests</p>
+            </div>
+          </div>
+          
+          <!-- Alpha Notes Card -->
+          <div class="smart-card card-purple" data-card="alpha-notes">
+            <div class="card-icon">📄</div>
+            <div class="card-content">
+              <h3>Alpha Notes</h3>
+              <p>Professional case documentation</p>
+            </div>
+          </div>
+          
+          <!-- RPFR vs PFR Card -->
+          <div class="smart-card card-green" data-card="rpfr">
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+              <h3>RPFR vs PFR</h3>
+              <p>Review process guidance</p>
+            </div>
+          </div>
+          
           <!-- Build Summary Card -->
-          <div class="dashboard-card card-orange" data-action="build-summary">
-            <div class="card-icon">📊</div>
+          <div class="smart-card card-navy" data-card="build-summary">
+            <div class="card-icon">🔧</div>
             <div class="card-content">
               <h3>Build Summary</h3>
-              <p>System status & metrics</p>
+              <p>Technical troubleshooting</p>
             </div>
           </div>
           
           <!-- Carrier Escalation Card -->
-          <div class="dashboard-card card-pink" data-action="carrier-escalation">
+          <div class="smart-card card-crimson" data-card="carrier-escalation">
             <div class="card-icon">📞</div>
             <div class="card-content">
               <h3>Carrier Escalation</h3>
-              <p>Escalation workflows</p>
-            </div>
-          </div>
-          
-          <!-- Denials Guide Card -->
-          <div class="dashboard-card card-red" data-action="denials-guide">
-            <div class="card-icon">⚠️</div>
-            <div class="card-content">
-              <h3>Denials Guide</h3>
-              <p>Denial handling tools</p>
-            </div>
-          </div>
-          
-          <!-- Copilot Card -->
-          <div class="dashboard-card card-blue" data-action="copilot">
-            <div class="card-icon">🤖</div>
-            <div class="card-content">
-              <h3>Copilot</h3>
-              <p>AI assistance portal</p>
+              <p>Network issue protocols</p>
             </div>
           </div>
           
           <!-- Knowledge Base Card -->
-          <div class="dashboard-card card-cyan" data-action="knowledge-base">
+          <div class="smart-card card-indigo" data-card="knowledge-base">
             <div class="card-icon">📚</div>
             <div class="card-content">
               <h3>Knowledge Base</h3>
-              <p>Documentation hub</p>
-            </div>
-          </div>
-          
-          <!-- RPFR Grid Card -->
-          <div class="dashboard-card card-teal" data-action="rpfr-grid">
-            <div class="card-icon">🧾</div>
-            <div class="card-content">
-              <h3>RPFR Grid</h3>
-              <p>RPFR management</p>
+              <p>Quick reference guide</p>
             </div>
           </div>
           
           <!-- Script Tracker Card -->
-          <div class="dashboard-card card-purple" data-action="script-tracker">
-            <div class="card-icon">📝</div>
+          <div class="smart-card card-emerald" data-card="script-tracker">
+            <div class="card-icon">�</div>
             <div class="card-content">
               <h3>Script Tracker</h3>
-              <p>Script management</p>
+              <p>Conversation templates</p>
             </div>
           </div>
           
           <!-- Terms & Conditions Card -->
-          <div class="dashboard-card card-green" data-action="terms-conditions">
-            <div class="card-icon">📋</div>
+          <div class="smart-card card-amber" data-card="terms-conditions">
+            <div class="card-icon">�</div>
             <div class="card-content">
               <h3>Terms & Conditions</h3>
-              <p>Policy documents</p>
+              <p>Policy reference</p>
             </div>
           </div>
           
           <!-- Quick Start Card -->
-          <div class="dashboard-card card-magenta" data-action="quick-start">
+          <div class="smart-card card-rose" data-card="quick-start">
+            <div class="card-icon">🚀</div>
+            <div class="card-content">
+              <h3>Quick Start</h3>
+              <p>New expert onboarding</p>
+            </div>
+          </div>
+          
+          <!-- Language Toggle Card -->
+          <div class="smart-card card-violet" data-card="language-toggle">
+            <div class="card-icon">🌍</div>
+            <div class="card-content">
+              <h3>Language Toggle</h3>
+              <p>Switch EN/ES interface</p>
+            </div>
+          </div>
+          
+          <!-- Settings Card -->
+          <div class="smart-card card-slate" data-card="settings">
+            <div class="card-icon">⚙️</div>
+            <div class="card-content">
+              <h3>Settings</h3>
+              <p>App configuration</p>
+            </div>
+          </div>
             <div class="card-icon">⚡</div>
             <div class="card-content">
               <h3>Quick Start</h3>
@@ -365,6 +461,53 @@
     </div>
     <button id="showWelcome">Show Welcome</button>
     <div id="systemStatus"></div>
+    
+    <!-- Setup Wizard Modal -->
+    <div id="setupWizard" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🚀 Welcome to CST SmartDesk v1.0</h2>
+        </div>
+        <div class="modal-body">
+          <form id="setupForm">
+            <h3>Expert Information</h3>
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="empId">Employee ID:</label>
+            <input type="text" id="empId" name="empId" required>
+            
+            <label for="extension">Extension:</label>
+            <input type="text" id="extension" name="extension">
+            
+            <label for="coach">Coach/Supervisor:</label>
+            <input type="text" id="coach" name="coach">
+            
+            <label for="type">Expert Type:</label>
+            <select id="type" name="type" required>
+              <option value="english">English Support</option>
+              <option value="bilingual">Bilingual Support</option>
+              <option value="spanish">Spanish Support</option>
+            </select>
+            
+            <h3>Work Schedule</h3>
+            <label for="setupShiftStart">Shift Start Time:</label>
+            <input type="time" id="setupShiftStart" name="shiftStart" value="09:00" required>
+            
+            <label for="setupShiftEnd">Shift End Time:</label>
+            <input type="time" id="setupShiftEnd" name="shiftEnd" value="17:00" required>
+            
+            <label for="setupBreakDuration">Break Duration (minutes):</label>
+            <input type="number" id="setupBreakDuration" name="breakDuration" value="15" min="5" max="60" required>
+            
+            <div class="setup-actions">
+              <button type="submit" class="btn-primary">Complete Setup</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
     <!-- Mounting point for main app above -->
   </body>
 </html>

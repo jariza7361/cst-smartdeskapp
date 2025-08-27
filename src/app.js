@@ -1,21 +1,1211 @@
+// CST SmartDesk v1.0 - Main Application Logic
 import { createI18n } from './utils/i18n.js';
 import { buildPrompt } from './utils/copilot.js';
-import { parseText } from './utils/parser.js'; // keep if you use it elsewhere
-// T11: theme + splash + clickability enhancements
+
+// Global state
+let currentLanguage = 'en';
+let expertInfo = {
+  name: '',
+  empId: '',
+  extension: '',
+  coach: '',
+  type: 'english'
+};
+
+let scheduleInfo = {
+  shiftStart: '',
+  shiftEnd: '',
+  breakDuration: 15, // minutes
+  lunchDuration: 30, // minutes
+  currentStatus: 'available', // 'available', 'break', 'lunch', 'unavailable'
+  nextBreak: null,
+  nextLunch: null,
+  onBreak: false,
+  breakStartTime: null
+};
 
 const state = {
   settings: null,
   i18n: null,
-  cspViolations: [],
-  lastFetchRun: null,
-  copilotSamples: [],
   copilotReachable: null,
-  splashShown: false,
   lang: 'en',
-  redirectTo: null,
-  engine: localStorage.getItem('cst_engine') || 'templates', // 'templates' | 'local-llm'
   jsErrors: [],
 };
+
+// Initialize application
+async function init() {
+  try {
+    console.log('Initializing CST SmartDesk v1.0...');
+    
+    // Initialize i18n
+    state.i18n = createI18n();
+    await state.i18n.init(currentLanguage);
+    
+    // Load expert info
+    loadExpertInfo();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Start clock
+    updateClock();
+    setInterval(updateClock, 1000);
+    
+    console.log('CST SmartDesk v1.0 initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+  }
+}
+
+// Load expert information from localStorage
+function loadExpertInfo() {
+  const stored = localStorage.getItem('cst_expert_info');
+  if (stored) {
+    expertInfo = JSON.parse(stored);
+    updateExpertDisplay();
+  } else {
+    showSetupWizard();
+  }
+  
+  // Load schedule info
+  const storedSchedule = localStorage.getItem('cst_schedule_info');
+  if (storedSchedule) {
+    scheduleInfo = { ...scheduleInfo, ...JSON.parse(storedSchedule) };
+    updateScheduleDisplay();
+  }
+}
+
+// Save expert information to localStorage
+function saveExpertInfo() {
+  localStorage.setItem('cst_expert_info', JSON.stringify(expertInfo));
+  updateExpertDisplay();
+}
+
+// Update expert info display
+function updateExpertDisplay() {
+  const nameEl = document.getElementById('expertName');
+  const empIdEl = document.getElementById('expertEmpId');
+  const extEl = document.getElementById('expertExtension');
+  const coachEl = document.getElementById('expertCoach');
+  
+  if (nameEl) nameEl.textContent = expertInfo.name || 'Not Set';
+  if (empIdEl) empIdEl.textContent = expertInfo.empId || 'Not Set';
+  if (extEl) extEl.textContent = expertInfo.extension || 'Not Set';
+  if (coachEl) coachEl.textContent = expertInfo.coach || 'Not Set';
+}
+
+// Update clock display
+function updateClock() {
+  const now = new Date();
+  const timeString = now.toLocaleTimeString();
+  const dateString = now.toLocaleDateString();
+  
+  const clockEl = document.getElementById('currentTime');
+  if (clockEl) {
+    clockEl.textContent = `${timeString} - ${dateString}`;
+  }
+  
+  // Update schedule status
+  updateScheduleStatus(now);
+}
+
+// Update schedule status and check for alerts
+function updateScheduleStatus(now) {
+  if (!scheduleInfo.shiftStart || !scheduleInfo.shiftEnd) {
+    const statusEl = document.getElementById('scheduleStatus');
+    if (statusEl) {
+      statusEl.textContent = 'Schedule not set';
+    }
+    return;
+  }
+  
+  const statusEl = document.getElementById('scheduleStatus');
+  
+  if (scheduleInfo.onBreak) {
+    const breakStartTime = new Date(scheduleInfo.breakStartTime);
+    const breakEndTime = new Date(breakStartTime.getTime() + (scheduleInfo.breakDuration * 60000));
+    const timeLeft = Math.ceil((breakEndTime - now) / 60000);
+    
+    if (timeLeft <= 0) {
+      // Break time over
+      endBreak();
+      playAlert('Break time is over! Please return to available status.');
+    } else {
+      const breakTimerEl = document.getElementById('breakTimeLeft');
+      if (breakTimerEl) {
+        breakTimerEl.textContent = `Break ends in ${timeLeft} minutes`;
+      }
+      if (statusEl) {
+        statusEl.textContent = `On Break (${timeLeft}m left)`;
+      }
+    }
+  } else {
+    if (statusEl) {
+      statusEl.textContent = `Available - ${scheduleInfo.currentStatus}`;
+    }
+    
+    // Check if it's time for break alerts
+    checkBreakAlerts(now);
+  }
+}
+
+// Check for break and lunch alerts
+function checkBreakAlerts(now) {
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  
+  // Check for lunch break (typically around 12:00-14:00)
+  if (currentMinutes >= 720 && currentMinutes <= 840) { // 12:00 PM - 2:00 PM
+    const lastLunchAlert = localStorage.getItem('cst_last_lunch_alert');
+    const today = now.toDateString();
+    
+    if (lastLunchAlert !== today) {
+      localStorage.setItem('cst_last_lunch_alert', today);
+      showBreakAlert('lunch', 'Time for lunch break!');
+    }
+  }
+  
+  // Check for afternoon break (typically around 15:00)
+  if (currentMinutes >= 900 && currentMinutes <= 960) { // 3:00 PM - 4:00 PM
+    const lastBreakAlert = localStorage.getItem('cst_last_break_alert');
+    const today = now.toDateString();
+    
+    if (lastBreakAlert !== today) {
+      localStorage.setItem('cst_last_break_alert', today);
+      showBreakAlert('break', 'Time for your afternoon break!');
+    }
+  }
+}
+
+// Show break alert notification
+function showBreakAlert(type, message) {
+  playAlert(message);
+  
+  const alert = document.createElement('div');
+  alert.className = 'break-alert';
+  alert.innerHTML = `
+    <div class="alert-content">
+      <h3>${type === 'lunch' ? '🍽️' : '☕'} ${message}</h3>
+      <div class="alert-actions">
+        <button onclick="startBreak('${type}')" class="btn-primary">Start ${type}</button>
+        <button onclick="dismissBreakAlert(this)" class="btn-secondary">Later</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(alert);
+  alert.style.display = 'block';
+  
+  // Auto-dismiss after 30 seconds
+  setTimeout(() => {
+    if (alert.parentNode) {
+      alert.parentNode.removeChild(alert);
+    }
+  }, 30000);
+}
+
+// Play audio alert
+function playAlert(message) {
+  // Create audio notification
+  const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcCDuM0fPTgjMGH3PE8OObTgwOWK/n77JiGg');
+  audio.volume = 0.3;
+  audio.play().catch(() => {
+    // Fallback to system notification if audio fails
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('CST SmartDesk', { body: message });
+    }
+  });
+  
+  // Visual notification
+  showNotification(message);
+}
+
+// Start break or lunch
+function startBreak(type) {
+  scheduleInfo.onBreak = true;
+  scheduleInfo.breakStartTime = new Date().toISOString();
+  scheduleInfo.currentStatus = type;
+  
+  const breakTimerEl = document.getElementById('breakTimer');
+  if (breakTimerEl) {
+    breakTimerEl.style.display = 'block';
+  }
+  
+  saveScheduleInfo();
+  dismissBreakAlert();
+}
+
+// End break
+function endBreak() {
+  scheduleInfo.onBreak = false;
+  scheduleInfo.breakStartTime = null;
+  scheduleInfo.currentStatus = 'available';
+  
+  const breakTimerEl = document.getElementById('breakTimer');
+  if (breakTimerEl) {
+    breakTimerEl.style.display = 'none';
+  }
+  
+  saveScheduleInfo();
+  showNotification('Break ended - Status: Available');
+}
+
+// Dismiss break alert
+function dismissBreakAlert(element) {
+  const alert = element ? element.closest('.break-alert') : document.querySelector('.break-alert');
+  if (alert && alert.parentNode) {
+    alert.parentNode.removeChild(alert);
+  }
+}
+
+// Save schedule information
+function saveScheduleInfo() {
+  localStorage.setItem('cst_schedule_info', JSON.stringify(scheduleInfo));
+  updateScheduleDisplay();
+}
+
+// Update schedule display
+function updateScheduleDisplay() {
+  const statusEl = document.getElementById('scheduleStatus');
+  if (statusEl) {
+    if (scheduleInfo.onBreak) {
+      statusEl.textContent = `On ${scheduleInfo.currentStatus}`;
+    } else {
+      statusEl.textContent = scheduleInfo.shiftStart ? 
+        `Available (${scheduleInfo.shiftStart} - ${scheduleInfo.shiftEnd})` : 
+        'Schedule not set';
+    }
+  }
+}
+
+// Show setup wizard modal
+function showSetupWizard() {
+  const modal = document.getElementById('setupWizard');
+  if (modal) {
+    modal.style.display = 'block';
+  }
+}
+
+// Setup all event listeners
+function setupEventListeners() {
+  // Setup wizard form
+  const setupForm = document.getElementById('setupForm');
+  if (setupForm) {
+    setupForm.addEventListener('submit', handleSetupSubmit);
+  }
+  
+  // Close buttons for modals
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('close-modal')) {
+      closeModal(e.target.closest('.modal'));
+    }
+  });
+  
+  // Card click handlers
+  setupCardHandlers();
+  
+  // Language toggle
+  const langToggle = document.getElementById('languageToggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', toggleLanguage);
+  }
+  
+  // Schedule settings button
+  const scheduleSettings = document.getElementById('scheduleSettings');
+  if (scheduleSettings) {
+    scheduleSettings.addEventListener('click', showScheduleSettings);
+  }
+  
+  // End break button
+  const endBreakBtn = document.getElementById('endBreak');
+  if (endBreakBtn) {
+    endBreakBtn.addEventListener('click', endBreak);
+  }
+  
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+// Handle setup form submission
+function handleSetupSubmit(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  expertInfo.name = formData.get('name');
+  expertInfo.empId = formData.get('empId');
+  expertInfo.extension = formData.get('extension');
+  expertInfo.coach = formData.get('coach');
+  expertInfo.type = formData.get('type');
+  
+  // Also save schedule information from setup
+  if (formData.get('shiftStart')) {
+    scheduleInfo.shiftStart = formData.get('shiftStart');
+    scheduleInfo.shiftEnd = formData.get('shiftEnd');
+    scheduleInfo.breakDuration = parseInt(formData.get('breakDuration')) || 15;
+    scheduleInfo.enableBreakAlerts = true;
+    scheduleInfo.enableAudioAlerts = true;
+    saveScheduleInfo();
+  }
+  
+  saveExpertInfo();
+  closeModal(document.getElementById('setupWizard'));
+  showNotification('Welcome to CST SmartDesk v1.0! Setup complete.');
+}
+
+// Setup card click handlers
+function setupCardHandlers() {
+  const cards = document.querySelectorAll('.smart-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const cardType = card.dataset.card;
+      handleCardClick(cardType);
+    });
+  });
+}
+
+// Handle card clicks
+function handleCardClick(cardType) {
+  console.log(`Opening ${cardType} modal`);
+  
+  switch (cardType) {
+    case 'fmip':
+      showFMIPModal();
+      break;
+    case 'hero-denial':
+      showHeroDenialModal();
+      break;
+    case 'byod':
+      showBYODModal();
+      break;
+    case 'spanish-templates':
+      showSpanishTemplatesModal();
+      break;
+    case 'auto-fill':
+      showAutoFillModal();
+      break;
+    case 'escalations':
+      showEscalationsModal();
+      break;
+    case 'alpha-notes':
+      showAlphaNotesModal();
+      break;
+    case 'rpfr':
+      showRPFRModal();
+      break;
+    case 'settings':
+      showScheduleSettings();
+      break;
+    case 'language-toggle':
+      toggleLanguage();
+      break;
+    default:
+      console.log(`No handler for card type: ${cardType}`);
+  }
+}
+
+// Show schedule settings modal
+function showScheduleSettings() {
+  const modal = createModal('Schedule Settings', `
+    <div class="schedule-settings-content">
+      <h3>⏰ Work Schedule Configuration</h3>
+      <form id="scheduleForm">
+        <div class="schedule-form">
+          <label for="shiftStart">Shift Start Time:</label>
+          <input type="time" id="shiftStart" value="${scheduleInfo.shiftStart || '09:00'}" required>
+          
+          <label for="shiftEnd">Shift End Time:</label>
+          <input type="time" id="shiftEnd" value="${scheduleInfo.shiftEnd || '17:00'}" required>
+          
+          <label for="breakDuration">Break Duration (minutes):</label>
+          <input type="number" id="breakDuration" value="${scheduleInfo.breakDuration}" min="5" max="60" required>
+          
+          <label for="lunchDuration">Lunch Duration (minutes):</label>
+          <input type="number" id="lunchDuration" value="${scheduleInfo.lunchDuration}" min="15" max="90" required>
+          
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="enableBreakAlerts" ${scheduleInfo.enableBreakAlerts !== false ? 'checked' : ''}>
+              Enable break reminder alerts
+            </label>
+            <label>
+              <input type="checkbox" id="enableAudioAlerts" ${scheduleInfo.enableAudioAlerts !== false ? 'checked' : ''}>
+              Enable audio notifications
+            </label>
+          </div>
+        </div>
+        
+        <div class="schedule-actions">
+          <button type="submit" class="btn-primary">Save Schedule</button>
+          <button type="button" onclick="testAlert()" class="btn-secondary">Test Alert</button>
+        </div>
+      </form>
+      
+      <div class="schedule-status-display">
+        <h4>Current Status</h4>
+        <p><strong>Schedule:</strong> ${scheduleInfo.shiftStart || 'Not set'} - ${scheduleInfo.shiftEnd || 'Not set'}</p>
+        <p><strong>Status:</strong> ${scheduleInfo.currentStatus}</p>
+        <p><strong>Break Duration:</strong> ${scheduleInfo.breakDuration} minutes</p>
+        <p><strong>Lunch Duration:</strong> ${scheduleInfo.lunchDuration} minutes</p>
+      </div>
+    </div>
+  `);
+  
+  showModal(modal);
+  
+  // Add form submit handler
+  const form = document.getElementById('scheduleForm');
+  if (form) {
+    form.addEventListener('submit', handleScheduleFormSubmit);
+  }
+}
+
+// Handle schedule form submission
+function handleScheduleFormSubmit(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  scheduleInfo.shiftStart = formData.get('shiftStart');
+  scheduleInfo.shiftEnd = formData.get('shiftEnd');
+  scheduleInfo.breakDuration = parseInt(formData.get('breakDuration'));
+  scheduleInfo.lunchDuration = parseInt(formData.get('lunchDuration'));
+  scheduleInfo.enableBreakAlerts = document.getElementById('enableBreakAlerts').checked;
+  scheduleInfo.enableAudioAlerts = document.getElementById('enableAudioAlerts').checked;
+  
+  saveScheduleInfo();
+  closeModal(document.querySelector('.modal'));
+  showNotification('Schedule settings saved successfully!');
+}
+
+// Test alert function
+function testAlert() {
+  playAlert('This is a test alert! Your schedule notifications are working correctly.');
+}
+
+// FMIP Modal Functions
+function showFMIPModal() {
+  const modal = createModal('FMIP Workflow Assistant', `
+    <div class="fmip-content">
+      <h3>Find My iPhone/iPad Workflow</h3>
+      <div class="workflow-steps">
+        <div class="step">
+          <h4>Step 1: Verify Device Ownership</h4>
+          <p>Ask customer for Apple ID and device serial number</p>
+          <button onclick="copyToClipboard('Can you please provide your Apple ID and the serial number of your device?')" class="btn-primary">Copy Script</button>
+        </div>
+        <div class="step">
+          <h4>Step 2: Check FMIP Status</h4>
+          <p>Navigate to iCloud.com/find to check device status</p>
+          <button onclick="openFMIPChecker()" class="btn-primary">Open FMIP Checker</button>
+        </div>
+        <div class="step">
+          <h4>Step 3: Removal Instructions</h4>
+          <p>Guide customer through FMIP removal process</p>
+          <button onclick="showFMIPRemovalSteps()" class="btn-primary">Show Steps</button>
+        </div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// Hero Denial Scripts Modal
+function showHeroDenialModal() {
+  const modal = createModal('HERO Denial Scripts', `
+    <div class="hero-denial-content">
+      <h3>Carrier-Specific Denial Scripts</h3>
+      <div class="carrier-selector">
+        <select id="carrierSelect" onchange="loadDenialScript()">
+          <option value="">Select Carrier</option>
+          <option value="VZW">Verizon</option>
+          <option value="ATT">AT&T</option>
+          <option value="TMO">T-Mobile</option>
+          <option value="SPR">Sprint</option>
+        </select>
+      </div>
+      <div id="denialScriptContent" class="script-content">
+        <p>Please select a carrier to view denial scripts.</p>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// BYOD Logic Modal
+function showBYODModal() {
+  const modal = createModal('BYOD Logic Helper', `
+    <div class="byod-content">
+      <h3>Bring Your Own Device Logic</h3>
+      <div class="device-checker">
+        <label for="deviceModel">Device Model:</label>
+        <input type="text" id="deviceModel" placeholder="e.g., iPhone 13 Pro">
+        
+        <label for="targetCarrier">Target Carrier:</label>
+        <select id="targetCarrier">
+          <option value="">Select Carrier</option>
+          <option value="VZW">Verizon</option>
+          <option value="ATT">AT&T</option>
+          <option value="TMO">T-Mobile</option>
+        </select>
+        
+        <button onclick="checkBYODCompatibility()" class="btn-primary">Check Compatibility</button>
+        
+        <div id="byodResults" class="results-section" style="display: none;">
+          <h4>Compatibility Results</h4>
+          <div id="compatibilityResults"></div>
+        </div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// Spanish Templates Modal
+function showSpanishTemplatesModal() {
+  const modal = createModal('Spanish Templates', `
+    <div class="spanish-templates-content">
+      <h3>Plantillas en Español</h3>
+      <div class="template-categories">
+        <div class="template-category">
+          <h4>Greetings / Saludos</h4>
+          <button onclick="copySpanishTemplate('greeting')" class="btn-primary">Copy Template</button>
+        </div>
+        <div class="template-category">
+          <h4>Technical Support / Soporte Técnico</h4>
+          <button onclick="copySpanishTemplate('tech_support')" class="btn-primary">Copy Template</button>
+        </div>
+        <div class="template-category">
+          <h4>Billing Inquiries / Consultas de Facturación</h4>
+          <button onclick="copySpanishTemplate('billing')" class="btn-primary">Copy Template</button>
+        </div>
+        <div class="template-category">
+          <h4>Closing / Despedida</h4>
+          <button onclick="copySpanishTemplate('closing')" class="btn-primary">Copy Template</button>
+        </div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// Auto Fill Forms Modal
+function showAutoFillModal() {
+  const modal = createModal('Auto-Fill Forms', `
+    <div class="auto-fill-content">
+      <h3>Auto-Fill Customer Forms</h3>
+      <div class="form-generator">
+        <div class="customer-info">
+          <h4>Customer Information</h4>
+          <label for="customerName">Customer Name:</label>
+          <input type="text" id="customerName" placeholder="Customer Name">
+          
+          <label for="customerPhone">Phone Number:</label>
+          <input type="tel" id="customerPhone" placeholder="(555) 123-4567">
+          
+          <label for="customerEmail">Email:</label>
+          <input type="email" id="customerEmail" placeholder="customer@email.com">
+          
+          <label for="issueDescription">Issue Description:</label>
+          <textarea id="issueDescription" placeholder="Describe the customer's issue..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button onclick="generateClaimNote()" class="btn-primary">Generate Claim Note</button>
+          <button onclick="generateFollowUpEmail()" class="btn-secondary">Generate Follow-up Email</button>
+          <button onclick="fillCommonForms()" class="btn-secondary">Fill Common Forms</button>
+        </div>
+        
+        <div id="generatedContent" class="generated-content" style="display: none;">
+          <h4>Generated Content</h4>
+          <textarea id="contentOutput" readonly></textarea>
+          <button onclick="copyGeneratedContent()" class="btn-primary">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// Escalations Tracking Modal
+function showEscalationsModal() {
+  const modal = createModal('Escalations Tracking', `
+    <div class="escalations-content">
+      <h3>Assistant Escalations Toolkit</h3>
+      <div class="escalation-tracker">
+        <div class="escalation-form">
+          <label for="escalationType">Escalation Type:</label>
+          <select id="escalationType">
+            <option value="technical">Technical Issue</option>
+            <option value="billing">Billing Dispute</option>
+            <option value="policy">Policy Exception</option>
+            <option value="supervisor">Supervisor Request</option>
+          </select>
+          
+          <label for="escalationReason">Reason:</label>
+          <textarea id="escalationReason" placeholder="Detailed reason for escalation..."></textarea>
+          
+          <label for="customerMood">Customer Mood:</label>
+          <select id="customerMood">
+            <option value="calm">Calm</option>
+            <option value="frustrated">Frustrated</option>
+            <option value="angry">Angry</option>
+            <option value="confused">Confused</option>
+          </select>
+          
+          <button onclick="logEscalation()" class="btn-primary">Log Escalation</button>
+        </div>
+        
+        <div id="escalationHistory" class="escalation-history">
+          <h4>Recent Escalations</h4>
+          <div id="escalationList"></div>
+        </div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// Alpha Notes Modal
+function showAlphaNotesModal() {
+  const modal = createModal('Alpha Notes Generator', `
+    <div class="alpha-notes-content">
+      <h3>Alpha Notes Generator</h3>
+      <div class="note-generator">
+        <div class="note-settings">
+          <label for="noteType">Note Type:</label>
+          <select id="noteType">
+            <option value="interaction">Customer Interaction</option>
+            <option value="technical">Technical Resolution</option>
+            <option value="followup">Follow-up Required</option>
+            <option value="escalation">Escalation Note</option>
+          </select>
+          
+          <label for="interactionDetails">Interaction Details:</label>
+          <textarea id="interactionDetails" placeholder="Describe the customer interaction..."></textarea>
+          
+          <label for="resolutionSteps">Resolution Steps:</label>
+          <textarea id="resolutionSteps" placeholder="List the steps taken to resolve the issue..."></textarea>
+          
+          <label for="outcomeStatus">Outcome:</label>
+          <select id="outcomeStatus">
+            <option value="resolved">Resolved</option>
+            <option value="pending">Pending</option>
+            <option value="escalated">Escalated</option>
+            <option value="followup">Follow-up Required</option>
+          </select>
+        </div>
+        
+        <div class="note-actions">
+          <button onclick="generateAlphaNote()" class="btn-primary">Generate Alpha Note</button>
+          <button onclick="saveNoteDraft()" class="btn-secondary">Save Draft</button>
+        </div>
+        
+        <div id="alphaNoteOutput" class="note-output" style="display: none;">
+          <h4>Generated Alpha Note</h4>
+          <textarea id="alphaNoteText" readonly></textarea>
+          <button onclick="copyAlphaNote()" class="btn-primary">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// RPFR Modal (updated to show PFR vs RPFR distinction)
+function showRPFRModal() {
+  const modal = createModal('RPFR vs PFR Guide', `
+    <div class="rpfr-content">
+      <h3>RPFR vs PFR - What's the Difference?</h3>
+      <div class="comparison-grid">
+        <div class="comparison-item">
+          <h4>PFR (Pending Further Review)</h4>
+          <ul>
+            <li>Standard review process</li>
+            <li>Normal processing timeframes</li>
+            <li>Routine case handling</li>
+            <li>No special flags required</li>
+          </ul>
+          <button onclick="copyPFRTemplate()" class="btn-primary">Copy PFR Template</button>
+        </div>
+        
+        <div class="comparison-item">
+          <h4>RPFR (Requires Pending Further Review)</h4>
+          <ul>
+            <li>Complex case requiring special attention</li>
+            <li>Extended review timeframes</li>
+            <li>Additional documentation needed</li>
+            <li>Special handling protocols</li>
+          </ul>
+          <button onclick="copyRPFRTemplate()" class="btn-primary">Copy RPFR Template</button>
+        </div>
+      </div>
+      
+      <div class="rpfr-tools">
+        <h4>RPFR Classification Helper</h4>
+        <p>Does this case require RPFR?</p>
+        <div class="rpfr-checklist">
+          <label><input type="checkbox" id="complexIssue"> Complex technical issue</label>
+          <label><input type="checkbox" id="policyException"> Policy exception required</label>
+          <label><input type="checkbox" id="multipleAttempts"> Multiple previous attempts</label>
+          <label><input type="checkbox" id="escalationHistory"> Previous escalation history</label>
+        </div>
+        <button onclick="evaluateRPFRNeed()" class="btn-primary">Evaluate RPFR Need</button>
+        <div id="rpfrRecommendation" style="display: none;"></div>
+      </div>
+    </div>
+  `);
+  showModal(modal);
+}
+
+// Utility Functions
+
+// Create modal element
+function createModal(title, content) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>${title}</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        ${content}
+      </div>
+    </div>
+  `;
+  return modal;
+}
+
+// Show modal
+function showModal(modal) {
+  document.body.appendChild(modal);
+  modal.style.display = 'block';
+}
+
+// Close modal
+function closeModal(modal) {
+  if (modal) {
+    modal.style.display = 'none';
+    if (modal.parentNode) {
+      modal.parentNode.removeChild(modal);
+    }
+  }
+}
+
+// Copy text to clipboard
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showNotification('Copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
+}
+
+// Show notification
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.className = 'notification';
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 100);
+  
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+// Toggle language
+function toggleLanguage() {
+  currentLanguage = currentLanguage === 'en' ? 'es' : 'en';
+  state.i18n.init(currentLanguage);
+  // Update UI with new language
+  console.log(`Language switched to: ${currentLanguage}`);
+}
+
+// SmartPanel specific functions
+
+// FMIP Functions
+function openFMIPChecker() {
+  window.open('https://icloud.com/find', '_blank');
+}
+
+function showFMIPRemovalSteps() {
+  const steps = `
+FMIP Removal Steps:
+1. Go to Settings > [Your Name] > Find My
+2. Turn off Find My iPhone/iPad
+3. Enter Apple ID password when prompted
+4. Confirm the device is removed from iCloud.com/find
+  `;
+  copyToClipboard(steps);
+}
+
+// Hero Denial Functions
+function loadDenialScript() {
+  const carrier = document.getElementById('carrierSelect').value;
+  const contentDiv = document.getElementById('denialScriptContent');
+  
+  if (!carrier) {
+    contentDiv.innerHTML = '<p>Please select a carrier to view denial scripts.</p>';
+    return;
+  }
+  
+  const scripts = {
+    VZW: {
+      title: 'Verizon HERO Denial Script',
+      content: 'I understand your frustration. Unfortunately, this particular request falls outside of Verizon\'s current policy guidelines. However, I\'d like to explore alternative solutions that might meet your needs...'
+    },
+    ATT: {
+      title: 'AT&T HERO Denial Script',
+      content: 'I appreciate you bringing this to my attention. While AT&T\'s current policies don\'t allow for this specific request, I want to work with you to find a solution that addresses your concerns...'
+    },
+    TMO: {
+      title: 'T-Mobile HERO Denial Script',
+      content: 'Thank you for your patience. T-Mobile values your business, and while this particular request isn\'t something we can accommodate under current guidelines, let me see what other options we have available...'
+    },
+    SPR: {
+      title: 'Sprint HERO Denial Script',
+      content: 'I understand this isn\'t the answer you were hoping for. Sprint\'s current policies don\'t permit this type of adjustment, but I\'d like to review your account to see if there are other ways we can help...'
+    }
+  };
+  
+  const script = scripts[carrier];
+  if (script) {
+    contentDiv.innerHTML = `
+      <h4>${script.title}</h4>
+      <p class="script-text">${script.content}</p>
+      <button onclick="copyToClipboard('${script.content}')" class="btn-primary">Copy Script</button>
+    `;
+  }
+}
+
+// BYOD Functions
+function checkBYODCompatibility() {
+  const device = document.getElementById('deviceModel').value;
+  const carrier = document.getElementById('targetCarrier').value;
+  const resultsDiv = document.getElementById('byodResults');
+  const outputDiv = document.getElementById('compatibilityResults');
+  
+  if (!device || !carrier) {
+    alert('Please enter both device model and target carrier.');
+    return;
+  }
+  
+  // Simplified compatibility check
+  const compatible = Math.random() > 0.3; // Simulate compatibility check
+  
+  outputDiv.innerHTML = `
+    <p><strong>Device:</strong> ${device}</p>
+    <p><strong>Carrier:</strong> ${carrier}</p>
+    <p><strong>Status:</strong> <span class="${compatible ? 'compatible' : 'incompatible'}">${compatible ? 'Compatible' : 'Not Compatible'}</span></p>
+    ${compatible ? 
+      '<p>✅ This device should work with the selected carrier.</p>' : 
+      '<p>❌ This device may not be fully compatible. Check with carrier for details.</p>'
+    }
+  `;
+  
+  resultsDiv.style.display = 'block';
+}
+
+// Spanish Template Functions
+function copySpanishTemplate(templateType) {
+  const templates = {
+    greeting: 'Hola, mi nombre es ' + expertInfo.name + '. ¿En qué puedo ayudarle hoy?',
+    tech_support: 'Entiendo su problema técnico. Voy a ayudarle a resolverlo paso a paso.',
+    billing: 'Voy a revisar su facturación y explicarle todos los cargos detalladamente.',
+    closing: 'Gracias por contactar nuestro servicio. ¿Hay algo más en lo que pueda ayudarle?'
+  };
+  
+  const template = templates[templateType];
+  if (template) {
+    copyToClipboard(template);
+  }
+}
+
+// Auto Fill Functions
+function generateClaimNote() {
+  const name = document.getElementById('customerName').value;
+  const phone = document.getElementById('customerPhone').value;
+  const email = document.getElementById('customerEmail').value;
+  const issue = document.getElementById('issueDescription').value;
+  
+  if (!name || !issue) {
+    alert('Please enter at least customer name and issue description.');
+    return;
+  }
+  
+  const timestamp = new Date().toLocaleString();
+  const note = `
+CLAIM NOTE - ${timestamp}
+Expert: ${expertInfo.name} (${expertInfo.empId})
+
+Customer Information:
+- Name: ${name}
+- Phone: ${phone || 'Not provided'}
+- Email: ${email || 'Not provided'}
+
+Issue Description:
+${issue}
+
+Resolution Steps:
+[To be completed]
+
+Outcome:
+[To be completed]
+
+Next Steps:
+[To be completed]
+  `;
+  
+  showGeneratedContent(note);
+}
+
+function generateFollowUpEmail() {
+  const name = document.getElementById('customerName').value;
+  const email = document.getElementById('customerEmail').value;
+  
+  if (!name || !email) {
+    alert('Please enter customer name and email for follow-up.');
+    return;
+  }
+  
+  const followUpEmail = `
+Subject: Follow-up on Your Recent Service Request
+
+Dear ${name},
+
+Thank you for contacting us regarding your recent service request. I wanted to follow up to ensure that your issue has been resolved to your satisfaction.
+
+If you have any additional questions or concerns, please don't hesitate to reach out to us.
+
+Best regards,
+${expertInfo.name}
+${expertInfo.extension ? 'Extension: ' + expertInfo.extension : ''}
+  `;
+  
+  showGeneratedContent(followUpEmail);
+}
+
+function fillCommonForms() {
+  const name = document.getElementById('customerName').value;
+  const phone = document.getElementById('customerPhone').value;
+  
+  if (!name) {
+    alert('Please enter customer name first.');
+    return;
+  }
+  
+  // Simulate filling common forms
+  showNotification('Common forms auto-filled with customer information');
+}
+
+function showGeneratedContent(content) {
+  const contentDiv = document.getElementById('generatedContent');
+  const outputTextarea = document.getElementById('contentOutput');
+  
+  outputTextarea.value = content;
+  contentDiv.style.display = 'block';
+}
+
+function copyGeneratedContent() {
+  const content = document.getElementById('contentOutput').value;
+  copyToClipboard(content);
+}
+
+// Escalations Functions
+function logEscalation() {
+  const type = document.getElementById('escalationType').value;
+  const reason = document.getElementById('escalationReason').value;
+  const mood = document.getElementById('customerMood').value;
+  
+  if (!reason) {
+    alert('Please enter escalation reason.');
+    return;
+  }
+  
+  const escalation = {
+    id: Date.now(),
+    type,
+    reason,
+    mood,
+    timestamp: new Date().toLocaleString(),
+    expert: expertInfo.name
+  };
+  
+  // Store escalation
+  const escalations = JSON.parse(localStorage.getItem('cst_escalations') || '[]');
+  escalations.unshift(escalation);
+  localStorage.setItem('cst_escalations', JSON.stringify(escalations.slice(0, 10))); // Keep last 10
+  
+  // Update display
+  updateEscalationHistory();
+  
+  // Clear form
+  document.getElementById('escalationReason').value = '';
+  
+  showNotification('Escalation logged successfully');
+}
+
+function updateEscalationHistory() {
+  const escalations = JSON.parse(localStorage.getItem('cst_escalations') || '[]');
+  const listDiv = document.getElementById('escalationList');
+  
+  if (escalations.length === 0) {
+    listDiv.innerHTML = '<p>No recent escalations</p>';
+    return;
+  }
+  
+  listDiv.innerHTML = escalations.map(esc => `
+    <div class="escalation-item">
+      <div class="escalation-header">
+        <strong>${esc.type}</strong> - ${esc.timestamp}
+      </div>
+      <div class="escalation-details">
+        <p><strong>Mood:</strong> ${esc.mood}</p>
+        <p><strong>Reason:</strong> ${esc.reason}</p>
+        <p><strong>Expert:</strong> ${esc.expert}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Alpha Notes Functions
+function generateAlphaNote() {
+  const noteType = document.getElementById('noteType').value;
+  const details = document.getElementById('interactionDetails').value;
+  const steps = document.getElementById('resolutionSteps').value;
+  const outcome = document.getElementById('outcomeStatus').value;
+  
+  if (!details) {
+    alert('Please enter interaction details.');
+    return;
+  }
+  
+  const timestamp = new Date().toLocaleString();
+  const note = `
+ALPHA NOTE - ${noteType.toUpperCase()}
+Date/Time: ${timestamp}
+Expert: ${expertInfo.name} (${expertInfo.empId})
+
+Interaction Details:
+${details}
+
+Resolution Steps:
+${steps || 'N/A'}
+
+Outcome: ${outcome}
+
+${outcome === 'followup' ? 'Follow-up Required: [Specify timeline and next steps]' : ''}
+${outcome === 'escalated' ? 'Escalated To: [Specify department/person]' : ''}
+
+---
+Note generated by CST SmartDesk v1.0
+  `;
+  
+  const outputDiv = document.getElementById('alphaNoteOutput');
+  const textArea = document.getElementById('alphaNoteText');
+  
+  textArea.value = note;
+  outputDiv.style.display = 'block';
+}
+
+function saveNoteDraft() {
+  const noteData = {
+    type: document.getElementById('noteType').value,
+    details: document.getElementById('interactionDetails').value,
+    steps: document.getElementById('resolutionSteps').value,
+    outcome: document.getElementById('outcomeStatus').value,
+    timestamp: new Date().toISOString()
+  };
+  
+  localStorage.setItem('cst_note_draft', JSON.stringify(noteData));
+  showNotification('Note draft saved');
+}
+
+function copyAlphaNote() {
+  const content = document.getElementById('alphaNoteText').value;
+  copyToClipboard(content);
+}
+
+// RPFR Functions
+function copyPFRTemplate() {
+  const template = `PFR - Pending Further Review
+
+This case has been marked as PFR for standard review processing.
+
+Standard timeframe: 3-5 business days
+No special handling required.
+
+Expert: ${expertInfo.name}
+Date: ${new Date().toLocaleDateString()}`;
+  
+  copyToClipboard(template);
+}
+
+function copyRPFRTemplate() {
+  const template = `RPFR - Requires Pending Further Review
+
+This case requires special handling and extended review.
+
+⚠️ COMPLEX CASE - SPECIAL ATTENTION REQUIRED
+Extended timeframe: 5-10 business days
+Additional documentation may be needed.
+
+Expert: ${expertInfo.name}
+Date: ${new Date().toLocaleDateString()}`;
+  
+  copyToClipboard(template);
+}
+
+function evaluateRPFRNeed() {
+  const checkboxes = document.querySelectorAll('.rpfr-checklist input[type="checkbox"]');
+  const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+  
+  const recommendationDiv = document.getElementById('rpfrRecommendation');
+  
+  let recommendation;
+  if (checkedCount >= 3) {
+    recommendation = '🔴 <strong>RPFR RECOMMENDED</strong> - This case shows multiple complexity indicators requiring special handling.';
+  } else if (checkedCount >= 1) {
+    recommendation = '🟡 <strong>CONSIDER RPFR</strong> - This case may benefit from extended review processes.';
+  } else {
+    recommendation = '🟢 <strong>STANDARD PFR</strong> - This case can follow normal review processes.';
+  }
+  
+  recommendationDiv.innerHTML = `<div class="rpfr-result">${recommendation}</div>`;
+  recommendationDiv.style.display = 'block';
+}
+
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
+
+// Global error handler
+window.addEventListener('error', (error) => {
+  console.error('Global error:', error);
+  state.jsErrors.push({
+    message: error.message,
+    filename: error.filename,
+    line: error.lineno,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    expertInfo,
+    state,
+    init,
+    handleCardClick
+  };
+}
 let splashMsgTimer = null;
 let splashAnimDone = false;
 let splashAssetsDone = false;
