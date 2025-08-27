@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // setup wizard
-  const wiz = document.getElementById('setupWizard');
+  document.getElementById('setupWizard'); // wizard dialog element
   const btnOpenSettings = document.getElementById('openSettings');
   if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => openModal('settings'));
   document.getElementById('wizardSave').addEventListener('click', onSaveWizard);
@@ -468,9 +468,9 @@ function cycleTheme(){
     try{
       const s = JSON.parse(localStorage.getItem('cst.settings')||'{}')||{};
       s.theme = next; localStorage.setItem('cst.settings', JSON.stringify(s));
-    }catch{}
+    } catch { /* ignore theme save errors */ }
     showToast('Theme: '+next);
-  } catch {}
+  } catch { /* ignore theme errors */ }
 }
 function logQA(msg) {
   try {
@@ -1343,12 +1343,7 @@ function runUiTextAudit(){
       const s = getComputedStyle(el);
       return s && s.display !== 'none' && s.visibility !== 'hidden' && el.offsetParent !== null;
     };
-    const roots = [
-      document.querySelector('.content'),
-      document.getElementById('modal-copilot'),
-      document.getElementById('modal-smartdrop'),
-      document.getElementById('modal-welcome'),
-    ].filter(Boolean);
+    // Collect all visible text for i18n audit
     const texts = [];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     let node;
@@ -2213,7 +2208,7 @@ try {
 function wireDashboard() {
   // Dashboard card clicks
   document.querySelectorAll('.dashboard-card').forEach(card => {
-    card.addEventListener('click', (e) => {
+    card.addEventListener('click', () => {
       const action = card.getAttribute('data-action');
       handleDashboardAction(action);
       
@@ -2251,9 +2246,18 @@ function wireDashboard() {
       copilotOutput.value = 'Generating response...';
 
       try {
-        // Use existing copilot functionality
-        const result = await runCopilot(prompt);
-        copilotOutput.value = result || 'Generated response would appear here.';
+        // Simple copilot implementation for dashboard
+        const res = await fetch('/api/copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+        const data = await res.json();
+        if (data.en) {
+          copilotOutput.value = `English: ${data.en}\n\nSpanish: ${data.es || 'N/A'}`;
+        } else {
+          copilotOutput.value = 'Generated response would appear here.';
+        }
       } catch (error) {
         copilotOutput.value = `Error: ${error.message}`;
       } finally {
