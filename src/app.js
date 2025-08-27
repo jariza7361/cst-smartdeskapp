@@ -2224,11 +2224,11 @@ function wireDashboard() {
   });
 
   // Copilot workspace
-  const copilotInput = document.getElementById('copilotInput');
-  const copilotOutput = document.getElementById('copilotOutput');
-  const generateBtn = document.getElementById('copilotGenerate');
-  const copyBtn = document.getElementById('copilotCopy');
-  const copyAllBtn = document.getElementById('copilotCopyAll');
+  const copilotInput = document.getElementById('dashboardCopilotInput');
+  const copilotOutput = document.getElementById('dashboardCopilotOutput');
+  const generateBtn = document.getElementById('dashboardCopilotGenerate');
+  const copyBtn = document.getElementById('dashboardCopilotCopy');
+  const copyAllBtn = document.getElementById('dashboardCopilotCopyAll');
 
   // Suggestion chips
   document.querySelectorAll('.suggestion-chip').forEach(chip => {

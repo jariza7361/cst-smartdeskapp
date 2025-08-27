@@ -4,13 +4,14 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
-test('loads app and status panel', async ({ page }) => {
+test('loads app and dashboard', async ({ page }) => {
   await expect(page.locator('header.topbar h1', { hasText: 'CST SmartDesk' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'System Status', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'My Toolkit', exact: true })).toBeVisible();
+  await expect(page.locator('.dashboard-card').first()).toBeVisible();
 });
 
-test('highlights section toggles language', async ({ page }) => {
-  await expect(page.getByRole('heading', { name: 'Highlights', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Language' }).click();
-  await expect(page.getByRole('heading', { name: 'Aspectos destacados', exact: true })).toBeVisible();
+test('copilot workspace is visible', async ({ page }) => {
+  await expect(page.locator('.copilot-workspace h2')).toBeVisible();
+  await expect(page.locator('#dashboardCopilotInput')).toBeVisible();
+  await expect(page.locator('#dashboardCopilotGenerate')).toBeVisible();
 });
