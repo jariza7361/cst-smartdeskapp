@@ -1,7 +1,7 @@
 // CST SmartDesk v1.0 - Main Application Logic
 import { createI18n } from './utils/i18n.js';
 import { buildPrompt } from './utils/copilot.js';
-import { parseText } from './utils/parser.js';
+
 // Global state
 let currentLanguage = 'en';
 let expertInfo = {
@@ -1249,7 +1249,7 @@ function checkBYODCompatibility() {
   const outputDiv = document.getElementById('compatibilityResults');
 
   if (!device || !carrier) {
-    alert('Please enter both device model and target carrier.');
+    showNotification('Please enter both device model and target carrier.');
     return;
   }
 
@@ -1293,7 +1293,7 @@ function generateClaimNote() {
   const issue = document.getElementById('issueDescription').value;
 
   if (!name || !issue) {
-    alert('Please enter at least customer name and issue description.');
+    showNotification('Please enter at least customer name and issue description.');
     return;
   }
 
@@ -1329,7 +1329,7 @@ function generateFollowUpEmail() {
   const email = document.getElementById('customerEmail').value;
 
   if (!name || !email) {
-    alert('Please enter customer name and email for follow-up.');
+    showNotification('Please enter customer name and email for follow-up.');
     return;
   }
 
@@ -1355,7 +1355,7 @@ function fillCommonForms() {
   const phone = document.getElementById('customerPhone').value;
 
   if (!name) {
-    alert('Please enter customer name first.');
+    showNotification('Please enter customer name first.');
     return;
   }
 
@@ -1383,7 +1383,7 @@ function logEscalation() {
   const mood = document.getElementById('customerMood').value;
 
   if (!reason) {
-    alert('Please enter escalation reason.');
+    showNotification('Please enter escalation reason.');
     return;
   }
 
@@ -1448,7 +1448,7 @@ function generateAlphaNote() {
   const outcome = document.getElementById('outcomeStatus').value;
 
   if (!details) {
-    alert('Please enter interaction details.');
+    showNotification('Please enter interaction details.');
     return;
   }
 
