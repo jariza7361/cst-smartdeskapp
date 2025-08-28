@@ -6,7 +6,7 @@ dist
 .vscode
 .DS_Store
 test-results
-*.log
+*rlog
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
