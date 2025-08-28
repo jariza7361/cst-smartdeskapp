@@ -25,3 +25,4 @@ scripts/**/*.html
 search-next-playbooks/
 **/corrupted/
 **/invalid/
+lint-results.json
