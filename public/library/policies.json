@@ -1,0 +1,14 @@
+[
+  {
+    "id": "policy-alpha-note",
+    "title": "Alpha Note quality standard",
+    "summary": "Accurate, concise, and action-oriented notes; include who/what/when.",
+    "content": "Alpha notes must include the call reason, steps taken, outcomes, and next steps. Avoid PII."
+  },
+  {
+    "id": "policy-denials",
+    "title": "Denials: fair handling and escalation",
+    "summary": "Use Observe AI style; apply guardrails; escalate when appropriate.",
+    "content": "Explain reason plainly. Offer alternatives (repair/upgrade). Escalate per policy if criteria met."
+  }
+]

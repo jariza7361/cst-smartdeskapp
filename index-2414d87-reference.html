@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title data-i18n="AppTitle">CST SmartDesk — Escalation Toolkit</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/src/styles/tokens.css" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/src/styles/codex.css" />
+    <link rel="stylesheet" href="/src/styles/dashboard.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>CST SmartDesk</h1>
+      <!-- Global Search (additive, non-breaking) -->
+      <div id="topSearch" aria-label="Search" style="margin-left:24px;flex:1;max-width:560px;position:relative;display:flex;align-items:center;gap:8px">
+        <input id="searchInput" type="search" data-i18n-placeholder="SearchPlaceholder" aria-autocomplete="list" aria-controls="searchSuggest" aria-expanded="false" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--ink)"/>
+        <div id="searchSuggest" role="listbox" style="position:absolute;top:110%;left:0;right:0;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:6px;display:none;z-index:30;max-height:300px;overflow:auto"></div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button id="openCopilotBtn" class="btn secondary">Copilot</button>
+        <button id="openSettingsTop" class="btn secondary">Setup</button>
+        <button id="themeToggle" class="btn secondary" title="Toggle theme">Theme</button>
+        <button id="langToggle" data-i18n="Language">Language</button>
+        <div id="helpMenuWrap" style="position:relative">
+          <button id="helpMenuBtn" data-testid="help-menu-btn" class="btn secondary" data-i18n="Help">Help</button>
+          <div id="helpMenu" data-testid="help-menu" style="position:absolute;right:0;top:110%;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:6px;display:none;min-width:180px;z-index:25">
+            <button id="helpWelcomeItem" data-testid="help-menu-item-welcome" class="btn-quiet" style="width:100%;text-align:left" data-i18n="Show Welcome">Show Welcome</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <aside class="sidebar" id="sidebar">
+      <div class="tabs" role="tablist" aria-label="Navigation">
+        <button role="tab" aria-selected="true" data-tab="carriers">Carriers</button>
+        <button role="tab" aria-selected="false" data-tab="products">Products</button>
+        <button role="tab" aria-selected="false" data-tab="tools">Tools</button>
+        <button role="tab" aria-selected="false" data-tab="buckets">Buckets</button>
+      </div>
+      <div class="side-panel" data-panel="carriers">
+        <div class="side-title">USA</div>
+        <ul class="nav">
+          <li data-open="carrier:VZW"><img src="/assets/verizon.svg" alt="Verizon"/><span>Verizon</span></li>
+          <li data-open="carrier:ATT"><img src="/assets/att.svg" alt="AT&amp;T"/><span>AT&amp;T</span></li>
+          <li data-open="carrier:CRK"><img src="/assets/cricket.svg" alt="Cricket"/><span>Cricket</span></li>
+          <li data-open="carrier:LIB"><img src="/assets/liberty.svg" alt="Liberty"/><span>Liberty</span></li>
+          <li data-open="carrier:CC"><img src="/assets/consumer-cellular.svg" alt="Consumer Cellular"/><span>Consumer Cellular</span></li>
+          <li data-open="carrier:USCC"><img src="/assets/uscellular.svg" alt="US Cellular"/><span>US Cellular</span></li>
+          <li data-open="carrier:OPT"><img src="/assets/optimum.svg" alt="Optimum Mobile"/><span>Optimum</span></li>
+          <li data-open="carrier:COX"><img src="/assets/cox.svg" alt="Cox Mobile"/><span>Cox</span></li>
+          <li data-open="carrier:SAMSUNG"><img src="/assets/samsung.svg" alt="Samsung"/><span>Samsung</span></li>
+        </ul>
+        <div class="side-title" style="margin-top:12px">Canada</div>
+        <ul class="nav">
+          <li data-open="carrier:TELUS"><img src="/assets/telus.svg" alt="TELUS"/><span>TELUS</span></li>
+          <li data-open="carrier:KOODO"><img src="/assets/koodo.svg" alt="Koodo"/><span>Koodo</span></li>
+          <li data-open="carrier:BELL"><img src="/assets/bell.svg" alt="Bell"/><span>Bell</span></li>
+          <li data-open="carrier:VIRGIN"><img src="/assets/virgin.svg" alt="Virgin Plus"/><span>Virgin</span></li>
+        </ul>
+      </div>
+      <div class="side-panel" data-panel="products" hidden>
+        <div class="side-title">Asurion Products</div>
+        <ul class="nav">
+          <li data-open="product:UBIF"><img src="/assets/ubreakifix.svg" alt="uBreakiFix"/><span>uBreakiFix</span></li>
+          <li data-open="product:RSG"><img src="/assets/rsg.svg" alt="Repair Service Group"/><span>Repair Service Group</span></li>
+          <li data-open="product:HOMEPLUS"><img src="/assets/homeplus.svg" alt="Asurion Home+"/><span>Asurion Home+</span></li>
+          <li data-open="product:APPLIANCEPLUS"><img src="/assets/applianceplus.svg" alt="Asurion Appliance+"/><span>Asurion Appliance+</span></li>
+          <li data-open="product:VZ_HDP"><img src="/assets/vz-hdp.svg" alt="Verizon Home Device Protect"/><span>Verizon HDP</span></li>
+          <li data-open="product:ATT_HTP"><img src="/assets/att-htp.svg" alt="AT&amp;T Home Tech Protection"/><span>AT&amp;T HTP</span></li>
+        </ul>
+      </div>
+      <div class="side-panel" data-panel="tools" hidden>
+        <div class="side-title">Tools</div>
+        <ul class="nav">
+          <li data-open="tools:copilot">🤖 Copilot</li>
+          <li data-open="tools:smartdrop">📥 SmartDrop (OCR)</li>
+          <li data-open="tools:rpfr">🧾 RPFR / PFR</li>
+          <li data-open="tools:fmip">🔒 FMIP Script</li>
+          <li data-open="tools:denials">🚨 Denials</li>
+          <li data-open="tools:affidavits">📄 Affidavits</li>
+          <li data-open="tools:byod">💻 BYOD Premium Check</li>
+          <li data-open="tests">🧪 Tests</li>
+          <li data-open="settings">⚙️ Settings</li>
+        </ul>
+      </div>
+      <div class="side-panel" data-panel="buckets" hidden>
+        <div class="side-title">Routed Buckets</div>
+        <ul class="nav">
+          <li data-open="bucket:denials">🚨 Denials</li>
+          <li data-open="bucket:rpfr">💳 RPFR</li>
+          <li data-open="bucket:fmip">📱 FMIP</li>
+        </ul>
+      </div>
+    </aside>
+    <div class="content">
+      <!-- Modern Dashboard Grid -->
+      <section class="dashboard">
+        <div class="dashboard-header">
+          <h1>CST SmartDesk v1.0</h1>
+          <div class="expert-info">
+            <div class="info-item">
+              <span class="label">Expert:</span>
+              <span id="expertName">Not Set</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Emp ID:</span>
+              <span id="expertEmpId">Not Set</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Extension:</span>
+              <span id="expertExtension">Not Set</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Coach:</span>
+              <span id="expertCoach">Not Set</span>
+            </div>
+          </div>
+          
+          <div class="schedule-tracker">
+            <div class="clock">
+              <span id="currentTime">Loading...</span>
+            </div>
+            <div class="schedule-status">
+              <span id="scheduleStatus">Setting up schedule...</span>
+              <button id="scheduleSettings" class="schedule-btn">⚙️</button>
+            </div>
+            <div class="break-timer" id="breakTimer" style="display: none;">
+              <span id="breakTimeLeft"></span>
+              <button id="endBreak" class="break-btn">End Break</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-grid">
+          <!-- SmartPanel Cards -->
+          <!-- FMIP Workflow Card -->
+          <div class="smart-card card-orange" data-card="fmip">
+            <div class="card-icon">�</div>
+            <div class="card-content">
+              <h3>FMIP Workflow</h3>
+              <p>Find My iPhone/iPad assistance</p>
+            </div>
+          </div>
+          
+          <!-- HERO Denial Scripts Card -->
+          <div class="smart-card card-pink" data-card="hero-denial">
+            <div class="card-icon">�️</div>
+            <div class="card-content">
+              <h3>HERO Denial Scripts</h3>
+              <p>Carrier-specific denial templates</p>
+            </div>
+          </div>
+          
+          <!-- BYOD Logic Card -->
+          <div class="smart-card card-red" data-card="byod">
+            <div class="card-icon">📱</div>
+            <div class="card-content">
+              <h3>BYOD Logic</h3>
+              <p>Device compatibility checker</p>
+            </div>
+          </div>
+          
+          <!-- Spanish Templates Card -->
+          <div class="smart-card card-blue" data-card="spanish-templates">
+            <div class="card-icon">🌐</div>
+            <div class="card-content">
+              <h3>Spanish Templates</h3>
+              <p>Bilingual customer support</p>
+            </div>
+          </div>
+          
+          <!-- Auto-Fill Forms Card -->
+          <div class="smart-card card-cyan" data-card="auto-fill">
+            <div class="card-icon">�</div>
+            <div class="card-content">
+              <h3>Auto-Fill Forms</h3>
+              <p>Generate customer notes</p>
+            </div>
+          </div>
+          
+          <!-- Assistant Escalations Card -->
+          <div class="smart-card card-teal" data-card="escalations">
+            <div class="card-icon">🚀</div>
+            <div class="card-content">
+              <h3>Assistant Escalations</h3>
+              <p>Track supervisor requests</p>
+            </div>
+          </div>
+          
+          <!-- Alpha Notes Card -->
+          <div class="smart-card card-purple" data-card="alpha-notes">
+            <div class="card-icon">📄</div>
+            <div class="card-content">
+              <h3>Alpha Notes</h3>
+              <p>Professional case documentation</p>
+            </div>
+          </div>
+          
+          <!-- RPFR vs PFR Card -->
+          <div class="smart-card card-green" data-card="rpfr">
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+              <h3>RPFR vs PFR</h3>
+              <p>Review process guidance</p>
+            </div>
+          </div>
+          
+          <!-- Build Summary Card -->
+          <div class="smart-card card-navy" data-card="build-summary">
+            <div class="card-icon">🔧</div>
+            <div class="card-content">
+              <h3>Build Summary</h3>
+              <p>Technical troubleshooting</p>
+            </div>
+          </div>
+          
+          <!-- Carrier Escalation Card -->
+          <div class="smart-card card-crimson" data-card="carrier-escalation">
+            <div class="card-icon">📞</div>
+            <div class="card-content">
+              <h3>Carrier Escalation</h3>
+              <p>Network issue protocols</p>
+            </div>
+          </div>
+          
+          <!-- Knowledge Base Card -->
+          <div class="smart-card card-indigo" data-card="knowledge-base">
+            <div class="card-icon">📚</div>
+            <div class="card-content">
+              <h3>Knowledge Base</h3>
+              <p>Quick reference guide</p>
+            </div>
+          </div>
+          
+          <!-- Script Tracker Card -->
+          <div class="smart-card card-emerald" data-card="script-tracker">
+            <div class="card-icon">�</div>
+            <div class="card-content">
+              <h3>Script Tracker</h3>
+              <p>Conversation templates</p>
+            </div>
+          </div>
+          
+          <!-- Terms & Conditions Card -->
+          <div class="smart-card card-amber" data-card="terms-conditions">
+            <div class="card-icon">�</div>
+            <div class="card-content">
+              <h3>Terms & Conditions</h3>
+              <p>Policy reference</p>
+            </div>
+          </div>
+          
+          <!-- Quick Start Card -->
+          <div class="smart-card card-rose" data-card="quick-start">
+            <div class="card-icon">🚀</div>
+            <div class="card-content">
+              <h3>Quick Start</h3>
+              <p>New expert onboarding</p>
+            </div>
+          </div>
+          
+          <!-- Language Toggle Card -->
+          <div class="smart-card card-violet" data-card="language-toggle">
+            <div class="card-icon">🌍</div>
+            <div class="card-content">
+              <h3>Language Toggle</h3>
+              <p>Switch EN/ES interface</p>
+            </div>
+          </div>
+          
+          <!-- Settings Card -->
+          <div class="smart-card card-slate" data-card="settings">
+            <div class="card-icon">⚙️</div>
+            <div class="card-content">
+              <h3>Settings</h3>
+              <p>App configuration</p>
+            </div>
+          </div>
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+              <h3>Quick Start</h3>
+              <p>Setup wizard</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Copilot Workspace (Large) -->
+        <section class="copilot-workspace">
+          <div class="copilot-header">
+            <h2>Copilot</h2>
+            <span class="copilot-status">Try asking:</span>
+          </div>
+          
+          <div class="copilot-suggestions">
+            <button class="suggestion-chip">Generate a specific escalation script</button>
+            <button class="suggestion-chip">What is the deductible for plan X?</button>
+            <button class="suggestion-chip">Show me device claim denials</button>
+          </div>
+          
+          <div class="copilot-interface">
+            <div class="copilot-input">
+              <textarea id="dashboardCopilotInput" placeholder="Ask me anything..." rows="3"></textarea>
+              <button class="btn-primary" id="dashboardCopilotGenerate">Generate</button>
+            </div>
+            
+            <div class="copilot-output">
+              <div class="output-header">
+                <span>Response</span>
+                <div class="output-actions">
+                  <button class="btn-secondary" id="dashboardCopilotCopy">Copy</button>
+                  <button class="btn-secondary" id="dashboardCopilotCopyAll">Copy EN+ES</button>
+                </div>
+              </div>
+              <textarea id="dashboardCopilotOutput" placeholder="Response will appear here..." rows="8" readonly></textarea>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Carrier Logos Footer -->
+        <div class="carrier-footer">
+          <img src="/assets/att.svg" alt="AT&T" />
+          <img src="/assets/verizon.svg" alt="Verizon" />
+          <img src="/assets/cricket.svg" alt="Cricket" />
+          <img src="/assets/uscellular.svg" alt="US Cellular" />
+          <img src="/assets/cox.svg" alt="Cox" />
+          <img src="/assets/consumer-cellular.svg" alt="Consumer Cellular" />
+          <img src="/assets/optimum.svg" alt="Optimum" />
+        </div>
+      </section>
+      
+      <!-- Legacy content (hidden initially) -->
+      <section id="systemStatusSection" style="display: none;">
+        <h2 data-i18n="System Status">System Status</h2>
+        <ul id="statusList"></ul>
+      </section>
+      <section id="highlights" style="display: none;">
+        <h2 data-i18n="Highlights">Highlights</h2>
+        <div id="highlightsList" class="cards"></div>
+      </section>
+    </div>
+    <div id="app"></div>
+    <div id="dropzone">Drop files here</div>
+    <div id="preview"></div>
+    <dialog id="setupWizard">
+      <form id="wizardForm" method="dialog">
+        <input id="wName" placeholder="First and Last Name" required />
+        <input id="wCoach" placeholder="Coach's Name" />
+        <input id="wEmpId" placeholder="Employee ID" required />
+        <input id="wExt" placeholder="Extension" required />
+        <select id="wTheme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="glass">Glass</option>
+        </select>
+        <select id="wExpertType">
+          <option value="bilingual">Bilingual Expert</option>
+          <option value="english">English CST Expert</option>
+        </select>
+        <label>
+          <input type="checkbox" id="dontShow" />
+          Don't show again
+        </label>
+        <button id="wizardSave" type="button">Save</button>
+      </form>
+    </dialog>
+    <button id="openSettings">Settings</button>
+    <dialog id="testsModal">
+      <div>
+        <button id="testsClose" type="button">Close</button>
+        <button id="testsFetchBtn" type="button">Run Fetch Test</button>
+  <button class="btn" id="t_run_doctor" type="button">Run Doctor</button>
+  <button class="btn secondary" id="t_run_ui_audit" type="button">Run UI Text Audit</button>
+  <button class="btn secondary" id="t_run_splash_diag" type="button">Splash Diagnostics</button>
+  <span id="ocrBadge" class="pill" title="Local OCR status" style="margin-left:8px">OCR: checking…</span>
+        <pre id="testsOutput"></pre>
+  <pre id="testLog" style="margin-top:8px;white-space:pre-wrap"></pre>
+      </div>
+    </dialog>
+    <!-- SmartDrop Modal (non-dialog overlay) -->
+    <div class="modal-backdrop" id="modal-smartdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
+        <header>
+          <h3 id="sdTitle" style="margin:0">SmartDrop</h3>
+          <button class="btn secondary" data-close>Close</button>
+        </header>
+        <div class="content">
+          <div class="form" style="gap:10px">
+            <div id="sd_drop" style="border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center">
+              <strong>Drop a file here</strong>
+              <div class="muted">PDF / image / DOCX / XLSX / EML</div>
+              <div style="margin-top:8px"><input id="sd_file" type="file" /></div>
+            </div>
+            <div id="sd_suggest" class="muted" style="font-size:12px;display:none">Suggestion: <span id="sd_suggest_label"></span></div>
+            <label>Extracted Text (editable):</label>
+            <textarea id="sd_preview" rows="10" placeholder="OCR / extracted text will appear here…"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button id="sd_route_denials" class="btn secondary">Route → Denials</button>
+              <button id="sd_route_rpfr" class="btn secondary">Route → RPFR</button>
+              <button id="sd_route_fmip" class="btn secondary">Route → FMIP</button>
+              <label style="display:flex;gap:8px;align-items:center;margin-left:auto">
+                <input type="checkbox" id="sd_learn" checked> Auto-learn routes
+              </label>
+            </div>
+            <div id="sd_status" class="muted" style="font-size:12px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <dialog id="denialsModal">
+      <div class="denials-wrap">
+        <button id="denialsClose" type="button">Close</button>
+        <div id="denialsContent"></div>
+      </div>
+    </dialog>
+    <dialog id="carrierModal">
+      <div class="carrier-wrap">
+        <button id="carrierClose" type="button">Close</button>
+        <div id="carrierContent"></div>
+      </div>
+    </dialog>
+    <!-- Copilot Modal (non-dialog overlay) -->
+    <div class="modal-backdrop" id="modal-copilot" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+        <header><h3 id="cpTitle" style="margin:0">Copilot</h3><button class="btn secondary" data-close>Close</button></header>
+        <div class="content">
+          <!-- Quick starters -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="btn secondary" id="cp_quick_rpfr">Quick: RPFR</button>
+            <button class="btn secondary" id="cp_quick_fmip">Quick: FMIP Override</button>
+          </div>
+          <div class="form">
+            <label>Ask (e.g., “No Airtime”):</label>
+            <textarea id="cp_in" rows="4" placeholder="Type a denial reason or use a quick button…"></textarea>
+            <div><button class="btn" id="cp_run">Generate</button></div>
+            <label>Output</label>
+            <textarea id="cp_out" rows="9" placeholder="Response will appear here…"></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn secondary" id="cp_copy">Copy</button>
+              <button class="btn secondary" id="cp_copy_all">Copy EN+ES</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button id="openTests">Open Tests</button>
+    
+    <!-- Splash elements -->
+    <div id="splash" class="banner overlay" hidden>
+      <div class="banner-inner">
+        <h2 id="splashTitle" data-i18n="Welcome">Welcome to CST SmartDesk</h2>
+        <div class="banner-body">
+          <p id="splashStep" aria-live="polite" data-i18n="PleaseWait">Please wait… loading</p>
+          <div class="progress"><div class="bar" id="splashBar"></div></div>
+          <div class="pct-row"><span id="splashPct" aria-live="polite">0%</span></div>
+          <div class="banner-actions">
+            <button id="splashStart" class="btn-primary" data-i18n="Start">Start</button>
+            <button id="splashDismiss" class="btn-quiet" data-i18n="Dismiss">Dismiss</button>
+            <button id="splashRetry" class="btn-quiet" data-i18n="Retry">Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button id="showWelcome">Show Welcome</button>
+    <div id="systemStatus"></div>
+    
+    <!-- Setup Wizard Modal -->
+    <div id="setupWizard" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🚀 Welcome to CST SmartDesk v1.0</h2>
+        </div>
+        <div class="modal-body">
+          <form id="setupForm">
+            <h3>Expert Information</h3>
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="empId">Employee ID:</label>
+            <input type="text" id="empId" name="empId" required>
+            
+            <label for="extension">Extension:</label>
+            <input type="text" id="extension" name="extension">
+            
+            <label for="coach">Coach/Supervisor:</label>
+            <input type="text" id="coach" name="coach">
+            
+            <label for="type">Expert Type:</label>
+            <select id="type" name="type" required>
+              <option value="english">English Support</option>
+              <option value="bilingual">Bilingual Support</option>
+              <option value="spanish">Spanish Support</option>
+            </select>
+            
+            <h3>Work Schedule</h3>
+            <label for="setupShiftStart">Shift Start Time:</label>
+            <input type="time" id="setupShiftStart" name="shiftStart" value="09:00" required>
+            
+            <label for="setupShiftEnd">Shift End Time:</label>
+            <input type="time" id="setupShiftEnd" name="shiftEnd" value="17:00" required>
+            
+            <label for="setupBreakDuration">Break Duration (minutes):</label>
+            <input type="number" id="setupBreakDuration" name="breakDuration" value="15" min="5" max="60" required>
+            
+            <div class="setup-actions">
+              <button type="submit" class="btn-primary">Complete Setup</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mounting point for main app above -->
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "default": {
+    "id": "observe-serve-solve",
+    "title": "Observe AI: Serve → Solve → Close",
+    "summary": "Quality rubric emphasizing empathy, resolution steps, and clear close.",
+    "sections": [
+      "Serve: acknowledge, empathize, and set expectations.",
+      "Solve: precise steps, policy guardrails, and checks.",
+      "Close: confirm outcome, next steps, and reinforce value."
+    ]
+  }
+}

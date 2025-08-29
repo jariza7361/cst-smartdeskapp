@@ -1,0 +1,13 @@
+[
+  {
+    "id": "xr-serve-solve",
+    "title": "HERO XR: Serve → Solve → Close",
+    "summary": "Use empathy, clarify the goal, guide steps, confirm resolution.",
+    "steps": [
+      "Serve: Acknowledge the customer's situation and set expectations.",
+      "Solve: Walk through the specific fix or next step.",
+      "Close: Confirm satisfaction and next actions."
+    ],
+    "tags": ["hero", "xr", "serve", "solve", "close"]
+  }
+]
