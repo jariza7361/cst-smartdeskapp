@@ -1,0 +1,17 @@
+{
+  "id": "script-pack-denials",
+  "title": "Denials: Serve → Solve play scripts",
+  "items": [
+    {
+      "id": "denial-device-ineligible",
+      "title": "Device Ineligible",
+      "intro": "I understand how frustrating this is. Let's review options together.",
+      "steps": [
+        "Explain ineligibility plainly (no jargon).",
+        "Offer repair alternatives or upgrade paths.",
+        "If criteria met, outline escalation path."
+      ],
+      "close": "Does this plan work for you, or would you like me to go over the alternatives again?"
+    }
+  ]
+}

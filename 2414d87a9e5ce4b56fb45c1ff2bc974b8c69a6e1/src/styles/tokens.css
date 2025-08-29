@@ -1,0 +1,166 @@
+:root {
+  /* Base (dark) */
+  --bg: #0d0d0f;
+  --panel: #171722;
+  --panel-2: #1e1e2f;
+  --ink: #f7f8fb;          /* brighter text for dark bg */
+  --ink-subtle: #d6dbe6;   /* for secondary text */
+  --muted: #b9c1cf;        /* must remain readable on dark */
+  --accent: #6f4bd8;
+  --ok: #00c982;
+  --warn: #ffb020;
+  --danger: #ff5d5d;
+  --border: #2b2b3a;
+  --focus: #8ab4ff;
+  --shadow: 0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.25);
+
+  /* Back-compat aliases used by older selectors */
+  --fg: var(--ink);
+  --card: var(--panel);
+  --fail: var(--danger);
+}
+
+/* Light theme */
+.theme-light{
+  --bg:#ffffff;
+  --panel:#f6f8fb;
+  --panel-2:#eef2f7;
+  --ink:#0b1220;
+  --ink-subtle:#22324a;
+  --muted:#43536c;
+  --accent:#5b4ad6;
+  --border:#d8deea;
+  --shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.08);
+}
+
+/* Glass variant tweaks */
+.theme-glass{
+  --panel:rgba(23,23,34,.72);
+  --panel-2:rgba(30,30,47,.68);
+  --border:rgba(255,255,255,.12);
+}
+
+/* Auto safety mode when contrast is detected low */
+.high-contrast{
+  --ink:#ffffff;
+  --ink-subtle:#e6ebf4;
+  --muted:#ced6e6;
+  --panel:#13131c;
+  --panel-2:#171728;
+  --border:#3a3a55;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.theme-macos{
+  --bg:#0b0c0e;
+  --panel:#11131a;
+  --panel-2:#151827;
+  --ink:#f2f5fb;
+  --ink-subtle:#d9e1ef;
+  --muted:#b8c2d4;
+  --accent:#2997ff; /* macOS blue */
+  --border:#2a2f3b;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #222;
+  background: #0f0f11;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.top-actions button {
+  margin-left: 8px;
+}
+.sidebar {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  width: 84px;
+  border-right: 1px solid #222;
+  padding: 10px;
+}
+.carriers img {
+  display: block;
+  width: 56px;
+  margin: 8px auto;
+}
+.content {
+  margin-left: 84px;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 360px;
+}
+.dropzone {
+  border: 1px dashed #444;
+  padding: 12px;
+  border-radius: 12px;
+  background: #101113;
+  min-height: 140px;
+}
+.dropzone.hover {
+  border-color: var(--accent);
+}
+.preview {
+  background: #0f0f11;
+  padding: 8px;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 260px;
+}
+.status {
+  background: #101113;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 12px;
+}
+.status li {
+  margin: 6px 0;
+}
+.status li.ok {
+  color: var(--ok);
+}
+.status li.fail {
+  color: var(--fail);
+}
+dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  background: #0f0f11;
+  color: var(--fg);
+  max-width: 520px;
+  width: 92vw;
+}
+label {
+  display: block;
+  margin: 8px 0;
+}
+input,
+select,
+button,
+textarea {
+  background: #101113;
+  color: var(--fg);
+  border: 1px solid #2a2a2e;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+button {
+  cursor: pointer;
+}
