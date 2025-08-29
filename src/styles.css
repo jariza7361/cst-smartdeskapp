@@ -29,14 +29,66 @@
 }
 html,
 body {
-  background: var(--page-bg);
-  color: var(--ink);
+  background: var(--bg, var(--page-bg));
+  color: var(--ink, var(--text));
 }
+/* App layout grid: header + sidebar + content */
+body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'topbar topbar'
+    'sidebar content';
+  min-height: 100vh;
+}
+.topbar {
+  grid-area: topbar;
+}
+.sidebar {
+  grid-area: sidebar;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100%;
+}
+.content {
+  grid-area: content;
+}
+.sidebar .tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 5;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.sidebar .tabs [role='tab'] {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.sidebar .tabs [aria-selected='true'] {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+.side-panel {
+  padding: 10px;
+}
+
 .content section {
-  background: var(--card-bg);
+  background: var(--card-bg, var(--surface));
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow, 0 4px 18px rgba(0, 0, 0, 0.06));
   margin: 1rem 0;
 }
 .topbar {
@@ -129,6 +181,19 @@ body {
 .copilot-col {
   flex: 1 1 320px;
   min-width: 280px;
+}
+/* Copilot header with engine badge */
+.copilot-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.copilot-header h2 {
+  margin: 0;
+}
+.copilot-header .pill {
+  font-size: 12px;
+  padding: 4px 8px;
 }
 
 /* Splash banner + progress */
@@ -246,8 +311,8 @@ body {
 }
 
 body {
-  color: var(--text);
-  background: var(--surface-2);
+  color: var(--text, var(--ink));
+  background: var(--surface-2, var(--bg));
   margin: 0;
   font-family:
     system-ui,
@@ -260,6 +325,27 @@ body {
     'Segoe UI Emoji';
 }
 
+/* Defensive: hidden elements should never block clicks */
+[hidden] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Splash should only accept clicks when showing */
+#splash:not(.show) {
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Dialogs only clickable when open */
+dialog {
+  pointer-events: none;
+}
+dialog[open] {
+  pointer-events: auto;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -270,6 +356,53 @@ body {
   padding: var(--space-2);
   background: var(--surface);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Top search styling (theme-aware) */
+#topSearch input[type='search'] {
+  background: var(--panel-2);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  color: var(--ink, var(--text));
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+#topSearch input[type='search']::placeholder {
+  color: var(--ink-subtle, #8b95a7);
+}
+#topSearch input[type='search']:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+#searchSuggest {
+  background: var(--surface);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+.suggest-label {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--muted, #667085);
+  padding: 6px 8px 2px;
+  text-transform: uppercase;
+}
+.suggest-option {
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.suggest-option.active {
+  background: var(--panel-2, color-mix(in oklab, var(--surface) 86%, white 14%));
+}
+.theme-dark #searchSuggest {
+  background: color-mix(in oklab, var(--surface) 90%, black 10%);
+}
+.theme-glass #searchSuggest {
+  background: color-mix(in oklab, var(--surface) 75%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: color-mix(in oklab, var(--border, #334155) 60%, transparent);
 }
 
 .content {
@@ -299,8 +432,8 @@ body {
 }
 
 .dropzone {
-  background: var(--surface);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--panel-2, var(--surface));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
   border-radius: var(--radius);
   padding: var(--space-3);
 }
@@ -363,7 +496,7 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 #highlights .card {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   padding: 12px 14px;
   background: color-mix(in oklab, var(--card, #0f172a) 92%, transparent);
@@ -380,10 +513,91 @@ body {
 }
 
 .status {
-  background: var(--surface);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--panel, var(--surface));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
   border-radius: var(--radius);
   padding: var(--space-3);
+}
+
+/* Generic UI bits using tokens */
+.muted {
+  color: var(--muted);
+}
+.subtle {
+  color: var(--ink-subtle);
+}
+
+.tile {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.pill {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+.nav li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.nav li span {
+  color: var(--ink);
+}
+.nav li:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.form input,
+.form select,
+.form textarea {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 10px;
+  border-radius: 10px;
+}
+.form input::placeholder,
+.form textarea::placeholder {
+  color: var(--ink-subtle);
+}
+.form input:focus-visible,
+.form select:focus-visible,
+.form textarea:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* Splash banner */
@@ -454,4 +668,30 @@ body {
   pointer-events: none;
   position: relative;
   z-index: 0;
+}
+/* SmartPanel CSS Fix */
+.smart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.smart-card {
+  background: linear-gradient(135deg, var(--card-start, #667eea), var(--card-end, #764ba2));
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.smart-card:hover {
+  transform: translateY(-5px);
 }

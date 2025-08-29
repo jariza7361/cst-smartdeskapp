@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "xr:serve-solve",
+      "title": "HERO XR: Serve → Solve basics",
+      "url": "/library/hero-xr.json",
+      "type": "xr"
+    },
+    {
+      "id": "policy:alpha-note",
+      "title": "Policy: Alpha Note standards",
+      "url": "/library/policies.json",
+      "type": "policy"
+    },
+    {
+      "id": "script:fmip",
+      "title": "Script: FMIP override coaching",
+      "url": "/library/scripts.json",
+      "type": "script"
+    }
+  ]
+}

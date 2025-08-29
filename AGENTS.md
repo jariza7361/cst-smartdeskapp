@@ -21,7 +21,7 @@
 - **E2E:** `npm run e2e`
 - **E2E (Codex-friendly):** `npm run e2e:codex`
 - **E2E (update snapshots):** `npm run e2e:update` _(only for intentional visual changes)_
-- **Dev server (local smoke):** `npm run serve`
+- **Dev server (local smoke):** `npm run dev -- --host 10.0.0.205 --port 5500`
 
 ## Verification (run before finishing any task)
 
@@ -42,7 +42,7 @@
 ## Debugging & Self-Heal
 
 - If tests fail, prefer targeted fixes and stabilizing selectors (use `getByRole`, visibility checks). **Do not** add arbitrary timeouts.
-- For `/app.js` path issues, **do not move files** out of `/public`; use the existing **rewrites** in `vercel.json`.
+- For `/app.js` path issues, **do not move files** out of `/public`; use the existing local server and rewrites. Vercel rewrites are no longer used.
 
 ## Allowed Files to Modify
 

@@ -22,8 +22,10 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Doctor (preflight)
         run: node scripts/doctor.mjs || true
-      - name: Format
-        run: npm run format
+      - name: Validate files
+        run: npm run validate
+      - name: Format check
+        run: npm run format:check
       - name: Lint
         run: npm run lint
       - name: Unit tests
