@@ -1,0 +1,25 @@
+{
+  "id": "VZW",
+  "name": "Verizon",
+  "tcs": [
+    {"label": "VMP Terms (latest)", "url": "https://www.asurion.com/pdf/nw-consumer-vmp-25/"},
+    {"label": "Device Return Policy", "url": "https://www.phoneclaim.com/verizon/returns"}
+  ],
+  "common_denials": [
+    {"key": "NO_AIRTIME", "label": "No Airtime since enrollment"},
+    {"key": "PRE_EXISTING", "label": "Pre-existing damage"},
+    {"key": "ACTIVE_IMEI", "label": "Active after date of loss"}
+  ],
+  "rpfr": {
+    "eligibility_hint": "Use RPFR when replacement inventory is unavailable.",
+    "note_template_en": "RPFR approved for claim {CLAIM}. Refund method: ACH. Deductible status: {DED}."
+  },
+  "fmip": {
+    "steps_en": ["Open Settings ▶ iCloud ▶ Find My iPhone…", "Turn off and confirm."],
+    "steps_es": ["Abra Configuración ▶ iCloud ▶ Buscar mi iPhone…", "Apague y confirme."]
+  },
+  "support_links": [
+    {"label": "File a claim", "url": "https://www.phoneclaim.com/verizon"},
+    {"label": "Coverage details", "url": "https://www.asurion.com/"}
+  ]
+}
