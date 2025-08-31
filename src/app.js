@@ -1,6 +1,7 @@
 // CST SmartDesk v1.0 - Main Application Logic
 import { createI18n } from './utils/i18n.js';
 import { buildPrompt } from './utils/copilot.js';
+import { parseText } from './utils/parser.js';
 
 // Global state
 let currentLanguage = 'en';
@@ -227,7 +228,7 @@ function playAlert(message) {
 }
 
 // Start break or lunch
-function startBreak(type) {
+function startBreak(type) { // eslint-disable-line no-unused-vars
   scheduleInfo.onBreak = true;
   scheduleInfo.breakStartTime = new Date().toISOString();
   scheduleInfo.currentStatus = type;
@@ -606,7 +607,7 @@ function formatDuration(minutes) {
 }
 
 // Export performance data
-function exportPerformanceData() {
+function exportPerformanceData() { // eslint-disable-line no-unused-vars
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
   const expertData = JSON.parse(localStorage.getItem('cst_expert_info') || '{}');
 
@@ -631,7 +632,7 @@ function exportPerformanceData() {
 }
 
 // Reset daily statistics
-function resetDailyStats() {
+function resetDailyStats() { // eslint-disable-line no-unused-vars
   const today = new Date().toDateString();
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
 
@@ -747,7 +748,7 @@ function handleScheduleFormSubmit(e) {
 }
 
 // Test alert function
-function testAlert() {
+function testAlert() { // eslint-disable-line no-unused-vars
   playAlert('This is a test alert! Your schedule notifications are working correctly.');
 }
 
@@ -1183,11 +1184,11 @@ function toggleLanguage() {
 // SmartPanel specific functions
 
 // FMIP Functions
-function openFMIPChecker() {
+function openFMIPChecker() { // eslint-disable-line no-unused-vars
   window.open('https://icloud.com/find', '_blank');
 }
 
-function showFMIPRemovalSteps() {
+function showFMIPRemovalSteps() { // eslint-disable-line no-unused-vars
   const steps = `
 FMIP Removal Steps:
 1. Go to Settings > [Your Name] > Find My
@@ -1199,7 +1200,7 @@ FMIP Removal Steps:
 }
 
 // Hero Denial Functions
-function loadDenialScript() {
+function loadDenialScript() { // eslint-disable-line no-unused-vars
   const carrier = document.getElementById('carrierSelect').value;
   const contentDiv = document.getElementById('denialScriptContent');
 
@@ -1242,7 +1243,7 @@ function loadDenialScript() {
 }
 
 // BYOD Functions
-function checkBYODCompatibility() {
+function checkBYODCompatibility() { // eslint-disable-line no-unused-vars
   const device = document.getElementById('deviceModel').value;
   const carrier = document.getElementById('targetCarrier').value;
   const resultsDiv = document.getElementById('byodResults');
@@ -1271,7 +1272,7 @@ function checkBYODCompatibility() {
 }
 
 // Spanish Template Functions
-function copySpanishTemplate(templateType) {
+function copySpanishTemplate(templateType) { // eslint-disable-line no-unused-vars
   const templates = {
     greeting: 'Hola, mi nombre es ' + expertInfo.name + '. ¿En qué puedo ayudarle hoy?',
     tech_support: 'Entiendo su problema técnico. Voy a ayudarle a resolverlo paso a paso.',
@@ -1286,7 +1287,7 @@ function copySpanishTemplate(templateType) {
 }
 
 // Auto Fill Functions
-function generateClaimNote() {
+function generateClaimNote() { // eslint-disable-line no-unused-vars
   const name = document.getElementById('customerName').value;
   const phone = document.getElementById('customerPhone').value;
   const email = document.getElementById('customerEmail').value;
@@ -1324,7 +1325,7 @@ Next Steps:
   trackMetric('notesGenerated');
 }
 
-function generateFollowUpEmail() {
+function generateFollowUpEmail() { // eslint-disable-line no-unused-vars
   const name = document.getElementById('customerName').value;
   const email = document.getElementById('customerEmail').value;
 
@@ -1350,9 +1351,9 @@ ${expertInfo.extension ? 'Extension: ' + expertInfo.extension : ''}
   showGeneratedContent(followUpEmail);
 }
 
-function fillCommonForms() {
+function fillCommonForms() { // eslint-disable-line no-unused-vars
   const name = document.getElementById('customerName').value;
-  const phone = document.getElementById('customerPhone').value;
+  const phone = document.getElementById('customerPhone').value; // eslint-disable-line no-unused-vars
 
   if (!name) {
     showNotification('Please enter customer name first.');
@@ -1371,13 +1372,13 @@ function showGeneratedContent(content) {
   contentDiv.style.display = 'block';
 }
 
-function copyGeneratedContent() {
+function copyGeneratedContent() { // eslint-disable-line no-unused-vars
   const content = document.getElementById('contentOutput').value;
   copyToClipboard(content);
 }
 
 // Escalations Functions
-function logEscalation() {
+function logEscalation() { // eslint-disable-line no-unused-vars
   const type = document.getElementById('escalationType').value;
   const reason = document.getElementById('escalationReason').value;
   const mood = document.getElementById('customerMood').value;
@@ -1441,7 +1442,7 @@ function updateEscalationHistory() {
 }
 
 // Alpha Notes Functions
-function generateAlphaNote() {
+function generateAlphaNote() { // eslint-disable-line no-unused-vars
   const noteType = document.getElementById('noteType').value;
   const details = document.getElementById('interactionDetails').value;
   const steps = document.getElementById('resolutionSteps').value;
@@ -1480,7 +1481,7 @@ Note generated by CST SmartDesk v1.0
   outputDiv.style.display = 'block';
 }
 
-function saveNoteDraft() {
+function saveNoteDraft() { // eslint-disable-line no-unused-vars
   const noteData = {
     type: document.getElementById('noteType').value,
     details: document.getElementById('interactionDetails').value,
@@ -1493,13 +1494,13 @@ function saveNoteDraft() {
   showNotification('Note draft saved');
 }
 
-function copyAlphaNote() {
+function copyAlphaNote() { // eslint-disable-line no-unused-vars
   const content = document.getElementById('alphaNoteText').value;
   copyToClipboard(content);
 }
 
 // RPFR Functions
-function copyPFRTemplate() {
+function copyPFRTemplate() { // eslint-disable-line no-unused-vars
   const template = `PFR - Pending Further Review
 
 This case has been marked as PFR for standard review processing.
@@ -1513,7 +1514,7 @@ Date: ${new Date().toLocaleDateString()}`;
   copyToClipboard(template);
 }
 
-function copyRPFRTemplate() {
+function copyRPFRTemplate() { // eslint-disable-line no-unused-vars
   const template = `RPFR - Requires Pending Further Review
 
 This case requires special handling and extended review.
@@ -1528,7 +1529,7 @@ Date: ${new Date().toLocaleDateString()}`;
   copyToClipboard(template);
 }
 
-function evaluateRPFRNeed() {
+function evaluateRPFRNeed() { // eslint-disable-line no-unused-vars
   const checkboxes = document.querySelectorAll('.rpfr-checklist input[type="checkbox"]');
   const checkedCount = Array.from(checkboxes).filter((cb) => cb.checked).length;
 

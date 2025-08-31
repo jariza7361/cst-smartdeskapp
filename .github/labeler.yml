@@ -1,0 +1,14 @@
+version: 1
+labels:
+  - label: "enhancement"
+    sync: true
+    matcher:
+      title: "^feat:"
+  - label: "bug"
+    sync: true
+    matcher:
+      title: "^fix:"
+  - label: "documentation"
+    sync: true
+    matcher:
+      files: "*.md"

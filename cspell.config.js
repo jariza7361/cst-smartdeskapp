@@ -1,0 +1,92 @@
+module.exports = {
+  version: "0.2",
+  language: "en",
+  words: [
+    "Asurion",
+    "SmartDesk",
+    "Copilot",
+    "RPFR",
+    "OCR",
+    "Tesseract",
+    "Vercel",
+    "Amplify",
+    "USCC",
+    "TELUS",
+    "KOODO",
+    "Koodo",
+    "UBIF",
+    "Breaki",
+    "HOMEPLUS",
+    "APPLIANCEPLUS",
+    "smartdrop",
+    "fmip",
+    "dont",
+    "smartdesk",
+    "cst",
+    "CST",
+    "PFR",
+    "BYOD",
+    "FMIP",
+    "HERO",
+    "XR",
+    "uBreakiFix",
+    "Repair Service Group",
+    "Consumer Cellular",
+    "Liberty",
+    "Optimum Mobile",
+    "Cox Mobile",
+    "Samsung",
+    "Bell",
+    "Virgin Plus",
+    "Verizon Home Device Protect",
+    "AT&T Home Tech Protection",
+    "clickability",
+    "upsell",
+    "topbar",
+    "Segoe",
+    "tmobile",
+    "T-Mobile",
+    "rpfr",
+    // Spanish words
+    "Atender",
+    "Ofrecer",
+    "inicio",
+    "Plantillas",
+    "Español",
+    "Saludos",
+    "Soporte",
+    "Técnico",
+    // Additional technical terms
+    "vite",
+    "nosniff",
+    "vercel",
+    "minified",
+    "WebAssembly",
+    "i18n",
+    "l10n",
+    "a11y",
+    "eslint",
+    "cspell",
+    "playwright",
+    "vitest",
+    "tesseract",
+    "ocr",
+    "copilot",
+    "smartdesk",
+    "asurion"
+  ],
+  ignorePaths: [
+    "node_modules/**",
+    "dist/**",
+    ".git/**",
+    "**/*.svg",  // SVG files contain brand names and technical terms
+    "public/libs/tesseract/**",  // Tesseract library files
+    "libs/tesseract/**",  // Tesseract library files
+    "**/*.min.js",  // Minified JS files
+    "**/*.wasm",  // WebAssembly files
+    "public/assets/**",  // Asset files with brand names
+    "public/carriers/**",  // Carrier JSON files with brand names
+    "locales/**",  // Translation files
+    "cspell.config.js"  // Don't check the spell checker config itself
+  ]
+}

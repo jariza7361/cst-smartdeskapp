@@ -1,0 +1,36 @@
+name: CSS Validation
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-css:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Validate CSS Links
+      run: node scripts/validate-css-links.mjs
+    
+    - name: Build Application
+      run: npm run build
+      
+    - name: Test CSS Loading
+      run: |
+        npm run preview &
+        sleep 5
+        curl -f http://localhost:53124/ || exit 1
+        pkill -f "vite preview"

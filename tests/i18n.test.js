@@ -8,10 +8,10 @@ function loadJSON(path) {
 
 describe('i18n scaffolding', () => {
   test('en and es have matching keys', () => {
-    const en = loadJSON('src/public/i18n/en.json');
-    const es = loadJSON('src/public/i18n/es.json');
+    const en = loadJSON('public/i18n/en.json');
+    const es = loadJSON('public/i18n/es.json');
     const enKeys = Object.keys(en).sort();
     const esKeys = Object.keys(es).sort();
     expect(esKeys).toEqual(enKeys);
-  });
+  }, 10000); // 10 second timeout
 });

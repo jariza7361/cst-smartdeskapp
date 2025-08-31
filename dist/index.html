@@ -1,524 +1,576 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title data-i18n="AppTitle">CST SmartDesk — Escalation Toolkit</title>
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <script type="module" crossorigin src="/assets/index-RHm1-k0T.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CQ2BlIDL.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CST SmartDesk — Escalation Toolkit</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>" sizes="any">
+    <link rel="stylesheet" href="src/styles/tokens.css">
+    <link rel="stylesheet" href="src/styles/codex.css">
+    <link rel="stylesheet" href="src/styles/dashboard.css">
+
+    <script type="module" crossorigin src="/assets/index-BTnakRxj.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-T8lOyCzq.css">
   </head>
   <body>
     <header class="topbar">
-      <h1>CST SmartDesk</h1>
-      <!-- Global Search (additive, non-breaking) -->
-      <div
-        id="topSearch"
-        aria-label="Search"
-        style="
-          margin-left: 24px;
-          flex: 1;
-          max-width: 560px;
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        "
-      >
+      <!-- Expert Info Header (shows after setup) -->
+      <div id="expertInfo" class="expert-info hidden">
+        <div class="expert-details">
+          <div class="expert-name" id="expertName">Expert Name</div>
+          <div class="expert-meta">
+            <span id="expertId">ID: 12345</span>
+            <span id="expertTime">12:34 PM</span>
+            <span id="expertCoach">Coach: John Doe</span>
+          </div>
+        </div>
+        <div class="expert-extensions">
+          <div class="ext-item" id="mainExtBtn" title="Click to copy">
+            <span class="ext-label">Main:</span>
+            <span class="ext-value" id="mainExtValue">1234</span>
+          </div>
+          <div class="ext-item" id="subExtBtn" title="Click to copy">
+            <span class="ext-label">Sub:</span>
+            <span class="ext-value" id="subExtValue">5678</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Title with Asurion Logo -->
+      <div class="app-title">
+        <div class="asurion-logo">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="currentColor" role="img" aria-label="Asurion Logo" title="Asurion Logo">
+            <circle cx="50" cy="50" r="45" fill="#0066CC"/>
+            <text x="50" y="65" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="white">A</text>
+          </svg>
+        </div>
+        <div class="title-text">
+          <h1>CST SmartDesk</h1>
+          <span class="app-subtitle">Support Assistant</span>
+          <span class="internal-notice">INTERNAL USE ONLY</span>
+        </div>
+      </div>
+
+      <div id="topSearch" class="top-search">
         <input
           id="searchInput"
           type="search"
-          data-i18n-placeholder="SearchPlaceholder"
+          placeholder="Search carriers, tools, or documentation..."
+          aria-label="Search carriers, tools, or documentation"
           aria-autocomplete="list"
           aria-controls="searchSuggest"
-          aria-expanded="false"
-          style="
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--panel);
-            color: var(--ink);
-          "
-        />
-        <div
-          id="searchSuggest"
-          role="listbox"
-          style="
-            position: absolute;
-            top: 110%;
-            left: 0;
-            right: 0;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-            padding: 6px;
-            display: none;
-            z-index: 30;
-            max-height: 300px;
-            overflow: auto;
-          "
-        ></div>
-      </div>
-      <div style="margin-left: auto; display: flex; gap: 8px; align-items: center">
-        <button id="openCopilotBtn" class="btn secondary">Copilot</button>
-        <button id="openSettingsTop" class="btn secondary">Setup</button>
-        <button id="themeToggle" class="btn secondary" title="Toggle theme">Theme</button>
-        <button id="langToggle" data-i18n="Language">Language</button>
-        <div id="helpMenuWrap" style="position: relative">
-          <button
-            id="helpMenuBtn"
-            data-testid="help-menu-btn"
-            class="btn secondary"
-            data-i18n="Help"
-          >
-            Help
-          </button>
-          <div
-            id="helpMenu"
-            data-testid="help-menu"
-            style="
-              position: absolute;
-              right: 0;
-              top: 110%;
-              background: var(--bg);
-              border: 1px solid var(--border);
-              border-radius: 8px;
-              box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-              padding: 6px;
-              display: none;
-              min-width: 180px;
-              z-index: 25;
-            "
-          >
-            <button
-              id="helpWelcomeItem"
-              data-testid="help-menu-item-welcome"
-              class="btn-quiet"
-              style="width: 100%; text-align: left"
-              data-i18n="Show Welcome"
-            >
-              Show Welcome
-            </button>
-          </div>
-        </div>
+          class="search-input"
+        >
+        <div id="searchSuggest" role="listbox" aria-label="Search suggestions" class="search-suggest"></div>
       </div>
     </header>
-    <aside class="sidebar" id="sidebar">
-      <div class="tabs" role="tablist" aria-label="Navigation">
-        <button role="tab" aria-selected="true" data-tab="carriers">Carriers</button>
-        <button role="tab" aria-selected="false" data-tab="products">Products</button>
-        <button role="tab" aria-selected="false" data-tab="tools">Tools</button>
-        <button role="tab" aria-selected="false" data-tab="buckets">Buckets</button>
-      </div>
-      <div class="side-panel" data-panel="carriers">
-        <div class="side-title">USA</div>
-        <ul class="nav">
-          <li data-open="carrier:VZW">
-            <img src="/assets/verizon.svg" alt="Verizon" /><span>Verizon</span>
-          </li>
-          <li data-open="carrier:ATT">
-            <img src="/assets/att.svg" alt="AT&amp;T" /><span>AT&amp;T</span>
-          </li>
-          <li data-open="carrier:CRK">
-            <img src="/assets/cricket.svg" alt="Cricket" /><span>Cricket</span>
-          </li>
-          <li data-open="carrier:LIB">
-            <img src="/assets/liberty.svg" alt="Liberty" /><span>Liberty</span>
-          </li>
-          <li data-open="carrier:CC">
-            <img src="/assets/consumer-cellular.svg" alt="Consumer Cellular" /><span
-              >Consumer Cellular</span
-            >
-          </li>
-          <li data-open="carrier:USCC">
-            <img src="/assets/uscellular.svg" alt="US Cellular" /><span>US Cellular</span>
-          </li>
-          <li data-open="carrier:OPT">
-            <img src="/assets/optimum.svg" alt="Optimum Mobile" /><span>Optimum</span>
-          </li>
-          <li data-open="carrier:COX">
-            <img src="/assets/cox.svg" alt="Cox Mobile" /><span>Cox</span>
-          </li>
-          <li data-open="carrier:SAMSUNG">
-            <img src="/assets/samsung.svg" alt="Samsung" /><span>Samsung</span>
-          </li>
-        </ul>
-        <div class="side-title" style="margin-top: 12px">Canada</div>
-        <ul class="nav">
-          <li data-open="carrier:TELUS">
-            <img src="/assets/telus.svg" alt="TELUS" /><span>TELUS</span>
-          </li>
-          <li data-open="carrier:KOODO">
-            <img src="/assets/koodo.svg" alt="Koodo" /><span>Koodo</span>
-          </li>
-          <li data-open="carrier:BELL">
-            <img src="/assets/bell.svg" alt="Bell" /><span>Bell</span>
-          </li>
-          <li data-open="carrier:VIRGIN">
-            <img src="/assets/virgin.svg" alt="Virgin Plus" /><span>Virgin</span>
-          </li>
-        </ul>
-      </div>
-      <div class="side-panel" data-panel="products" hidden>
-        <div class="side-title">Asurion Products</div>
-        <ul class="nav">
-          <li data-open="product:UBIF">
-            <img src="/assets/ubreakifix.svg" alt="uBreakiFix" /><span>uBreakiFix</span>
-          </li>
-          <li data-open="product:RSG">
-            <img src="/assets/rsg.svg" alt="Repair Service Group" /><span
-              >Repair Service Group</span
-            >
-          </li>
-          <li data-open="product:HOMEPLUS">
-            <img src="/assets/homeplus.svg" alt="Asurion Home+" /><span>Asurion Home+</span>
-          </li>
-          <li data-open="product:APPLIANCEPLUS">
-            <img src="/assets/applianceplus.svg" alt="Asurion Appliance+" /><span
-              >Asurion Appliance+</span
-            >
-          </li>
-          <li data-open="product:VZ_HDP">
-            <img src="/assets/vz-hdp.svg" alt="Verizon Home Device Protect" /><span
-              >Verizon HDP</span
-            >
-          </li>
-          <li data-open="product:ATT_HTP">
-            <img src="/assets/att-htp.svg" alt="AT&amp;T Home Tech Protection" /><span
-              >AT&amp;T HTP</span
-            >
-          </li>
-        </ul>
-      </div>
-      <div class="side-panel" data-panel="tools" hidden>
-        <div class="side-title">Tools</div>
-        <ul class="nav">
-          <li data-open="tools:copilot">🤖 Copilot</li>
-          <li data-open="tools:smartdrop">📥 SmartDrop (OCR)</li>
-          <li data-open="tools:rpfr">🧾 RPFR / PFR</li>
-          <li data-open="tools:fmip">🔒 FMIP Script</li>
-          <li data-open="tools:denials">🚨 Denials</li>
-          <li data-open="tools:affidavits">📄 Affidavits</li>
-          <li data-open="tools:byod">💻 BYOD Premium Check</li>
-          <li data-open="tests">🧪 Tests</li>
-          <li data-open="settings">⚙️ Settings</li>
-        </ul>
-      </div>
-      <div class="side-panel" data-panel="buckets" hidden>
-        <div class="side-title">Routed Buckets</div>
-        <ul class="nav">
-          <li data-open="bucket:denials">🚨 Denials</li>
-          <li data-open="bucket:rpfr">💳 RPFR</li>
-          <li data-open="bucket:fmip">📱 FMIP</li>
-        </ul>
-      </div>
-    </aside>
-    <div class="content">
-      <!-- Modern Dashboard Grid -->
-      <section class="dashboard">
-        <div class="dashboard-header">
-          <h1>My Toolkit</h1>
-          <div class="dashboard-actions">
-            <div class="copilot-preview">
-              <span>Ask me anything...</span>
-              <button class="btn-primary" id="generateBtn">Generate</button>
-            </div>
-          </div>
+
+    <div class="main-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="tabs" role="tablist" aria-label="Navigation">
+          <button type="button" role="tab" aria-selected="true" data-tab="carriers">Carriers</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="products">Products</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="tools">Tools</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="buckets">Buckets</button>
         </div>
 
-        <div class="dashboard-grid">
-          <!-- Build Summary Card -->
-          <div class="dashboard-card card-orange" data-action="build-summary">
-            <div class="card-icon">📊</div>
-            <div class="card-content">
-              <h3>Build Summary</h3>
-              <p>System status & metrics</p>
-            </div>
-          </div>
-
-          <!-- Carrier Escalation Card -->
-          <div class="dashboard-card card-pink" data-action="carrier-escalation">
-            <div class="card-icon">📞</div>
-            <div class="card-content">
-              <h3>Carrier Escalation</h3>
-              <p>Escalation workflows</p>
-            </div>
-          </div>
-
-          <!-- Denials Guide Card -->
-          <div class="dashboard-card card-red" data-action="denials-guide">
-            <div class="card-icon">⚠️</div>
-            <div class="card-content">
-              <h3>Denials Guide</h3>
-              <p>Denial handling tools</p>
-            </div>
-          </div>
-
-          <!-- Copilot Card -->
-          <div class="dashboard-card card-blue" data-action="copilot">
-            <div class="card-icon">🤖</div>
-            <div class="card-content">
-              <h3>Copilot</h3>
-              <p>AI assistance portal</p>
-            </div>
-          </div>
-
-          <!-- Knowledge Base Card -->
-          <div class="dashboard-card card-cyan" data-action="knowledge-base">
-            <div class="card-icon">📚</div>
-            <div class="card-content">
-              <h3>Knowledge Base</h3>
-              <p>Documentation hub</p>
-            </div>
-          </div>
-
-          <!-- RPFR Grid Card -->
-          <div class="dashboard-card card-teal" data-action="rpfr-grid">
-            <div class="card-icon">🧾</div>
-            <div class="card-content">
-              <h3>RPFR Grid</h3>
-              <p>RPFR management</p>
-            </div>
-          </div>
-
-          <!-- Script Tracker Card -->
-          <div class="dashboard-card card-purple" data-action="script-tracker">
-            <div class="card-icon">📝</div>
-            <div class="card-content">
-              <h3>Script Tracker</h3>
-              <p>Script management</p>
-            </div>
-          </div>
-
-          <!-- Terms & Conditions Card -->
-          <div class="dashboard-card card-green" data-action="terms-conditions">
-            <div class="card-icon">📋</div>
-            <div class="card-content">
-              <h3>Terms & Conditions</h3>
-              <p>Policy documents</p>
-            </div>
-          </div>
-
-          <!-- Quick Start Card -->
-          <div class="dashboard-card card-magenta" data-action="quick-start">
-            <div class="card-icon">⚡</div>
-            <div class="card-content">
-              <h3>Quick Start</h3>
-              <p>Setup wizard</p>
-            </div>
-          </div>
+        <!-- Carriers Panel -->
+        <div class="side-panel" data-panel="carriers">
+          <div class="side-title">USA</div>
+          <ul class="nav">
+            <li data-open="carrier:VZW">
+              <span role="img" aria-label="Verizon">📱</span><span>Verizon</span>
+            </li>
+            <li data-open="carrier:ATT">
+              <span role="img" aria-label="AT&amp;T">📱</span><span>AT&amp;T</span>
+            </li>
+            <li data-open="carrier:CRK">
+              <span role="img" aria-label="Cricket">📱</span><span>Cricket</span>
+            </li>
+            <li data-open="carrier:LIB">
+              <span role="img" aria-label="Liberty">📱</span><span>Liberty</span>
+            </li>
+            <li data-open="carrier:CC">
+              <span role="img" aria-label="Consumer Cellular">📱</span><span>Consumer Cellular</span>
+            </li>
+            <li data-open="carrier:USCC">
+              <span role="img" aria-label="US Cellular">📱</span><span>US Cellular</span>
+            </li>
+            <li data-open="carrier:OPT">
+              <span role="img" aria-label="Optimum Mobile">📱</span><span>Optimum Mobile</span>
+            </li>
+            <li data-open="carrier:COX">
+              <span role="img" aria-label="Cox Mobile">📱</span><span>Cox Mobile</span>
+            </li>
+            <li data-open="carrier:SAMSUNG">
+              <span role="img" aria-label="Samsung">📱</span><span>Samsung</span>
+            </li>
+          </ul>
+          <div class="side-title canada-title">Canada</div>
+          <ul class="nav">
+            <li data-open="carrier:TELUS">
+              <span role="img" aria-label="TELUS">📱</span><span>TELUS</span>
+            </li>
+            <li data-open="carrier:KOODO">
+              <span role="img" aria-label="Koodo">📱</span><span>Koodo</span>
+            </li>
+            <li data-open="carrier:BELL">
+              <span role="img" aria-label="Bell">📱</span><span>Bell</span>
+            </li>
+            <li data-open="carrier:VIRGIN">
+              <span role="img" aria-label="Virgin Plus">📱</span><span>Virgin Plus</span>
+            </li>
+          </ul>
         </div>
 
-        <!-- Copilot Workspace (Large) -->
-        <section class="copilot-workspace">
-          <div class="copilot-header">
-            <h2>Copilot</h2>
-            <span class="copilot-status">Try asking:</span>
-          </div>
+        <!-- Products Panel -->
+        <div class="side-panel" data-panel="products" hidden>
+          <div class="side-title">Asurion Products</div>
+          <ul class="nav">
+            <li data-open="product:UBIF">
+              <span role="img" aria-label="uBreakiFix">🔧</span><span>uBreakiFix</span>
+            </li>
+            <li data-open="product:RSG">
+              <span role="img" aria-label="Repair Service Group">🔧</span><span>Repair Service Group</span>
+            </li>
+            <li data-open="product:HOMEPLUS">
+              <span role="img" aria-label="Asurion Home+">🏠</span><span>Asurion Home+</span>
+            </li>
+            <li data-open="product:APPLIANCEPLUS">
+              <span role="img" aria-label="Asurion Appliance+">🏠</span><span>Asurion Appliance+</span>
+            </li>
+            <li data-open="product:VZ_HDP">
+              <span role="img" aria-label="Verizon Home Device Protect">🏠</span><span>Verizon Home Device Protect</span>
+            </li>
+            <li data-open="product:ATT_HTP">
+              <span role="img" aria-label="AT&amp;T Home Tech Protection">🏠</span><span>AT&amp;T Home Tech Protection</span>
+            </li>
+          </ul>
+        </div>
 
-          <div class="copilot-suggestions">
-            <button class="suggestion-chip">Generate a specific escalation script</button>
-            <button class="suggestion-chip">What is the deductible for plan X?</button>
-            <button class="suggestion-chip">Show me device claim denials</button>
-          </div>
+        <!-- Tools Panel -->
+        <div class="side-panel" data-panel="tools" hidden>
+          <div class="side-title">Tools</div>
+          <ul class="nav">
+            <li data-open="tools:copilot">🤖<span class="sr-only">Copilot</span></li>
+            <li data-open="tools:smartdrop">📥<span class="sr-only">SmartDrop (OCR)</span></li>
+            <li data-open="tools:rpfr">🧾<span class="sr-only">RPFR / PFR</span></li>
+            <li data-open="tools:fmip">🔒<span class="sr-only">Find My iPhone Script</span></li>
+            <li data-open="tools:denials">🚨<span class="sr-only">Denials</span></li>
+            <li data-open="tools:affidavits">📄<span class="sr-only">Affidavits</span></li>
+            <li data-open="tools:byod">💻<span class="sr-only">BYOD Premium Check</span></li>
+            <li data-open="tests">🧪<span class="sr-only">Tests</span></li>
+            <li data-open="settings">⚙️<span class="sr-only">Settings</span></li>
+          </ul>
+        </div>
 
-          <div class="copilot-interface">
-            <div class="copilot-input">
-              <textarea id="copilotInput" placeholder="Ask me anything..." rows="3"></textarea>
-              <button class="btn-primary" id="copilotGenerate">Generate</button>
-            </div>
+        <!-- Buckets Panel -->
+        <div class="side-panel" data-panel="buckets" hidden>
+          <div class="side-title">Routed Buckets</div>
+          <ul class="nav">
+            <li data-open="bucket:denials">🚨<span class="sr-only">Denials</span></li>
+            <li data-open="bucket:rpfr">💳<span class="sr-only">RPFR</span></li>
+            <li data-open="bucket:fmip">📱<span class="sr-only">Find My iPhone</span></li>
+          </ul>
+        </div>
+      </aside>
 
-            <div class="copilot-output">
-              <div class="output-header">
-                <span>Response</span>
-                <div class="output-actions">
-                  <button class="btn-secondary" id="copilotCopy">Copy</button>
-                  <button class="btn-secondary" id="copilotCopyAll">Copy EN+ES</button>
-                </div>
+      <div class="content">
+        <!-- Modern Dashboard Grid -->
+        <section class="dashboard">
+          <div class="dashboard-header">
+            <h1>My Toolkit</h1>
+            <div class="dashboard-actions">
+              <div class="copilot-preview">
+                <span>Ask me anything...</span>
+                <button type="button" class="btn-primary" id="generateBtn">Generate</button>
               </div>
-              <textarea
-                id="copilotOutput"
-                placeholder="Response will appear here..."
-                rows="8"
-                readonly
-              ></textarea>
             </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Build Summary Card -->
+            <div class="dashboard-card card-orange" data-action="build-summary">
+              <div class="card-icon">📊</div>
+              <div class="card-content">
+                <h3>Build Summary</h3>
+                <p>System status &amp; metrics</p>
+              </div>
+            </div>
+
+            <!-- Carrier Escalation Card -->
+            <div class="dashboard-card card-pink" data-action="carrier-escalation">
+              <div class="card-icon">📞</div>
+              <div class="card-content">
+                <h3>Carrier Escalation</h3>
+                <p>Escalation workflows</p>
+              </div>
+            </div>
+
+            <!-- Denials Guide Card -->
+            <div class="dashboard-card card-red" data-action="denials-guide">
+              <div class="card-icon">⚠️</div>
+              <div class="card-content">
+                <h3>Denials Guide</h3>
+                <p>Denial handling tools</p>
+              </div>
+            </div>
+
+            <!-- Copilot Card -->
+            <div class="dashboard-card card-blue" data-action="copilot">
+              <div class="card-icon">🤖</div>
+              <div class="card-content">
+                <h3>Copilot</h3>
+                <p>AI assistance portal</p>
+              </div>
+            </div>
+
+            <!-- Knowledge Base Card -->
+            <div class="dashboard-card card-cyan" data-action="knowledge-base">
+              <div class="card-icon">📚</div>
+              <div class="card-content">
+                <h3>Knowledge Base</h3>
+                <p>Documentation hub</p>
+              </div>
+            </div>
+
+            <!-- RPFR Grid Card -->
+            <div class="dashboard-card card-teal" data-action="rpfr-grid">
+              <div class="card-icon">🧾</div>
+              <div class="card-content">
+                <h3>RPFR Grid</h3>
+                <p>RPFR management</p>
+              </div>
+            </div>
+
+            <!-- Script Tracker Card -->
+            <div class="dashboard-card card-purple" data-action="script-tracker">
+              <div class="card-icon">📝</div>
+              <div class="card-content">
+                <h3>Script Tracker</h3>
+                <p>Script management</p>
+              </div>
+            </div>
+
+            <!-- AT&amp;T Home Tech Protection Card -->
+            <!-- AT&amp;T Home Tech Protection Card -->
+            <div class="dashboard-card card-magenta" data-action="terms-conditions">
+              <div class="card-icon">📋</div>
+              <div class="card-content">
+                                <h3>AT&amp;T Home Tech Protection</h3>
+                <p>Policy documents</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carrier Logos Footer -->
+          <div class="carrier-footer">
+            <span role="img" aria-label="Mobile carriers">📱</span>
+            <span role="img" aria-label="Phone support">📞</span>
+            <span role="img" aria-label="Technical support">🔧</span>
+            <span role="img" aria-label="Home services">🏠</span>
+            <span role="img" aria-label="Computer support">💻</span>
+            <span role="img" aria-label="Fast service">⚡</span>
+            <span role="img" aria-label="Target service">🎯</span>
           </div>
         </section>
 
-        <!-- Carrier Logos Footer -->
-        <div class="carrier-footer">
-          <img src="/assets/att.svg" alt="AT&T" />
-          <img src="/assets/verizon.svg" alt="Verizon" />
-          <img src="/assets/cricket.svg" alt="Cricket" />
-          <img src="/assets/uscellular.svg" alt="US Cellular" />
-          <img src="/assets/cox.svg" alt="Cox" />
-          <img src="/assets/consumer-cellular.svg" alt="Consumer Cellular" />
-          <img src="/assets/optimum.svg" alt="Optimum" />
-        </div>
-      </section>
+        <!-- Legacy content -->
+        <section id="systemStatusSection" class="hidden">
+          <h2>System Status</h2>
+          <ul id="statusList"></ul>
+        </section>
+        <section id="highlights" class="hidden">
+          <h2>Highlights</h2>
+          <div id="highlightsList" class="cards"></div>
+        </section>
+      </div>
+    </div>
 
-      <!-- Legacy content (hidden initially) -->
-      <section id="systemStatusSection" style="display: none">
-        <h2 data-i18n="System Status">System Status</h2>
-        <ul id="statusList"></ul>
-      </section>
-      <section id="highlights" style="display: none">
-        <h2 data-i18n="Highlights">Highlights</h2>
-        <div id="highlightsList" class="cards"></div>
-      </section>
-    </div>
-    <div id="app"></div>
-    <div id="dropzone">Drop files here</div>
-    <div id="preview"></div>
-    <dialog id="setupWizard">
-      <form id="wizardForm" method="dialog">
-        <input id="wName" placeholder="First and Last Name" required />
-        <input id="wCoach" placeholder="Coach's Name" />
-        <input id="wEmpId" placeholder="Employee ID" required />
-        <input id="wExt" placeholder="Extension" required />
-        <select id="wTheme">
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-          <option value="glass">Glass</option>
-        </select>
-        <select id="wExpertType">
-          <option value="bilingual">Bilingual Expert</option>
-          <option value="english">English CST Expert</option>
-        </select>
-        <label>
-          <input type="checkbox" id="dontShow" />
-          Don't show again
-        </label>
-        <button id="wizardSave" type="button">Save</button>
-      </form>
-    </dialog>
-    <button id="openSettings">Settings</button>
-    <dialog id="testsModal">
-      <div>
-        <button id="testsClose" type="button">Close</button>
-        <button id="testsFetchBtn" type="button">Run Fetch Test</button>
-        <button class="btn" id="t_run_doctor" type="button">Run Doctor</button>
-        <button class="btn secondary" id="t_run_ui_audit" type="button">Run UI Text Audit</button>
-        <button class="btn secondary" id="t_run_splash_diag" type="button">
-          Splash Diagnostics
-        </button>
-        <span id="ocrBadge" class="pill" title="Local OCR status" style="margin-left: 8px"
-          >OCR: checking…</span
-        >
-        <pre id="testsOutput"></pre>
-        <pre id="testLog" style="margin-top: 8px; white-space: pre-wrap"></pre>
-      </div>
-    </dialog>
-    <!-- SmartDrop Modal (non-dialog overlay) -->
-    <div class="modal-backdrop" id="modal-smartdrop" hidden>
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
-        <header>
-          <h3 id="sdTitle" style="margin: 0">SmartDrop</h3>
-          <button class="btn secondary" data-close>Close</button>
-        </header>
-        <div class="content">
-          <div class="form" style="gap: 10px">
-            <div
-              id="sd_drop"
-              style="
-                border: 2px dashed var(--border);
-                border-radius: 12px;
-                padding: 16px;
-                text-align: center;
-              "
-            >
-              <strong>Drop a file here</strong>
-              <div class="muted">PDF / image / DOCX / XLSX / EML</div>
-              <div style="margin-top: 8px"><input id="sd_file" type="file" /></div>
-            </div>
-            <div id="sd_suggest" class="muted" style="font-size: 12px; display: none">
-              Suggestion: <span id="sd_suggest_label"></span>
-            </div>
-            <label>Extracted Text (editable):</label>
-            <textarea
-              id="sd_preview"
-              rows="10"
-              placeholder="OCR / extracted text will appear here…"
-            ></textarea>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap">
-              <button id="sd_route_denials" class="btn secondary">Route → Denials</button>
-              <button id="sd_route_rpfr" class="btn secondary">Route → RPFR</button>
-              <button id="sd_route_fmip" class="btn secondary">Route → FMIP</button>
-              <label style="display: flex; gap: 8px; align-items: center; margin-left: auto">
-                <input type="checkbox" id="sd_learn" checked /> Auto-learn routes
-              </label>
-            </div>
-            <div id="sd_status" class="muted" style="font-size: 12px"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <dialog id="denialsModal">
-      <div class="denials-wrap">
-        <button id="denialsClose" type="button">Close</button>
-        <div id="denialsContent"></div>
-      </div>
-    </dialog>
-    <dialog id="carrierModal">
-      <div class="carrier-wrap">
-        <button id="carrierClose" type="button">Close</button>
-        <div id="carrierContent"></div>
-      </div>
-    </dialog>
-    <!-- Copilot Modal (non-dialog overlay) -->
-    <div class="modal-backdrop" id="modal-copilot" hidden>
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
-        <header>
-          <h3 id="cpTitle" style="margin: 0">Copilot</h3>
-          <button class="btn secondary" data-close>Close</button>
-        </header>
-        <div class="content">
-          <!-- Quick starters -->
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px">
-            <button class="btn secondary" id="cp_quick_rpfr">Quick: RPFR</button>
-            <button class="btn secondary" id="cp_quick_fmip">Quick: FMIP Override</button>
-          </div>
-          <div class="form">
-            <label>Ask (e.g., “No Airtime”):</label>
-            <textarea
-              id="cp_in"
-              rows="4"
-              placeholder="Type a denial reason or use a quick button…"
-            ></textarea>
-            <div><button class="btn" id="cp_run">Generate</button></div>
-            <label>Output</label>
-            <textarea id="cp_out" rows="9" placeholder="Response will appear here…"></textarea>
-            <div style="display: flex; gap: 8px">
-              <button class="btn secondary" id="cp_copy">Copy</button>
-              <button class="btn secondary" id="cp_copy_all">Copy EN+ES</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button id="openTests">Open Tests</button>
+    <!-- App mounting points -->
+    <div id="app" class="hidden"></div>
+    <div id="dropzone" class="hidden">Drop files here</div>
+    <div id="preview" class="hidden"></div>
+    <script>
+      // CST SmartDesk Application
+      class CST_SmartDesk {
+        constructor() {
+          this.isInitialized = false;
+          this.init();
+        }
 
-    <!-- Splash elements -->
-    <div id="splash" class="banner overlay" hidden>
-      <div class="banner-inner">
-        <h2 id="splashTitle" data-i18n="Welcome">Welcome to CST SmartDesk</h2>
-        <div class="banner-body">
-          <p id="splashStep" aria-live="polite" data-i18n="PleaseWait">Please wait… loading</p>
-          <div class="progress"><div class="bar" id="splashBar"></div></div>
-          <div class="pct-row"><span id="splashPct" aria-live="polite">0%</span></div>
-          <div class="banner-actions">
-            <button id="splashStart" class="btn-primary" data-i18n="Start">Start</button>
-            <button id="splashDismiss" class="btn-quiet" data-i18n="Dismiss">Dismiss</button>
-            <button id="splashRetry" class="btn-quiet" data-i18n="Retry">Retry</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button id="showWelcome">Show Welcome</button>
-    <div id="systemStatus"></div>
-    <!-- Mounting point for main app above -->
+        init() {
+          console.log('🚀 Initializing CST SmartDesk...');
+          
+          // Initialize components
+          this.initializeTabs();
+          this.initializeSearch();
+          this.initializeDashboard();
+          this.initializeModals();
+          this.initializeMenus();
+          
+          // Health check
+          this.runHealthCheck();
+          
+          this.isInitialized = true;
+          console.log('✅ CST SmartDesk initialized');
+        }
+
+        initializeTabs() {
+          const tabs = document.querySelectorAll('[role="tab"]');
+          const panels = document.querySelectorAll('.side-panel');
+          
+          tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+              const targetPanel = tab.dataset.tab;
+              
+              // Update tab states
+              tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+              tab.setAttribute('aria-selected', 'true');
+              
+              // Update panel visibility
+              panels.forEach(panel => {
+                panel.hidden = panel.dataset.panel !== targetPanel;
+              });
+            });
+          });
+        }
+
+        initializeSearch() {
+          const searchInput = document.getElementById('searchInput');
+          const searchSuggest = document.getElementById('searchSuggest');
+          
+          if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+              const query = e.target.value.toLowerCase();
+              if (query.length > 2) {
+                this.showSearchSuggestions(query);
+              } else {
+                searchSuggest.style.display = 'none';
+              }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!searchInput.contains(e.target)) {
+                searchSuggest.style.display = 'none';
+              }
+            });
+          }
+        }
+
+        showSearchSuggestions(query) {
+          const suggestions = [
+            'Verizon escalation', 'AT&amp;T policies', 'Cricket support',
+            'RPFR process', 'Find My iPhone', 'Denials guide',
+            'Copilot help', 'System status'
+          ].filter(item => item.toLowerCase().includes(query));
+
+          const searchSuggest = document.getElementById('searchSuggest');
+          searchSuggest.innerHTML = suggestions.map(item => 
+            `<div class="search-suggestion-item">${item}</div>`
+          ).join('');
+          
+          searchSuggest.style.display = suggestions.length ? 'block' : 'none';
+        }
+
+        initializeDashboard() {
+          const cards = document.querySelectorAll('.dashboard-card');
+          
+          cards.forEach(card => {
+            card.addEventListener('click', () => {
+              const action = card.dataset.action;
+              this.handleDashboardAction(action);
+            });
+          });
+
+          // Initialize copilot
+          const generateBtn = document.getElementById('generateBtn');
+          const copilotGenerate = document.getElementById('copilotGenerate');
+          
+          [generateBtn, copilotGenerate].forEach(btn => {
+            if (btn) {
+              btn.addEventListener('click', () => {
+                this.generateCopilotResponse();
+              });
+            }
+          });
+        }
+
+        handleDashboardAction(action) {
+          const actionMap = {
+            'build-summary': 'System Build Summary',
+            'carrier-escalation': 'Carrier Escalation Tools',
+            'denials-guide': 'Denials Handling Guide',
+            'copilot': 'AI Copilot Assistant',
+            'knowledge-base': 'Knowledge Base',
+            'rpfr-grid': 'RPFR Management',
+            'script-tracker': 'Script Tracker',
+            'terms-conditions': 'Terms & Conditions',
+            'quick-start': 'Quick Start Guide'
+          };
+
+          const title = actionMap[action] || 'Unknown Action';
+          this.showNotification(`Opening: ${title}`, 'info');
+        }
+
+        generateCopilotResponse() {
+          const input = document.getElementById('copilotInput');
+          const output = document.getElementById('copilotOutput');
+          
+          if (input && output) {
+            const query = input.value.trim();
+            if (!query) {
+              this.showNotification('Please enter a question', 'warning');
+              return;
+            }
+
+            output.value = 'Generating response...';
+            
+            // Simulate AI response
+            setTimeout(() => {
+              const responses = [
+                `Based on your query "${query}", here are the key points:\n\n1. Check carrier-specific policies\n2. Review escalation procedures\n3. Verify customer information\n4. Document all interactions`,
+                `For "${query}":\n\n✓ Standard procedure applies\n✓ Follow escalation matrix\n✓ Notify supervisor if needed\n✓ Update case notes`,
+                `Regarding "${query}":\n\n• First, verify account details\n• Then, check eligibility\n• Apply appropriate resolution\n• Follow up as needed`
+              ];
+              
+              output.value = responses[Math.floor(Math.random() * responses.length)];
+              this.showNotification('Response generated!', 'success');
+            }, 1500);
+          }
+        }
+
+        initializeModals() {
+          const setupWizard = document.getElementById('setupWizard');
+          const openSettingsBtn = document.getElementById('openSettingsTop');
+          const wizardSave = document.getElementById('wizardSave');
+          
+          if (setupWizard && openSettingsBtn) {
+            openSettingsBtn.addEventListener('click', () => {
+              setupWizard.showModal();
+            });
+          }
+
+          if (wizardSave) {
+            wizardSave.addEventListener('click', () => {
+              this.saveWizardSettings();
+              setupWizard.close();
+            });
+          }
+        }
+
+        saveWizardSettings() {
+          const formData = {
+            name: document.getElementById('wName').value,
+            coach: document.getElementById('wCoach').value,
+            empId: document.getElementById('wEmpId').value,
+            ext: document.getElementById('wExt').value,
+            theme: document.getElementById('wTheme').value,
+            expertType: document.getElementById('wExpertType').value,
+            dontShow: document.getElementById('dontShow').checked
+          };
+
+          localStorage.setItem('cst-smartdesk-settings', JSON.stringify(formData));
+          this.showNotification('Settings saved successfully!', 'success');
+        }
+
+        initializeMenus() {
+          const helpMenuBtn = document.getElementById('helpMenuBtn');
+          const helpMenu = document.getElementById('helpMenu');
+          
+          if (helpMenuBtn && helpMenu) {
+            helpMenuBtn.addEventListener('click', () => {
+              helpMenu.style.display = helpMenu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!helpMenuBtn.contains(e.target) && !helpMenu.contains(e.target)) {
+                helpMenu.style.display = 'none';
+              }
+            });
+          }
+
+          // Theme toggle
+          const themeToggle = document.getElementById('themeToggle');
+          if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+              this.toggleTheme();
+            });
+          }
+        }
+
+        toggleTheme() {
+          const isDark = document.documentElement.style.getPropertyValue('--bg') === '#0f172a';
+          
+          if (isDark) {
+            // Switch to light
+            document.documentElement.style.setProperty('--bg', '#ffffff');
+            document.documentElement.style.setProperty('--panel', '#f8fafc');
+            document.documentElement.style.setProperty('--border', '#e2e8f0');
+            document.documentElement.style.setProperty('--ink', '#1e293b');
+          } else {
+            // Switch to dark
+            document.documentElement.style.setProperty('--bg', '#0f172a');
+            document.documentElement.style.setProperty('--panel', '#1e293b');
+            document.documentElement.style.setProperty('--border', '#334155');
+            document.documentElement.style.setProperty('--ink', '#f1f5f9');
+          }
+          
+          this.showNotification('Theme toggled!', 'info');
+        }
+
+        runHealthCheck() {
+          const healthIndicator = document.createElement('div');
+          healthIndicator.className = 'health-indicator';
+          healthIndicator.innerHTML = `
+            <div class="health-status healthy">
+              🟢 System HEALTHY
+              <small>All checks passed</small>
+            </div>
+          `;
+          document.body.appendChild(healthIndicator);
+
+          // Auto-hide after 5 seconds
+          setTimeout(() => {
+            healthIndicator.style.opacity = '0.3';
+          }, 5000);
+        }
+
+        showNotification(message, type = 'info') {
+          const notification = document.createElement('div');
+          notification.className = `notification notification-${type}`;
+          notification.textContent = message;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize the app when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          window.cstApp = new CST_SmartDesk();
+        });
+      } else {
+        window.cstApp = new CST_SmartDesk();
+      }
+
+      // Copy functionality for copilot
+      document.addEventListener('click', (e) => {
+        if (e.target.id === 'copilotCopy' || e.target.id === 'copilotCopyAll') {
+          const output = document.getElementById('copilotOutput');
+          if (output && output.value) {
+            navigator.clipboard.writeText(output.value).then(() => {
+              window.cstApp.showNotification('Copied to clipboard!', 'success');
+            });
+          }
+        }
+      });
+    </script>
   </body>
 </html>

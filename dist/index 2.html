@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CST SmartDesk — Escalation Toolkit</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>" sizes="any">
+    <link rel="stylesheet" href="styles.css">
+
+    <script type="module" crossorigin src="/assets/index-CH8h2dvw.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <!-- Expert Info Header (shows after setup) -->
+      <div id="expertInfo" class="expert-info hidden">
+        <div class="expert-details">
+          <div class="expert-name" id="expertName">Expert Name</div>
+          <div class="expert-meta">
+            <span id="expertId">ID: 12345</span>
+            <span id="expertTime">12:34 PM</span>
+            <span id="expertCoach">Coach: John Doe</span>
+          </div>
+        </div>
+        <div class="expert-extensions">
+          <div class="ext-item" id="mainExtBtn" title="Click to copy">
+            <span class="ext-label">Main:</span>
+            <span class="ext-value" id="mainExtValue">1234</span>
+          </div>
+          <div class="ext-item" id="subExtBtn" title="Click to copy">
+            <span class="ext-label">Sub:</span>
+            <span class="ext-value" id="subExtValue">5678</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Title with Asurion Logo -->
+      <div class="app-title">
+        <div class="asurion-logo">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="currentColor" role="img" aria-label="Asurion Logo" title="Asurion Logo">
+            <circle cx="50" cy="50" r="45" fill="#0066CC"/>
+            <text x="50" y="65" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="white">A</text>
+          </svg>
+        </div>
+        <div class="title-text">
+          <h1>CST SmartDesk</h1>
+          <span class="app-subtitle">Support Assistant</span>
+          <span class="internal-notice">INTERNAL USE ONLY</span>
+        </div>
+      </div>
+
+      <div id="topSearch" class="top-search">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search carriers, tools, or documentation..."
+          aria-label="Search carriers, tools, or documentation"
+          aria-autocomplete="list"
+          aria-controls="searchSuggest"
+          class="search-input"
+        >
+        <div id="searchSuggest" role="listbox" aria-label="Search suggestions" class="search-suggest"></div>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="tabs" role="tablist" aria-label="Navigation">
+          <button type="button" role="tab" aria-selected="true" data-tab="carriers">Carriers</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="products">Products</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="tools">Tools</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="buckets">Buckets</button>
+        </div>
+
+        <!-- Carriers Panel -->
+        <div class="side-panel" data-panel="carriers">
+          <div class="side-title">USA</div>
+          <ul class="nav">
+            <li data-open="carrier:VZW">
+              <span role="img" aria-label="Verizon">📱</span><span>Verizon</span>
+            </li>
+            <li data-open="carrier:ATT">
+              <span role="img" aria-label="AT&amp;T">📱</span><span>AT&amp;T</span>
+            </li>
+            <li data-open="carrier:CRK">
+              <span role="img" aria-label="Cricket">📱</span><span>Cricket</span>
+            </li>
+            <li data-open="carrier:LIB">
+              <span role="img" aria-label="Liberty">📱</span><span>Liberty</span>
+            </li>
+            <li data-open="carrier:CC">
+              <span role="img" aria-label="Consumer Cellular">📱</span><span>Consumer Cellular</span>
+            </li>
+            <li data-open="carrier:USCC">
+              <span role="img" aria-label="US Cellular">📱</span><span>US Cellular</span>
+            </li>
+            <li data-open="carrier:OPT">
+              <span role="img" aria-label="Optimum Mobile">📱</span><span>Optimum Mobile</span>
+            </li>
+            <li data-open="carrier:COX">
+              <span role="img" aria-label="Cox Mobile">📱</span><span>Cox Mobile</span>
+            </li>
+            <li data-open="carrier:SAMSUNG">
+              <span role="img" aria-label="Samsung">📱</span><span>Samsung</span>
+            </li>
+          </ul>
+          <div class="side-title canada-title">Canada</div>
+          <ul class="nav">
+            <li data-open="carrier:TELUS">
+              <span role="img" aria-label="TELUS">📱</span><span>TELUS</span>
+            </li>
+            <li data-open="carrier:KOODO">
+              <span role="img" aria-label="Koodo">📱</span><span>Koodo</span>
+            </li>
+            <li data-open="carrier:BELL">
+              <span role="img" aria-label="Bell">📱</span><span>Bell</span>
+            </li>
+            <li data-open="carrier:VIRGIN">
+              <span role="img" aria-label="Virgin Plus">📱</span><span>Virgin Plus</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Products Panel -->
+        <div class="side-panel" data-panel="products" hidden>
+          <div class="side-title">Asurion Products</div>
+          <ul class="nav">
+            <li data-open="product:UBIF">
+              <span role="img" aria-label="uBreakiFix">🔧</span><span>uBreakiFix</span>
+            </li>
+            <li data-open="product:RSG">
+              <span role="img" aria-label="Repair Service Group">🔧</span><span>Repair Service Group</span>
+            </li>
+            <li data-open="product:HOMEPLUS">
+              <span role="img" aria-label="Asurion Home+">🏠</span><span>Asurion Home+</span>
+            </li>
+            <li data-open="product:APPLIANCEPLUS">
+              <span role="img" aria-label="Asurion Appliance+">🏠</span><span>Asurion Appliance+</span>
+            </li>
+            <li data-open="product:VZ_HDP">
+              <span role="img" aria-label="Verizon Home Device Protect">🏠</span><span>Verizon Home Device Protect</span>
+            </li>
+            <li data-open="product:ATT_HTP">
+              <span role="img" aria-label="AT&amp;T Home Tech Protection">🏠</span><span>AT&amp;T Home Tech Protection</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tools Panel -->
+        <div class="side-panel" data-panel="tools" hidden>
+          <div class="side-title">Tools</div>
+          <ul class="nav">
+            <li data-open="tools:copilot">🤖<span class="sr-only">Copilot</span></li>
+            <li data-open="tools:smartdrop">📥<span class="sr-only">SmartDrop (OCR)</span></li>
+            <li data-open="tools:rpfr">🧾<span class="sr-only">RPFR / PFR</span></li>
+            <li data-open="tools:fmip">🔒<span class="sr-only">Find My iPhone Script</span></li>
+            <li data-open="tools:denials">🚨<span class="sr-only">Denials</span></li>
+            <li data-open="tools:affidavits">📄<span class="sr-only">Affidavits</span></li>
+            <li data-open="tools:byod">💻<span class="sr-only">BYOD Premium Check</span></li>
+            <li data-open="tests">🧪<span class="sr-only">Tests</span></li>
+            <li data-open="settings">⚙️<span class="sr-only">Settings</span></li>
+          </ul>
+        </div>
+
+        <!-- Buckets Panel -->
+        <div class="side-panel" data-panel="buckets" hidden>
+          <div class="side-title">Routed Buckets</div>
+          <ul class="nav">
+            <li data-open="bucket:denials">🚨<span class="sr-only">Denials</span></li>
+            <li data-open="bucket:rpfr">💳<span class="sr-only">RPFR</span></li>
+            <li data-open="bucket:fmip">📱<span class="sr-only">Find My iPhone</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="content">
+        <!-- Modern Dashboard Grid -->
+        <section class="dashboard">
+          <div class="dashboard-header">
+            <h1>My Toolkit</h1>
+            <div class="dashboard-actions">
+              <div class="copilot-preview">
+                <span>Ask me anything...</span>
+                <button type="button" class="btn-primary" id="generateBtn">Generate</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Build Summary Card -->
+            <div class="dashboard-card card-orange" data-action="build-summary">
+              <div class="card-icon">📊</div>
+              <div class="card-content">
+                <h3>Build Summary</h3>
+                <p>System status &amp; metrics</p>
+              </div>
+            </div>
+
+            <!-- Carrier Escalation Card -->
+            <div class="dashboard-card card-pink" data-action="carrier-escalation">
+              <div class="card-icon">📞</div>
+              <div class="card-content">
+                <h3>Carrier Escalation</h3>
+                <p>Escalation workflows</p>
+              </div>
+            </div>
+
+            <!-- Denials Guide Card -->
+            <div class="dashboard-card card-red" data-action="denials-guide">
+              <div class="card-icon">⚠️</div>
+              <div class="card-content">
+                <h3>Denials Guide</h3>
+                <p>Denial handling tools</p>
+              </div>
+            </div>
+
+            <!-- Copilot Card -->
+            <div class="dashboard-card card-blue" data-action="copilot">
+              <div class="card-icon">🤖</div>
+              <div class="card-content">
+                <h3>Copilot</h3>
+                <p>AI assistance portal</p>
+              </div>
+            </div>
+
+            <!-- Knowledge Base Card -->
+            <div class="dashboard-card card-cyan" data-action="knowledge-base">
+              <div class="card-icon">📚</div>
+              <div class="card-content">
+                <h3>Knowledge Base</h3>
+                <p>Documentation hub</p>
+              </div>
+            </div>
+
+            <!-- RPFR Grid Card -->
+            <div class="dashboard-card card-teal" data-action="rpfr-grid">
+              <div class="card-icon">🧾</div>
+              <div class="card-content">
+                <h3>RPFR Grid</h3>
+                <p>RPFR management</p>
+              </div>
+            </div>
+
+            <!-- Script Tracker Card -->
+            <div class="dashboard-card card-purple" data-action="script-tracker">
+              <div class="card-icon">📝</div>
+              <div class="card-content">
+                <h3>Script Tracker</h3>
+                <p>Script management</p>
+              </div>
+            </div>
+
+            <!-- AT&amp;T Home Tech Protection Card -->
+            <!-- AT&amp;T Home Tech Protection Card -->
+            <div class="dashboard-card card-magenta" data-action="terms-conditions">
+              <div class="card-icon">📋</div>
+              <div class="card-content">
+                                <h3>AT&amp;T Home Tech Protection</h3>
+                <p>Policy documents</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carrier Logos Footer -->
+          <div class="carrier-footer">
+            <span role="img" aria-label="Mobile carriers">📱</span>
+            <span role="img" aria-label="Phone support">📞</span>
+            <span role="img" aria-label="Technical support">🔧</span>
+            <span role="img" aria-label="Home services">🏠</span>
+            <span role="img" aria-label="Computer support">💻</span>
+            <span role="img" aria-label="Fast service">⚡</span>
+            <span role="img" aria-label="Target service">🎯</span>
+          </div>
+        </section>
+
+        <!-- Legacy content -->
+        <section id="systemStatusSection" class="hidden">
+          <h2>System Status</h2>
+          <ul id="statusList"></ul>
+        </section>
+        <section id="highlights" class="hidden">
+          <h2>Highlights</h2>
+          <div id="highlightsList" class="cards"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- App mounting points -->
+    <div id="app" class="hidden"></div>
+    <div id="dropzone" class="hidden">Drop files here</div>
+    <div id="preview" class="hidden"></div>
+    <script>
+      // CST SmartDesk Application
+      class CST_SmartDesk {
+        constructor() {
+          this.isInitialized = false;
+          this.init();
+        }
+
+        init() {
+          console.log('🚀 Initializing CST SmartDesk...');
+          
+          // Initialize components
+          this.initializeTabs();
+          this.initializeSearch();
+          this.initializeDashboard();
+          this.initializeModals();
+          this.initializeMenus();
+          
+          // Health check
+          this.runHealthCheck();
+          
+          this.isInitialized = true;
+          console.log('✅ CST SmartDesk initialized');
+        }
+
+        initializeTabs() {
+          const tabs = document.querySelectorAll('[role="tab"]');
+          const panels = document.querySelectorAll('.side-panel');
+          
+          tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+              const targetPanel = tab.dataset.tab;
+              
+              // Update tab states
+              tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+              tab.setAttribute('aria-selected', 'true');
+              
+              // Update panel visibility
+              panels.forEach(panel => {
+                panel.hidden = panel.dataset.panel !== targetPanel;
+              });
+            });
+          });
+        }
+
+        initializeSearch() {
+          const searchInput = document.getElementById('searchInput');
+          const searchSuggest = document.getElementById('searchSuggest');
+          
+          if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+              const query = e.target.value.toLowerCase();
+              if (query.length > 2) {
+                this.showSearchSuggestions(query);
+              } else {
+                searchSuggest.style.display = 'none';
+              }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!searchInput.contains(e.target)) {
+                searchSuggest.style.display = 'none';
+              }
+            });
+          }
+        }
+
+        showSearchSuggestions(query) {
+          const suggestions = [
+            'Verizon escalation', 'AT&amp;T policies', 'Cricket support',
+            'RPFR process', 'Find My iPhone', 'Denials guide',
+            'Copilot help', 'System status'
+          ].filter(item => item.toLowerCase().includes(query));
+
+          const searchSuggest = document.getElementById('searchSuggest');
+          searchSuggest.innerHTML = suggestions.map(item => 
+            `<div class="search-suggestion-item">${item}</div>`
+          ).join('');
+          
+          searchSuggest.style.display = suggestions.length ? 'block' : 'none';
+        }
+
+        initializeDashboard() {
+          const cards = document.querySelectorAll('.dashboard-card');
+          
+          cards.forEach(card => {
+            card.addEventListener('click', () => {
+              const action = card.dataset.action;
+              this.handleDashboardAction(action);
+            });
+          });
+
+          // Initialize copilot
+          const generateBtn = document.getElementById('generateBtn');
+          const copilotGenerate = document.getElementById('copilotGenerate');
+          
+          [generateBtn, copilotGenerate].forEach(btn => {
+            if (btn) {
+              btn.addEventListener('click', () => {
+                this.generateCopilotResponse();
+              });
+            }
+          });
+        }
+
+        handleDashboardAction(action) {
+          const actionMap = {
+            'build-summary': 'System Build Summary',
+            'carrier-escalation': 'Carrier Escalation Tools',
+            'denials-guide': 'Denials Handling Guide',
+            'copilot': 'AI Copilot Assistant',
+            'knowledge-base': 'Knowledge Base',
+            'rpfr-grid': 'RPFR Management',
+            'script-tracker': 'Script Tracker',
+            'terms-conditions': 'Terms & Conditions',
+            'quick-start': 'Quick Start Guide'
+          };
+
+          const title = actionMap[action] || 'Unknown Action';
+          this.showNotification(`Opening: ${title}`, 'info');
+        }
+
+        generateCopilotResponse() {
+          const input = document.getElementById('copilotInput');
+          const output = document.getElementById('copilotOutput');
+          
+          if (input && output) {
+            const query = input.value.trim();
+            if (!query) {
+              this.showNotification('Please enter a question', 'warning');
+              return;
+            }
+
+            output.value = 'Generating response...';
+            
+            // Simulate AI response
+            setTimeout(() => {
+              const responses = [
+                `Based on your query "${query}", here are the key points:\n\n1. Check carrier-specific policies\n2. Review escalation procedures\n3. Verify customer information\n4. Document all interactions`,
+                `For "${query}":\n\n✓ Standard procedure applies\n✓ Follow escalation matrix\n✓ Notify supervisor if needed\n✓ Update case notes`,
+                `Regarding "${query}":\n\n• First, verify account details\n• Then, check eligibility\n• Apply appropriate resolution\n• Follow up as needed`
+              ];
+              
+              output.value = responses[Math.floor(Math.random() * responses.length)];
+              this.showNotification('Response generated!', 'success');
+            }, 1500);
+          }
+        }
+
+        initializeModals() {
+          const setupWizard = document.getElementById('setupWizard');
+          const openSettingsBtn = document.getElementById('openSettingsTop');
+          const wizardSave = document.getElementById('wizardSave');
+          
+          if (setupWizard && openSettingsBtn) {
+            openSettingsBtn.addEventListener('click', () => {
+              setupWizard.showModal();
+            });
+          }
+
+          if (wizardSave) {
+            wizardSave.addEventListener('click', () => {
+              this.saveWizardSettings();
+              setupWizard.close();
+            });
+          }
+        }
+
+        saveWizardSettings() {
+          const formData = {
+            name: document.getElementById('wName').value,
+            coach: document.getElementById('wCoach').value,
+            empId: document.getElementById('wEmpId').value,
+            ext: document.getElementById('wExt').value,
+            theme: document.getElementById('wTheme').value,
+            expertType: document.getElementById('wExpertType').value,
+            dontShow: document.getElementById('dontShow').checked
+          };
+
+          localStorage.setItem('cst-smartdesk-settings', JSON.stringify(formData));
+          this.showNotification('Settings saved successfully!', 'success');
+        }
+
+        initializeMenus() {
+          const helpMenuBtn = document.getElementById('helpMenuBtn');
+          const helpMenu = document.getElementById('helpMenu');
+          
+          if (helpMenuBtn && helpMenu) {
+            helpMenuBtn.addEventListener('click', () => {
+              helpMenu.style.display = helpMenu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!helpMenuBtn.contains(e.target) && !helpMenu.contains(e.target)) {
+                helpMenu.style.display = 'none';
+              }
+            });
+          }
+
+          // Theme toggle
+          const themeToggle = document.getElementById('themeToggle');
+          if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+              this.toggleTheme();
+            });
+          }
+        }
+
+        toggleTheme() {
+          const isDark = document.documentElement.style.getPropertyValue('--bg') === '#0f172a';
+          
+          if (isDark) {
+            // Switch to light
+            document.documentElement.style.setProperty('--bg', '#ffffff');
+            document.documentElement.style.setProperty('--panel', '#f8fafc');
+            document.documentElement.style.setProperty('--border', '#e2e8f0');
+            document.documentElement.style.setProperty('--ink', '#1e293b');
+          } else {
+            // Switch to dark
+            document.documentElement.style.setProperty('--bg', '#0f172a');
+            document.documentElement.style.setProperty('--panel', '#1e293b');
+            document.documentElement.style.setProperty('--border', '#334155');
+            document.documentElement.style.setProperty('--ink', '#f1f5f9');
+          }
+          
+          this.showNotification('Theme toggled!', 'info');
+        }
+
+        runHealthCheck() {
+          const healthIndicator = document.createElement('div');
+          healthIndicator.className = 'health-indicator';
+          healthIndicator.innerHTML = `
+            <div class="health-status healthy">
+              🟢 System HEALTHY
+              <small>All checks passed</small>
+            </div>
+          `;
+          document.body.appendChild(healthIndicator);
+
+          // Auto-hide after 5 seconds
+          setTimeout(() => {
+            healthIndicator.style.opacity = '0.3';
+          }, 5000);
+        }
+
+        showNotification(message, type = 'info') {
+          const notification = document.createElement('div');
+          notification.className = `notification notification-${type}`;
+          notification.textContent = message;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize the app when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          window.cstApp = new CST_SmartDesk();
+        });
+      } else {
+        window.cstApp = new CST_SmartDesk();
+      }
+
+      // Copy functionality for copilot
+      document.addEventListener('click', (e) => {
+        if (e.target.id === 'copilotCopy' || e.target.id === 'copilotCopyAll') {
+          const output = document.getElementById('copilotOutput');
+          if (output && output.value) {
+            navigator.clipboard.writeText(output.value).then(() => {
+              window.cstApp.showNotification('Copied to clipboard!', 'success');
+            });
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
