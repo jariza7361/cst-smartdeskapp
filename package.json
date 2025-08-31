@@ -42,7 +42,8 @@
     "start:local:clean-env": "VSCODE_INSPECTOR_OPTIONS= NODE_OPTIONS= node server.js",
     "auto-dev": "node scripts/auto-dev.mjs",
     "ship": "node scripts/quick-ship.mjs",
-    "parity:smoke": "node scripts/parity-smoke.mjs"
+    "parity:smoke": "node scripts/parity-smoke.mjs",
+    "extract-assets": "node scripts/extract-assets.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
