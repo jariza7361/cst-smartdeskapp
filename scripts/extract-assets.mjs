@@ -3,7 +3,7 @@ import path from "node:path";
 
 const proj = process.cwd();
 const IN = path.join(proj, "index.html");
-const CSS_OUT = path.join(proj, "assets", "app.css");
+const CSS_OUT = path.join(proj, "public", "assets", "app.css");
 const JS_OUT = path.join(proj, "public", "app.js");
 
 function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }

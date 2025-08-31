@@ -30,8 +30,8 @@
         <button id="themeToggle" class="btn secondary" title="Toggle theme">🎨 Theme</button>
         <button id="langToggle" class="btn secondary">🌐 Language</button>
         <div id="helpMenuWrap" class="help-menu-wrap">
-          <button id="helpMenuBtn" class="btn secondary">❓ Help</button>
-          <div id="helpMenu" class="help-menu">
+          <button id="helpMenuBtn" data-testid="help-menu-btn" class="btn secondary">❓ Help</button>
+          <div id="helpMenu" data-testid="help-menu" class="help-menu">
             <button id="helpWelcomeItem" class="btn-quiet help-menu-item">Show Welcome</button>
             <button id="helpDocsItem" class="btn-quiet help-menu-item">Documentation</button>
             <button id="helpSupportItem" class="btn-quiet help-menu-item">Support</button>
@@ -261,8 +261,8 @@
 
             <div class="copilot-interface">
               <div class="copilot-input">
-                <textarea id="copilotInput" placeholder="Ask me anything..." rows="3"></textarea>
-                <button class="btn-primary" id="copilotGenerate">Generate</button>
+                <textarea id="copilotInput" data-testid="copilot-input" placeholder="Ask me anything..." rows="3"></textarea>
+                <button class="btn-primary" id="copilotGenerate" data-testid="copilot-run">Generate</button>
               </div>
 
               <div class="copilot-output">
