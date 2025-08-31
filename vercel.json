@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+<<<<<<< HEAD
   "headers": [
     {
       "source": "/(.*)",
@@ -14,6 +15,8 @@
       ]
     }
   ],
+=======
+>>>>>>> origin/cst-smartdesk
   "rewrites": [
     {
       "source": "/api/(.*)",

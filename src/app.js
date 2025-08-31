@@ -1,7 +1,10 @@
 // CST SmartDesk v1.0 - Main Application Logic
 import { createI18n } from './utils/i18n.js';
 import { buildPrompt } from './utils/copilot.js';
+<<<<<<< HEAD
 import { parseText } from './utils/parser.js';
+=======
+>>>>>>> origin/cst-smartdesk
 
 // Global state
 let currentLanguage = 'en';
@@ -228,7 +231,11 @@ function playAlert(message) {
 }
 
 // Start break or lunch
+<<<<<<< HEAD
 function startBreak(type) { // eslint-disable-line no-unused-vars
+=======
+function startBreak(type) {
+>>>>>>> origin/cst-smartdesk
   scheduleInfo.onBreak = true;
   scheduleInfo.breakStartTime = new Date().toISOString();
   scheduleInfo.currentStatus = type;
@@ -607,7 +614,11 @@ function formatDuration(minutes) {
 }
 
 // Export performance data
+<<<<<<< HEAD
 function exportPerformanceData() { // eslint-disable-line no-unused-vars
+=======
+function exportPerformanceData() {
+>>>>>>> origin/cst-smartdesk
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
   const expertData = JSON.parse(localStorage.getItem('cst_expert_info') || '{}');
 
@@ -632,7 +643,11 @@ function exportPerformanceData() { // eslint-disable-line no-unused-vars
 }
 
 // Reset daily statistics
+<<<<<<< HEAD
 function resetDailyStats() { // eslint-disable-line no-unused-vars
+=======
+function resetDailyStats() {
+>>>>>>> origin/cst-smartdesk
   const today = new Date().toDateString();
   const stats = JSON.parse(localStorage.getItem('cst_performance_stats') || '{}');
 
@@ -748,7 +763,11 @@ function handleScheduleFormSubmit(e) {
 }
 
 // Test alert function
+<<<<<<< HEAD
 function testAlert() { // eslint-disable-line no-unused-vars
+=======
+function testAlert() {
+>>>>>>> origin/cst-smartdesk
   playAlert('This is a test alert! Your schedule notifications are working correctly.');
 }
 
@@ -1184,11 +1203,19 @@ function toggleLanguage() {
 // SmartPanel specific functions
 
 // FMIP Functions
+<<<<<<< HEAD
 function openFMIPChecker() { // eslint-disable-line no-unused-vars
   window.open('https://icloud.com/find', '_blank');
 }
 
 function showFMIPRemovalSteps() { // eslint-disable-line no-unused-vars
+=======
+function openFMIPChecker() {
+  window.open('https://icloud.com/find', '_blank');
+}
+
+function showFMIPRemovalSteps() {
+>>>>>>> origin/cst-smartdesk
   const steps = `
 FMIP Removal Steps:
 1. Go to Settings > [Your Name] > Find My
@@ -1200,7 +1227,11 @@ FMIP Removal Steps:
 }
 
 // Hero Denial Functions
+<<<<<<< HEAD
 function loadDenialScript() { // eslint-disable-line no-unused-vars
+=======
+function loadDenialScript() {
+>>>>>>> origin/cst-smartdesk
   const carrier = document.getElementById('carrierSelect').value;
   const contentDiv = document.getElementById('denialScriptContent');
 
@@ -1243,7 +1274,11 @@ function loadDenialScript() { // eslint-disable-line no-unused-vars
 }
 
 // BYOD Functions
+<<<<<<< HEAD
 function checkBYODCompatibility() { // eslint-disable-line no-unused-vars
+=======
+function checkBYODCompatibility() {
+>>>>>>> origin/cst-smartdesk
   const device = document.getElementById('deviceModel').value;
   const carrier = document.getElementById('targetCarrier').value;
   const resultsDiv = document.getElementById('byodResults');
@@ -1272,7 +1307,11 @@ function checkBYODCompatibility() { // eslint-disable-line no-unused-vars
 }
 
 // Spanish Template Functions
+<<<<<<< HEAD
 function copySpanishTemplate(templateType) { // eslint-disable-line no-unused-vars
+=======
+function copySpanishTemplate(templateType) {
+>>>>>>> origin/cst-smartdesk
   const templates = {
     greeting: 'Hola, mi nombre es ' + expertInfo.name + '. ¿En qué puedo ayudarle hoy?',
     tech_support: 'Entiendo su problema técnico. Voy a ayudarle a resolverlo paso a paso.',
@@ -1287,7 +1326,11 @@ function copySpanishTemplate(templateType) { // eslint-disable-line no-unused-va
 }
 
 // Auto Fill Functions
+<<<<<<< HEAD
 function generateClaimNote() { // eslint-disable-line no-unused-vars
+=======
+function generateClaimNote() {
+>>>>>>> origin/cst-smartdesk
   const name = document.getElementById('customerName').value;
   const phone = document.getElementById('customerPhone').value;
   const email = document.getElementById('customerEmail').value;
@@ -1325,7 +1368,11 @@ Next Steps:
   trackMetric('notesGenerated');
 }
 
+<<<<<<< HEAD
 function generateFollowUpEmail() { // eslint-disable-line no-unused-vars
+=======
+function generateFollowUpEmail() {
+>>>>>>> origin/cst-smartdesk
   const name = document.getElementById('customerName').value;
   const email = document.getElementById('customerEmail').value;
 
@@ -1351,9 +1398,15 @@ ${expertInfo.extension ? 'Extension: ' + expertInfo.extension : ''}
   showGeneratedContent(followUpEmail);
 }
 
+<<<<<<< HEAD
 function fillCommonForms() { // eslint-disable-line no-unused-vars
   const name = document.getElementById('customerName').value;
   const phone = document.getElementById('customerPhone').value; // eslint-disable-line no-unused-vars
+=======
+function fillCommonForms() {
+  const name = document.getElementById('customerName').value;
+  const phone = document.getElementById('customerPhone').value;
+>>>>>>> origin/cst-smartdesk
 
   if (!name) {
     showNotification('Please enter customer name first.');
@@ -1372,13 +1425,21 @@ function showGeneratedContent(content) {
   contentDiv.style.display = 'block';
 }
 
+<<<<<<< HEAD
 function copyGeneratedContent() { // eslint-disable-line no-unused-vars
+=======
+function copyGeneratedContent() {
+>>>>>>> origin/cst-smartdesk
   const content = document.getElementById('contentOutput').value;
   copyToClipboard(content);
 }
 
 // Escalations Functions
+<<<<<<< HEAD
 function logEscalation() { // eslint-disable-line no-unused-vars
+=======
+function logEscalation() {
+>>>>>>> origin/cst-smartdesk
   const type = document.getElementById('escalationType').value;
   const reason = document.getElementById('escalationReason').value;
   const mood = document.getElementById('customerMood').value;
@@ -1442,7 +1503,11 @@ function updateEscalationHistory() {
 }
 
 // Alpha Notes Functions
+<<<<<<< HEAD
 function generateAlphaNote() { // eslint-disable-line no-unused-vars
+=======
+function generateAlphaNote() {
+>>>>>>> origin/cst-smartdesk
   const noteType = document.getElementById('noteType').value;
   const details = document.getElementById('interactionDetails').value;
   const steps = document.getElementById('resolutionSteps').value;
@@ -1481,7 +1546,11 @@ Note generated by CST SmartDesk v1.0
   outputDiv.style.display = 'block';
 }
 
+<<<<<<< HEAD
 function saveNoteDraft() { // eslint-disable-line no-unused-vars
+=======
+function saveNoteDraft() {
+>>>>>>> origin/cst-smartdesk
   const noteData = {
     type: document.getElementById('noteType').value,
     details: document.getElementById('interactionDetails').value,
@@ -1494,13 +1563,21 @@ function saveNoteDraft() { // eslint-disable-line no-unused-vars
   showNotification('Note draft saved');
 }
 
+<<<<<<< HEAD
 function copyAlphaNote() { // eslint-disable-line no-unused-vars
+=======
+function copyAlphaNote() {
+>>>>>>> origin/cst-smartdesk
   const content = document.getElementById('alphaNoteText').value;
   copyToClipboard(content);
 }
 
 // RPFR Functions
+<<<<<<< HEAD
 function copyPFRTemplate() { // eslint-disable-line no-unused-vars
+=======
+function copyPFRTemplate() {
+>>>>>>> origin/cst-smartdesk
   const template = `PFR - Pending Further Review
 
 This case has been marked as PFR for standard review processing.
@@ -1514,7 +1591,11 @@ Date: ${new Date().toLocaleDateString()}`;
   copyToClipboard(template);
 }
 
+<<<<<<< HEAD
 function copyRPFRTemplate() { // eslint-disable-line no-unused-vars
+=======
+function copyRPFRTemplate() {
+>>>>>>> origin/cst-smartdesk
   const template = `RPFR - Requires Pending Further Review
 
 This case requires special handling and extended review.
@@ -1529,7 +1610,11 @@ Date: ${new Date().toLocaleDateString()}`;
   copyToClipboard(template);
 }
 
+<<<<<<< HEAD
 function evaluateRPFRNeed() { // eslint-disable-line no-unused-vars
+=======
+function evaluateRPFRNeed() {
+>>>>>>> origin/cst-smartdesk
   const checkboxes = document.querySelectorAll('.rpfr-checklist input[type="checkbox"]');
   const checkedCount = Array.from(checkboxes).filter((cb) => cb.checked).length;
 

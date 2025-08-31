@@ -1,4 +1,34 @@
 node_modules
+<<<<<<< HEAD
 
 *storybook.log
 storybook-static
+=======
+.vscode
+.vercel
+.DS_Store
+playwright-report
+test-results
+dist
+build
+
+# Prevent corrupted or temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+.#*
+
+# Prevent HTML files in non-web directories
+src/**/*.html
+api/**/*.html
+scripts/**/*.html
+
+# Prevent corrupted package directories
+search-next-playbooks/
+**/corrupted/
+**/invalid/
+lint-results.json
+>>>>>>> origin/cst-smartdesk

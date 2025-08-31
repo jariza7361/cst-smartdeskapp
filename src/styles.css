@@ -695,6 +695,7 @@ dialog[open] {
 .smart-card:hover {
   transform: translateY(-5px);
 }
+<<<<<<< HEAD
 
 /* Inline style replacements */
 .top-search-container {
@@ -1496,3 +1497,5 @@ dialog label {
   from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
+=======
+>>>>>>> origin/cst-smartdesk
