@@ -1,0 +1,13 @@
+{
+  "name": "cst-smartdesk-cdk",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "deploy": "cdk deploy --require-approval never",
+    "destroy": "cdk destroy --force"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.100.0",
+    "constructs": "^10.0.0"
+  }
+}
