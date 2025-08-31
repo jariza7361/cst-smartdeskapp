@@ -9,14 +9,6 @@ jobs:
         with: { node-version: 20 }
       - run: npm ci
       - run: npm run doctor
-      - run: npm run lint || true
+      - run: npm run build && npm run parity:smoke
       - run: npm test
-      - name: GUI Integrity Check
-        run: |
-          if ! npm test tests/gui-integrity.test.js; then
-            echo "❌ GUI drift detected - required IDs missing"
-            exit 1
-          fi
-      - run: npm run build
       - run: npm run e2e || true
-      - run: npm run parity:smoke || true
