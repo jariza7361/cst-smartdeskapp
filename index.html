@@ -900,13 +900,38 @@
       </div>
     </div>
 
+    <!-- System Status -->
+    <aside id="system-status" aria-live="polite" style="display:none"></aside>
+
+    <!-- Smart Panels -->
+    <section id="panels" style="display:none">
+      <div class="card" id="panel-carriers">Carriers</div>
+      <div class="card" id="panel-denials">Denials</div>
+      <div class="card" id="panel-notes">Notes</div>
+    </section>
+
+    <!-- Drag & Drop Parser -->
+    <section id="ingest" style="display:none">
+      <div id="dropzone" tabindex="0">Drop PDF/TXT or click</div>
+      <input id="file-input" type="file" accept=".pdf,.txt" style="display:none" />
+      <textarea id="pastezone" placeholder="Paste text here…"></textarea>
+      <pre id="extract-output"></pre>
+    </section>
+
     <!-- App mounting points -->
     <div id="app" class="hidden"></div>
-    <div id="dropzone" class="hidden">Drop files here</div>
     <div id="preview" class="hidden"></div>
 
+    <!-- Tests modal -->
+    <dialog id="tests-modal" style="display:none">
+      <h2>Tests</h2>
+      <button id="btn-fetch-verizon">Fetch Verizon T&amp;C</button>
+      <pre id="tests-output"></pre>
+      <button id="close-tests">Close</button>
+    </dialog>
+
     <!-- Modals and Dialogs -->
-    <dialog id="setupWizard">
+    <dialog id="setup-wizard">
       <form id="wizardForm" method="dialog">
         <h2>Setup CST SmartDesk</h2>
         <input id="wName" placeholder="First and Last Name" required>
@@ -1084,7 +1109,7 @@
         }
 
         initializeModals() {
-          const setupWizard = document.getElementById('setupWizard');
+          const setupWizard = document.getElementById('setup-wizard');
           const openSettingsBtn = document.getElementById('openSettingsTop');
           const wizardSave = document.getElementById('wizardSave');
           
