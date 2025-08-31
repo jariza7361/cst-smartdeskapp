@@ -47,7 +47,8 @@
     "aws:deploy": "cd cdk && npm install && npm run deploy",
     "aws:sync": "aws s3 sync dist/ s3://$(aws cloudformation describe-stacks --stack-name CstSmartDeskStack --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text) --delete",
     "aws:invalidate": "aws cloudfront create-invalidation --distribution-id $(aws cloudformation describe-stacks --stack-name CstSmartDeskStack --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' --output text) --paths '/*'",
-    "aws:url": "aws cloudformation describe-stacks --stack-name CstSmartDeskStack --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text"
+    "aws:url": "aws cloudformation describe-stacks --stack-name CstSmartDeskStack --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text",
+    "structure-check": "node scripts/structure-check.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
