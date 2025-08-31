@@ -1,0 +1,1016 @@
+{
+ "Resources": {
+  "CstSmartDeskBucketE1FF2B82": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketName": "cst-smartdesk-782683897569-us-east-1",
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "IgnorePublicAcls": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     },
+     {
+      "Key": "aws-cdk:cr-owned:574ebbd4",
+      "Value": "true"
+     }
+    ],
+    "WebsiteConfiguration": {
+     "ErrorDocument": "index.html",
+     "IndexDocument": "index.html"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskBucket/Resource"
+   }
+  },
+  "CstSmartDeskBucketPolicy1A92E675": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "CstSmartDeskBucketE1FF2B82"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:GetObject",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "CstSmartDeskBucketE1FF2B82",
+            "Arn"
+           ]
+          },
+          "/*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CstSmartDeskBucketE1FF2B82",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CstSmartDeskBucketE1FF2B82",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskBucket/Policy/Resource"
+   }
+  },
+  "CstSmartDeskBucketAutoDeleteObjectsCustomResourceB90351A7": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "CstSmartDeskBucketE1FF2B82"
+    }
+   },
+   "DependsOn": [
+    "CstSmartDeskBucketPolicy1A92E675"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-782683897569-us-east-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "CstSmartDeskBucketE1FF2B82"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "CstSmartDeskApiServiceRoleABF349AF": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApi/ServiceRole/Resource"
+   }
+  },
+  "CstSmartDeskApiD23CAE10": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\n        exports.handler = async (event) => {\n          const path = event.path || event.rawPath;\n          \n          if (path === '/api/fetch') {\n            return {\n              statusCode: 200,\n              headers: { 'Content-Type': 'application/json' },\n              body: JSON.stringify({ ok: true, message: 'API fetch endpoint working' })\n            };\n          }\n          \n          if (path === '/api/copilot') {\n            return {\n              statusCode: 200,\n              headers: { 'Content-Type': 'application/json' },\n              body: JSON.stringify({ response: 'Copilot API working', timestamp: new Date().toISOString() })\n            };\n          }\n          \n          return {\n            statusCode: 404,\n            headers: { 'Content-Type': 'application/json' },\n            body: JSON.stringify({ error: 'Not found' })\n          };\n        };\n      "
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CstSmartDeskApiServiceRoleABF349AF",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x"
+   },
+   "DependsOn": [
+    "CstSmartDeskApiServiceRoleABF349AF"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApi/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayC1E160F7": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Description": "API for CST SmartDesk application",
+    "Name": "CST SmartDesk API"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayDeployment0C6086483ba9b8e3504ba146bfb9210b75682a26": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "API for CST SmartDesk application",
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "DependsOn": [
+    "CstSmartDeskApiGatewayapiproxyANY50563519",
+    "CstSmartDeskApiGatewayapiproxyOPTIONSD132A6C3",
+    "CstSmartDeskApiGatewayapiproxy733615B4",
+    "CstSmartDeskApiGatewayapiOPTIONSB8949106",
+    "CstSmartDeskApiGatewayapi6BEF7278",
+    "CstSmartDeskApiGatewayOPTIONS702C7973"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "CstSmartDeskApiGatewayDeploymentStageprod40329BE0": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "CstSmartDeskApiGatewayDeployment0C6086483ba9b8e3504ba146bfb9210b75682a26"
+    },
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/DeploymentStage.prod/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayOPTIONS702C7973": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "CstSmartDeskApiGatewayC1E160F7",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/OPTIONS/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayapi6BEF7278": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "CstSmartDeskApiGatewayC1E160F7",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "api",
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayapiOPTIONSB8949106": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "CstSmartDeskApiGatewayapi6BEF7278"
+    },
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/OPTIONS/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayapiproxy733615B4": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Ref": "CstSmartDeskApiGatewayapi6BEF7278"
+    },
+    "PathPart": "{proxy+}",
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/{proxy+}/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayapiproxyOPTIONSD132A6C3": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "CstSmartDeskApiGatewayapiproxy733615B4"
+    },
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/{proxy+}/OPTIONS/Resource"
+   }
+  },
+  "CstSmartDeskApiGatewayapiproxyANYApiPermissionCstSmartDeskStackCstSmartDeskApiGateway3618F5F3ANYapiproxy7DC51760": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "CstSmartDeskApiD23CAE10",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:782683897569:",
+       {
+        "Ref": "CstSmartDeskApiGatewayC1E160F7"
+       },
+       "/",
+       {
+        "Ref": "CstSmartDeskApiGatewayDeploymentStageprod40329BE0"
+       },
+       "/*/api/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/{proxy+}/ANY/ApiPermission.CstSmartDeskStackCstSmartDeskApiGateway3618F5F3.ANY..api.{proxy+}"
+   }
+  },
+  "CstSmartDeskApiGatewayapiproxyANYApiPermissionTestCstSmartDeskStackCstSmartDeskApiGateway3618F5F3ANYapiproxy21AE551F": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "CstSmartDeskApiD23CAE10",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:782683897569:",
+       {
+        "Ref": "CstSmartDeskApiGatewayC1E160F7"
+       },
+       "/test-invoke-stage/*/api/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/{proxy+}/ANY/ApiPermission.Test.CstSmartDeskStackCstSmartDeskApiGateway3618F5F3.ANY..api.{proxy+}"
+   }
+  },
+  "CstSmartDeskApiGatewayapiproxyANY50563519": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "ANY",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "CstSmartDeskApiD23CAE10",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "CstSmartDeskApiGatewayapiproxy733615B4"
+    },
+    "RestApiId": {
+     "Ref": "CstSmartDeskApiGatewayC1E160F7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskApiGateway/Default/api/{proxy+}/ANY/Resource"
+   }
+  },
+  "CstSmartDeskDistributionE28D5AEB": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "CacheBehaviors": [
+      {
+       "AllowedMethods": [
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PUT",
+        "PATCH",
+        "POST",
+        "DELETE"
+       ],
+       "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+       "Compress": true,
+       "PathPattern": "/api/*",
+       "TargetOriginId": "CstSmartDeskStackCstSmartDeskDistributionOrigin2D1B3F0FA",
+       "ViewerProtocolPolicy": "redirect-to-https"
+      }
+     ],
+     "CustomErrorResponses": [
+      {
+       "ErrorCode": 404,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      }
+     ],
+     "DefaultCacheBehavior": {
+      "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+      "Compress": true,
+      "TargetOriginId": "CstSmartDeskStackCstSmartDeskDistributionOrigin14BB83C25",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "DefaultRootObject": "index.html",
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "http-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::Select": [
+         2,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::GetAtt": [
+             "CstSmartDeskBucketE1FF2B82",
+             "WebsiteURL"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "Id": "CstSmartDeskStackCstSmartDeskDistributionOrigin14BB83C25"
+      },
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "https-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::Select": [
+         2,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Join": [
+             "",
+             [
+              "https://",
+              {
+               "Ref": "CstSmartDeskApiGatewayC1E160F7"
+              },
+              ".execute-api.us-east-1.",
+              {
+               "Ref": "AWS::URLSuffix"
+              },
+              "/",
+              {
+               "Ref": "CstSmartDeskApiGatewayDeploymentStageprod40329BE0"
+              },
+              "/"
+             ]
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "Id": "CstSmartDeskStackCstSmartDeskDistributionOrigin2D1B3F0FA",
+       "OriginPath": {
+        "Fn::Join": [
+         "",
+         [
+          "/",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Join": [
+                "",
+                [
+                 "https://",
+                 {
+                  "Ref": "CstSmartDeskApiGatewayC1E160F7"
+                 },
+                 ".execute-api.us-east-1.",
+                 {
+                  "Ref": "AWS::URLSuffix"
+                 },
+                 "/",
+                 {
+                  "Ref": "CstSmartDeskApiGatewayDeploymentStageprod40329BE0"
+                 },
+                 "/"
+                ]
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskDistribution/Resource"
+   }
+  },
+  "CstSmartDeskDeploymentAwsCliLayerC0EEA565": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "Content": {
+     "S3Bucket": "cdk-hnb659fds-assets-782683897569-us-east-1",
+     "S3Key": "c49d356cac773d491c5f7ac148995a1181498a8e289429f8612a7f7e3814f535.zip"
+    },
+    "Description": "/opt/awscli/aws"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskDeployment/AwsCliLayer/Resource",
+    "aws:asset:path": "asset.c49d356cac773d491c5f7ac148995a1181498a8e289429f8612a7f7e3814f535.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Content"
+   }
+  },
+  "CstSmartDeskDeploymentCustomResourceD203D0C5": {
+   "Type": "Custom::CDKBucketDeployment",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+      "Arn"
+     ]
+    },
+    "SourceBucketNames": [
+     "cdk-hnb659fds-assets-782683897569-us-east-1"
+    ],
+    "SourceObjectKeys": [
+     "0c6708e4a4ae69efd7a87a1f90e9dffb31d17c347c6d70726d99140cba873500.zip"
+    ],
+    "DestinationBucketName": {
+     "Ref": "CstSmartDeskBucketE1FF2B82"
+    },
+    "Prune": true,
+    "DistributionId": {
+     "Ref": "CstSmartDeskDistributionE28D5AEB"
+    },
+    "DistributionPaths": [
+     "/*"
+    ],
+    "OutputObjectKeys": true
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CstSmartDeskDeployment/CustomResource/Default"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:s3:::cdk-hnb659fds-assets-782683897569-us-east-1",
+        "arn:aws:s3:::cdk-hnb659fds-assets-782683897569-us-east-1/*"
+       ]
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CstSmartDeskBucketE1FF2B82",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CstSmartDeskBucketE1FF2B82",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "cloudfront:CreateInvalidation",
+        "cloudfront:GetInvalidation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+    "Roles": [
+     {
+      "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-782683897569-us-east-1",
+     "S3Key": "9a1fcb4a7ecba81ad70e9d3fb241f6794497da945dae5f25924e4dd002b65f2d.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
+     }
+    },
+    "Handler": "index.handler",
+    "Layers": [
+     {
+      "Ref": "CstSmartDeskDeploymentAwsCliLayerC0EEA565"
+     }
+    ],
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.11",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource",
+    "aws:asset:path": "asset.9a1fcb4a7ecba81ad70e9d3fb241f6794497da945dae5f25924e4dd002b65f2d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21Ry27DIBD8ltwJzaOXHvNQT61qOVKvFsEbdxMMFgtxLcS/V8ZO4kg9zQw7oBl2xVfLNV/MREtzWV7mCo88HJyQFyZaKgKtedh6eQHHdic9sgEyo1B2j+NRD2IrCCJToj6Wgod3r6VDo3vzlGdgayQa1YfowH6DTfqAulLgzN0fGYqah9wo6M0JHxEGFplosBIOWtHxkAO5TYPJPdI9NMp0NehUZ6IOTlTp3YHkQMZbCX0N9gnux5T9cGS36fjywDNrfrubikwq48uTNdrxsEdyFo/+VnuqI6N1Ecp7Ej783ySaIAJHfNNDjGznyZn63wjPo8yaK5ZgU4d0u++GunrK/+Vd4924qUL1KyhES1Ih37S0U5i2Epk2JfAzvVxXC75846+zMyHOrdcOa+D5gH8gF9BxTgIAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "CstSmartDeskStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "CstSmartDeskApiGatewayEndpointEB8A5EC6": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "CstSmartDeskApiGatewayC1E160F7"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "CstSmartDeskApiGatewayDeploymentStageprod40329BE0"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "BucketName": {
+   "Description": "S3 Bucket Name",
+   "Value": {
+    "Ref": "CstSmartDeskBucketE1FF2B82"
+   }
+  },
+  "CloudFrontUrl": {
+   "Description": "CloudFront Distribution URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Fn::GetAtt": [
+        "CstSmartDeskDistributionE28D5AEB",
+        "DomainName"
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  "ApiUrl": {
+   "Description": "API Gateway URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "CstSmartDeskApiGatewayC1E160F7"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "CstSmartDeskApiGatewayDeploymentStageprod40329BE0"
+      },
+      "/"
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

@@ -13,7 +13,12 @@
     "doctor": "node scripts/doctor.mjs",
     "parity:smoke": "node scripts/parity-smoke.mjs",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "aws:build": "npm run build",
+    "aws:deploy": "npm -C infra run deploy",
+    "aws:sync": "node scripts/aws-sync.mjs",
+    "aws:invalidate": "node scripts/aws-invalidate.mjs",
+    "aws:url": "node scripts/aws-url.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.11.1",
