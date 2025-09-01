@@ -5,6 +5,7 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 export class CstSmartdeskStack extends cdk.Stack {
@@ -15,6 +16,7 @@ export class CstSmartdeskStack extends cdk.Stack {
     const bucket = new s3.Bucket(this, 'CstSmartdeskBucket', {
       bucketName: `cst-smartdesk-${this.account}-${this.region}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
@@ -69,40 +71,32 @@ export class CstSmartdeskStack extends cdk.Stack {
 
     // Lambda functions
     const fetchLambda = new lambda.Function(this, 'FetchLambda', {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset('../infra/src/lambdas', {
+      code: lambda.Code.fromAsset('src/lambdas', {
         bundling: {
-          image: lambda.Runtime.NODEJS_18_X.bundlingImage,
-          command: ['cp', '/asset-input/fetch.ts', '/asset-output/index.js'],
+          image: lambda.Runtime.NODEJS_20_X.bundlingImage,
+          command: [
+            'bash', '-c',
+            'npm install -g typescript @types/aws-lambda && tsc fetch.ts --target ES2020 --module commonjs --outDir /asset-output && mv /asset-output/fetch.js /asset-output/index.js'
+          ],
         },
       }),
     });
 
     const copilotLambda = new lambda.Function(this, 'CopilotLambda', {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset('../infra/src/lambdas', {
+      code: lambda.Code.fromAsset('src/lambdas', {
         bundling: {
-          image: lambda.Runtime.NODEJS_18_X.bundlingImage,
-          command: ['cp', '/asset-input/copilot.ts', '/asset-output/index.js'],
+          image: lambda.Runtime.NODEJS_20_X.bundlingImage,
+          command: [
+            'bash', '-c',
+            'npm install -g typescript @types/aws-lambda && tsc copilot.ts --target ES2020 --module commonjs --outDir /asset-output && mv /asset-output/copilot.js /asset-output/index.js'
+          ],
         },
       }),
     });
-
-    // API Gateway
-    const api = new apigateway.RestApi(this, 'CstSmartdeskApi', {
-      restApiName: 'CST SmartDesk API',
-      description: 'API for CST SmartDesk application',
-      defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-      },
-    });
-
-    const apiResource = api.root.addResource('api');
-    apiResource.addResource('fetch').addMethod('GET', new apigateway.LambdaIntegration(fetchLambda));
-    apiResource.addResource('copilot').addMethod('POST', new apigateway.LambdaIntegration(copilotLambda));
 
     // CloudFront Distribution
     const distribution = new cloudfront.Distribution(this, 'CstSmartdeskDistribution', {
@@ -144,10 +138,10 @@ export class CstSmartdeskStack extends cdk.Stack {
 
     // Grant CloudFront access to S3
     bucket.addToResourcePolicy(
-      new cdk.aws_iam.PolicyStatement({
+      new iam.PolicyStatement({
         actions: ['s3:GetObject'],
         resources: [bucket.arnForObjects('*')],
-        principals: [new cdk.aws_iam.ServicePrincipal('cloudfront.amazonaws.com')],
+        principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
         conditions: {
           StringEquals: {
             'AWS:SourceArn': `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`,
@@ -155,6 +149,21 @@ export class CstSmartdeskStack extends cdk.Stack {
         },
       })
     );
+
+    // API Gateway (after distribution for CORS)
+    const api = new apigateway.RestApi(this, 'CstSmartdeskApi', {
+      restApiName: 'CST SmartDesk API',
+      description: 'API for CST SmartDesk application',
+      defaultCorsPreflightOptions: {
+        allowOrigins: [`https://${distribution.domainName}`, 'http://localhost:5173'],
+        allowMethods: ['GET', 'POST', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization'],
+      },
+    });
+
+    const apiResource = api.root.addResource('api');
+    apiResource.addResource('fetch').addMethod('GET', new apigateway.LambdaIntegration(fetchLambda));
+    apiResource.addResource('copilot').addMethod('POST', new apigateway.LambdaIntegration(copilotLambda));
 
     // Deploy static assets
     new s3deploy.BucketDeployment(this, 'CstSmartdeskDeployment', {

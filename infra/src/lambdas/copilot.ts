@@ -5,7 +5,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -13,6 +13,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       statusCode: 200,
       headers,
       body: '',
+    };
+  }
+
+  // Basic authorization check
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return {
+      statusCode: 401,
+      headers,
+      body: JSON.stringify({ error: 'Authorization required' }),
     };
   }
 
