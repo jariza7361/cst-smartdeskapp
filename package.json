@@ -7,9 +7,9 @@
     "node": "20.x"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "build": "vite build",
-    "preview": "vite preview --port 5173",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "doctor": "node scripts/doctor.mjs",
     "parity:smoke": "node scripts/parity-smoke.mjs",
     "test": "vitest run",
