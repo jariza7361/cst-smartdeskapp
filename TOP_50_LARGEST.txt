@@ -1,0 +1,50 @@
+  0B	./src/styles/tokens.css
+  0B	./src/utils
+  0B	./src/utils/copilot.js
+  0B	./src/utils/i18n.js
+  0B	./src/utils/parser.js
+  0B	./test-complete-flow.html
+  0B	./test-phase1-fixes.html
+  0B	./test-results
+  0B	./test-results/.last-run.json
+  0B	./test-simple.html
+  0B	./test-splash.html
+  0B	./tests
+  0B	./tests/copilot-prompt.test.js
+  0B	./tests/decode-favicon.smoke.mjs
+  0B	./tests/gui-integrity.test.js
+  0B	./tests/i18n.test.js
+  0B	./tests/parser.test.js
+  0B	./tests/smoke.spec.ts
+  0B	./vercel.json
+  0B	./vite.config.mjs
+  0B	./vitest.config.ts
+4.0K	./.husky
+4.0K	./.husky/_
+4.0K	./.vscode/launch.json
+4.0K	./.vscode/settings.json
+4.0K	./.vscode/tasks.json
+4.0K	./cspell.json
+4.0K	./cst-smartdeskapp.code-workspace
+4.0K	./infra
+4.0K	./infra/package.json
+4.0K	./package.json
+4.0K	./test-setup.js
+4.0K	./verify-deployment.js
+8.0K	./FILETREE.txt
+8.0K	./README.md
+8.0K	./assets-png/.DS_Store
+8.0K	./assets-png/corporate
+8.0K	./assets-png/corporate/.DS_Store
+8.0K	./cdk/.DS_Store
+8.0K	./public
+8.0K	./public/.DS_Store
+8.0K	./src
+8.0K	./src/.DS_Store
+ 12K	./.vscode
+ 16K	./.DS_Store
+ 16K	./assets-png
+ 20K	./cdk
+9.4M	./cst-smartdesk-react/cst-smartdesk-react
+ 19M	./cst-smartdesk-react
+ 45M	.

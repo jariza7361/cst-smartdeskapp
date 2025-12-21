@@ -1,0 +1,269 @@
+.
+|-- .DS_Store
+|-- .axelint
+|-- .github
+|   `-- workflows
+|       `-- ci.yml
+|-- .gitignore
+|-- .husky
+|   `-- _
+|       |-- .gitignore
+|       |-- applypatch-msg
+|       |-- commit-msg
+|       |-- h
+|       |-- husky.sh
+|       |-- post-applypatch
+|       |-- post-checkout
+|       |-- post-commit
+|       |-- post-merge
+|       |-- post-rewrite
+|       |-- pre-applypatch
+|       |-- pre-auto-gc
+|       |-- pre-commit
+|       |-- pre-merge-commit
+|       |-- pre-push
+|       |-- pre-rebase
+|       `-- prepare-commit-msg
+|-- .vscode
+|   |-- extensions.json
+|   |-- launch.json
+|   |-- settings.json
+|   `-- tasks.json
+|-- AMAZON-Q-PROMPT.md
+|-- CHANGELOG.md
+|-- COMPLETION-CHECKLIST.md
+|-- DEPLOYMENT-GUIDE.md
+|-- DEPLOYMENT-STRATEGY.md
+|-- DEPLOYMENT.md
+|-- DEVELOPMENT-MASTER-PLAN.md
+|-- FILETREE.txt
+|-- FINAL-CHECKLIST.md
+|-- PROJECT-COMPLETION.md
+|-- README.md
+|-- access-app.sh
+|-- api
+|   `-- doctor.js
+|-- assets
+|   |-- app.css
+|   `-- utility-styles.css
+|-- assets-png
+|   |-- .DS_Store
+|   |-- carriers
+|   |   |-- 610-6104490_telus-telus-logo-png-transparent-png.png
+|   |   |-- Conumer\ Cell\ png.png
+|   |   |-- Koodo.png.jpeg
+|   |   |-- Liberty-Logo.png
+|   |   |-- Optimum_logo.png
+|   |   |-- United_States_Cellular_Corporation_logo.svg
+|   |   |-- Virgin_Mobile_Polska-Logo.wine.png
+|   |   |-- cox-mobile-logo_3x.png
+|   |   |-- cricket-wireless-mobile-phones-logo-prepay-mobile-phone-mobile-service-provider-company-png-favpng-HGsLELqb7NM5imfWg2fsPBeX5.jpg
+|   |   |-- imgbin-at-t-corporation-logo-mobile-phones-telephone-atat-uuml-rk-5f9AsRT6zQYTefydV3GXka8Dm.jpg
+|   |   |-- imgbin-bell-mobility-logo-bell-canada-design-canada-F16KeRqJt7WAGPZ0f7g1LfGCA.jpg
+|   |   |-- png-clipart-logo-samsung-galaxy-a5-2017-samsung-pay-business-samsung-text-logo-thumbnail.png
+|   |   |-- si7323s93d-simple-mobile-logo-simple-mobile-logo-.png
+|   |   |-- tr7335tb7d-tracfone-logo-technical-support-tracfone-wireless.png
+|   |   `-- verizon-logo-mBDXd0qx_t.jpg
+|   |-- corporate
+|   |   |-- .DS_Store
+|   |   |-- As\ purple\ logo.png
+|   |   |-- Asurion\ Logo\ Only\ A.png
+|   |   |-- Asurion-Logo.png
+|   |   |-- asurion\ logo\ hawain.png
+|   |   |-- asurion\ round\ logo.png
+|   |   `-- asurion\ white\ letter\ clear\ bg.jpeg
+|   |-- icons
+|   `-- products
+|       |-- UBIF_Asurion_Logo.jpg
+|       |-- appliance-repair-logo___20152722482.jpg.webp
+|       |-- asurion-card-logo@2x.png
+|       |-- home_.png
+|       |-- ubreak\ ifix\ by\ asurion\ transparent.png
+|       |-- ubreakifix\ by\ asurion.jpg
+|       `-- vzw-hdp-logo.png
+|-- cdk
+|   |-- .DS_Store
+|   |-- app.js
+|   |-- cdk.json
+|   |-- package-lock.json
+|   |-- package.json
+|   `-- stack.js
+|-- commit-panels.sh
+|-- cspell.json
+|-- cst-smartdesk-react
+|   `-- cst-smartdesk-react
+|-- cst-smartdeskapp.code-workspace
+|-- deploy-update.sh
+|-- deploy.md
+|-- deployment.code-workspace
+|-- doctor.mjs
+|-- e2e
+|   |-- app.spec.js
+|   |-- copilot.spec.js
+|   |-- hello-world.spec.ts
+|   |-- smoke.spec.ts
+|   `-- welcome.help.spec.ts
+|-- eslint.config.js
+|-- index-complete-working.html
+|-- index.html
+|-- infra
+|   |-- bin
+|   |   `-- cst-smartdesk.ts
+|   |-- cdk.json
+|   |-- lib
+|   |   `-- cst-smartdesk-stack.ts
+|   |-- package-lock.json
+|   |-- package.json
+|   |-- src
+|   |   `-- lambdas
+|   |       |-- copilot.ts
+|   |       `-- fetch.ts
+|   `-- tsconfig.json
+|-- libs
+|   `-- tesseract
+|       |-- README.txt
+|       |-- tesseract-core.wasm
+|       |-- tesseract.min.js
+|       `-- worker.min.js
+|-- locales
+|   |-- en.json
+|   `-- es.json
+|-- package-lock.json
+|-- package.json
+|-- playwright.config.ts
+|-- public
+|   |-- .DS_Store
+|   |-- app.js
+|   |-- assets
+|   |   |-- app.css
+|   |   |-- applianceplus.svg
+|   |   |-- att-htp.svg
+|   |   |-- att.svg
+|   |   |-- bell.svg
+|   |   |-- consumer-cellular.svg
+|   |   |-- cox.svg
+|   |   |-- cricket.svg
+|   |   |-- enhanced-search.css
+|   |   |-- floating-copilot.css
+|   |   |-- homeplus.svg
+|   |   |-- koodo.svg
+|   |   |-- liberty.svg
+|   |   |-- logo.svg
+|   |   |-- main-copilot.css
+|   |   |-- optimum.svg
+|   |   |-- rsg.svg
+|   |   |-- samsung.svg
+|   |   |-- telus.svg
+|   |   |-- ubreakifix.svg
+|   |   |-- uscellular.svg
+|   |   |-- verizon.svg
+|   |   |-- virgin.svg
+|   |   `-- vz-hdp.svg
+|   |-- carriers
+|   |   |-- ATT.json
+|   |   |-- BELL.json
+|   |   |-- CC.json
+|   |   |-- COX.json
+|   |   |-- CRK.json
+|   |   |-- KOODO.json
+|   |   |-- LIB.json
+|   |   |-- OPT.json
+|   |   |-- SAMSUNG.json
+|   |   |-- TELUS.json
+|   |   |-- USCC.json
+|   |   |-- VIRGIN.json
+|   |   `-- VZW.json
+|   |-- copilot
+|   |   |-- canon.json
+|   |   |-- observe
+|   |   |   `-- esc_chat_rubric.json
+|   |   `-- script-packs
+|   |       `-- denials.json
+|   |-- copilot-prompts.json
+|   |-- favicon.ico
+|   |-- favicon.ico.b64
+|   |-- highlights.json
+|   |-- i18n
+|   |   |-- en.json
+|   |   `-- es.json
+|   |-- library
+|   |   |-- hero-xr.json
+|   |   |-- manifest.json
+|   |   |-- policies.json
+|   |   `-- scripts.json
+|   |-- libs
+|   |   `-- tesseract
+|   |       |-- tesseract-core.wasm
+|   |       |-- tesseract.min.js
+|   |       `-- worker.min.js
+|   `-- utils
+|       |-- copilot.js
+|       |-- i18n.js
+|       |-- parser.js
+|       `-- smart-panels.js
+|-- quick-ship.mjs
+|-- scripts
+|   |-- auto-dev.mjs
+|   |-- aws-invalidate.mjs
+|   |-- aws-sync.mjs
+|   |-- aws-url.mjs
+|   |-- check-lock.mjs
+|   |-- decode-favicon.mjs
+|   |-- dev-server.mjs
+|   |-- doctor-enhanced.mjs
+|   |-- doctor.mjs
+|   |-- e2e-codex.sh
+|   |-- extract-assets.mjs
+|   |-- install-tesseract-assets.mjs
+|   |-- parity-smoke.mjs
+|   |-- pr-prep.mjs
+|   |-- pr-setup.mjs
+|   |-- pre-commit-check.mjs
+|   |-- quick-ship.mjs
+|   |-- structure-check.mjs
+|   `-- validate-entry.mjs
+|-- server.js
+|-- setup.sh
+|-- src
+|   |-- .DS_Store
+|   |-- app.js
+|   |-- public
+|   |   |-- assets
+|   |   |   |-- att.svg
+|   |   |   |-- cricket.svg
+|   |   |   |-- logo.svg
+|   |   |   `-- verizon.svg
+|   |   |-- copilot-prompts.json
+|   |   `-- i18n
+|   |       |-- en.json
+|   |       `-- es.json
+|   |-- styles
+|   |   |-- codex.css
+|   |   |-- dashboard.css
+|   |   |-- smartdrop.css
+|   |   `-- tokens.css
+|   |-- styles.css
+|   `-- utils
+|       |-- copilot.js
+|       |-- i18n.js
+|       `-- parser.js
+|-- test-complete-flow.html
+|-- test-phase1-fixes.html
+|-- test-results
+|   `-- .last-run.json
+|-- test-setup.js
+|-- test-simple.html
+|-- test-splash.html
+|-- tests
+|   |-- copilot-prompt.test.js
+|   |-- decode-favicon.smoke.mjs
+|   |-- gui-integrity.test.js
+|   |-- i18n.test.js
+|   |-- parser.test.js
+|   `-- smoke.spec.ts
+|-- vercel.json
+|-- verify-deployment.js
+|-- vite.config.mjs
+`-- vitest.config.ts
+
+45 directories, 222 files

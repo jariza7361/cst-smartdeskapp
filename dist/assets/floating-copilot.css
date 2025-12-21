@@ -1,0 +1,228 @@
+/* Floating Copilot Styles */
+#floating-copilot {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  width: 300px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  border: 1px solid #d2d2d7;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+#floating-copilot:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.floating-header {
+  background: linear-gradient(135deg, #007aff, #5856d6);
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+}
+
+.floating-header:active {
+  cursor: grabbing;
+}
+
+.floating-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.floating-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.floating-controls button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.floating-controls button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.floating-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-switcher {
+  display: flex;
+  gap: 4px;
+  background: #f5f5f7;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.chat-btn {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-btn.active {
+  background: #007aff;
+  color: white;
+}
+
+.chat-btn:not(.active):hover {
+  background: rgba(0, 122, 255, 0.1);
+}
+
+.floating-input textarea {
+  width: 100%;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.floating-input textarea:focus {
+  border-color: #007aff;
+}
+
+.floating-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.floating-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#floating-generate {
+  background: #007aff;
+  color: white;
+  flex: 1;
+}
+
+#floating-generate:hover {
+  background: #0056cc;
+}
+
+#floating-clear {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  width: 32px;
+}
+
+#floating-clear:hover {
+  background: #e8e8ed;
+}
+
+.floating-response textarea {
+  width: 100%;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'SF Mono', Monaco, monospace;
+  background: #fafafa;
+  resize: none;
+  outline: none;
+}
+
+.floating-metrics {
+  display: flex;
+  gap: 8px;
+}
+
+.metrics-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+#floating-resolved-btn {
+  background: #34c759;
+  color: white;
+}
+
+#floating-resolved-btn:hover {
+  background: #28a745;
+}
+
+#floating-takeover-btn {
+  background: #ff3b30;
+  color: white;
+}
+
+#floating-takeover-btn:hover {
+  background: #dc3545;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #floating-copilot {
+    width: 280px;
+    right: 10px;
+  }
+}
+
+/* Animation for success messages */
+.floating-title {
+  transition: color 0.3s ease;
+}
+
+/* Minimized state */
+#floating-copilot.minimized {
+  height: 40px !important;
+}
+
+#floating-copilot.minimized .floating-content {
+  display: none !important;
+}
+
+/* Voice recording indicator */
+.floating-controls button.recording {
+  background: #ff3b30 !important;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}

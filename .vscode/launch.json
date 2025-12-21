@@ -2,53 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Chrome",
+      "name": "SmartDesk: Open in Chrome",
+      "type": "pwa-chrome",
       "request": "launch",
-      "type": "chrome",
-      "url": "http://localhost:8080",
+      "url": "http://127.0.0.1:5173",
       "webRoot": "${workspaceFolder}"
-    },
-    {
-      "name": "Playwright: Debug UI",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": [
-        "playwright",
-        "test",
-        "--ui"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/node_modules/**"
-      ]
-    },
-    {
-      "name": "Playwright: Debug smoke.spec",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": [
-        "playwright",
-        "test",
-        "e2e/smoke.spec.ts",
-        "--headed",
-        "--debug"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/node_modules/**"
-      ]
-    },
-    {
-      "type": "node-terminal",
-      "name": "JavaScript Debug Terminal",
-      "request": "launch",
-      "cwd": "${workspaceFolder}"
     }
   ]
 }

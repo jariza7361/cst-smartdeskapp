@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "name": "AWS Deployment",
+      "path": "./dist"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "../src/**": true,
+      "../public/**": true,
+      "../tests/**": true,
+      "../e2e/**": true,
+      "../scripts/**": true,
+      "../.github/**": true,
+      "../cdk/**": true,
+      "../node_modules/**": true,
+      "../*.md": true,
+      "../*.config.*": true,
+      "../package*.json": true,
+      "../axe-check.js": true,
+      "../server.js": true
+    },
+    "cSpell.enabled": false,
+    "eslint.enable": false,
+    "webhint.enable": false
+  },
+  "extensions": {
+    "recommendations": []
+  }
+}

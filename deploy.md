@@ -46,7 +46,7 @@ npm run aws:url
 
 ## Directory Structure
 
-```
+```text
 infra/
 ├── bin/cst-smartdesk.ts     # CDK app entry point
 ├── lib/cst-smartdesk-stack.ts # Main stack definition

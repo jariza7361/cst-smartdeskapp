@@ -1,1 +1,491 @@
+/* CST SmartDesk - 16 Smart Panels Styles */
 
+/* Base Layout */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+
+/* Header */
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid #d2d2d7;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn.secondary {
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+
+.btn.secondary:hover {
+  background: #e8e8ed;
+}
+
+.btn-primary {
+  background: #007aff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056cc;
+}
+
+/* Main Layout */
+.main-layout {
+  display: flex;
+  min-height: calc(100vh - 60px);
+}
+
+.sidebar {
+  width: 280px;
+  background: #fff;
+  border-right: 1px solid #d2d2d7;
+  overflow-y: auto;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Sidebar Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #d2d2d7;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button[aria-selected="true"] {
+  color: #007aff;
+  border-bottom-color: #007aff;
+}
+
+/* Side Panels */
+.side-panel {
+  padding: 16px;
+}
+
+.side-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #86868b;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav li {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 8px;
+}
+
+.nav li:hover {
+  background: #f5f5f7;
+}
+
+/* Dashboard Grid */
+.dashboard {
+  max-width: 1200px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.dashboard-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-left: 4px solid;
+  min-height: 120px;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.dashboard-card .card-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.dashboard-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dashboard-card p {
+  margin: 0;
+  color: #86868b;
+  font-size: 14px;
+}
+
+/* Card Colors */
+.card-orange { border-left-color: #ff9500; }
+.card-pink { border-left-color: #ff2d92; }
+.card-red { border-left-color: #ff3b30; }
+.card-blue { border-left-color: #007aff; }
+.card-cyan { border-left-color: #32d74b; }
+.card-teal { border-left-color: #30d158; }
+.card-purple { border-left-color: #af52de; }
+.card-green { border-left-color: #34c759; }
+.card-magenta { border-left-color: #ff2d92; }
+.card-indigo { border-left-color: #5856d6; }
+
+/* Copilot Workspace */
+.copilot-workspace {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.copilot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.copilot-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.copilot-suggestions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.suggestion-chip {
+  background: #f5f5f7;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.suggestion-chip:hover {
+  background: #e8e8ed;
+}
+
+.copilot-interface {
+  display: grid;
+  gap: 16px;
+}
+
+.copilot-input {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.copilot-input textarea {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.copilot-output {
+  display: grid;
+  gap: 8px;
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.output-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-secondary {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.copilot-output textarea {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+  background: #fafafa;
+  resize: vertical;
+}
+
+/* Smart Panels */
+#system-status, #panels, #ingest {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#system-status h2, #panels h2, #ingest h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* SmartDrop */
+#dropzone {
+  border: 2px dashed #d2d2d7;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+
+#dropzone:hover {
+  border-color: #007aff;
+  background: #f0f8ff;
+}
+
+#pastezone {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+#extract-output {
+  background: #fafafa;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Setup Wizard */
+#setup-wizard {
+  border: none;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+#setup-wizard h2 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+#wizardForm {
+  display: grid;
+  gap: 16px;
+}
+
+#wizardForm input, #wizardForm select {
+  padding: 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.wizard-status {
+  text-align: center;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+/* Search */
+.top-search {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  margin: 0 24px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 16px;
+  border: 1px solid #d2d2d7;
+  border-radius: 20px;
+  font-size: 14px;
+  background: #f5f5f7;
+}
+
+.search-suggest {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  margin-top: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  display: none;
+}
+
+/* Help Menu */
+.help-menu-wrap {
+  position: relative;
+}
+
+.help-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  margin-top: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  display: none;
+  min-width: 160px;
+}
+
+.help-menu-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.help-menu-item:hover {
+  background: #f5f5f7;
+}
+
+/* Utilities */
+.hidden {
+  display: none !important;
+}
+
+.carrier-footer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  font-size: 24px;
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .copilot-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

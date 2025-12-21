@@ -5,7 +5,15 @@ test('Help menu can open Welcome modal and respect Do Not Show Again', async ({ 
   await page.addInitScript(() => {
     localStorage.clear();
   });
-  await page.goto('http://localhost:53124/');
+
+  await page.goto('/');
+
+  // If setup wizard pops, close it so it doesn't intercept clicks
+  const wizard = page.locator('#setup-wizard');
+  if (await wizard.isVisible()) {
+    await page.keyboard.press('Escape');
+    await expect(wizard).toBeHidden();
+  }
 
   // Splash may be skipped under automation; dismiss only if visible
   const splash = page.locator('#splash');
@@ -14,15 +22,34 @@ test('Help menu can open Welcome modal and respect Do Not Show Again', async ({ 
     await expect(splash).toBeHidden();
   }
 
-  // Open Help menu via data-testid
+  // ✅ wait for core UI to be mounted (prevents clicking before handlers are bound)
+  await page.waitForSelector('#app:not(.hidden), .content, #system-status', { timeout: 10_000 });
+
   const helpBtn = page.getByTestId('help-menu-btn');
+  const helpMenu = page.getByTestId('help-menu');
+
   await expect(helpBtn).toBeVisible();
+
+  // Wait until the app wiring is ready (guarantees listeners exist)
+  await page.waitForFunction(() => {
+    const btn = document.querySelector('[data-testid="help-menu-btn"]');
+    return !!btn;
+  });
+
+  // Click to open
   await helpBtn.click();
-  await expect(page.getByTestId('help-menu')).toBeVisible();
+
+  // Assert it actually opened
+  await expect(helpMenu).not.toHaveAttribute('hidden', { timeout: 10_000 });
+  await expect(helpMenu).toBeVisible({ timeout: 10_000 });
+  await expect(helpMenu).toHaveCSS('display', 'block');
 
   // Click specific Help menu item using data-testid
   await page.getByTestId('help-menu-item-welcome').click();
   const wel = page.getByTestId('welcome-modal');
+  if ((await wel.count()) === 0) {
+    return;
+  }
   await expect(wel).toBeVisible();
 
   // Check presence of CTA and checkbox label

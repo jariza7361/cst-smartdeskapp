@@ -1,1 +1,7 @@
 node_modules
+.vscode/
+*.log
+.DS_Store
+cdk.out/
+*.tmp
+*.temp

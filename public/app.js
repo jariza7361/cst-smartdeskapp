@@ -1,4 +1,14 @@
 (() => {
+  const initApp = () => {
+    if (window.__cstAppInitialized) return;
+    window.__cstAppInitialized = true;
+    if (window.SmartPanelManager && !window.smartPanelManager) {
+      window.smartPanelManager = new window.SmartPanelManager();
+    }
+  };
+
+  window.cstInitApp = initApp;
+
   // Initialize demo user session if not exists
   if (!localStorage.getItem('userSession')) {
     localStorage.setItem('userSession', 'demo-token-' + Date.now());

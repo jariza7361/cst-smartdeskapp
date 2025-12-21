@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CST SmartDesk Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 CST SmartDesk Complete Flow Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <h2>Manual Test Instructions:</h2>
+    <ol>
+        <li><button onclick="clearStorage()">1. Clear Storage</button> - Clear localStorage to trigger setup</li>
+        <li><button onclick="openApp()">2. Open Application</button> - Open the live app</li>
+        <li><strong>3. Verify Splash Screen</strong> - Should show purple gradient with "White Glove Service" for 5 seconds</li>
+        <li><strong>4. Verify Setup Wizard Opens</strong> - Premium 3-step wizard should appear automatically</li>
+        <li><strong>5. Test Step 1</strong> - Fill Personal Information (Name, Employee ID, Extension)</li>
+        <li><strong>6. Test Step 2</strong> - Select Coach and Expert Type</li>
+        <li><strong>7. Test Step 3</strong> - Select Theme (visual previews should work)</li>
+        <li><strong>8. Complete Setup</strong> - Click "Complete Setup" button</li>
+        <li><strong>9. Verify Main GUI</strong> - Should load main dashboard with all content</li>
+    </ol>
+    
+    <h2>Expected Results:</h2>
+    <ul>
+        <li>✅ Splash screen displays for 5 seconds</li>
+        <li>✅ Setup wizard opens with professional styling</li>
+        <li>✅ Progress bar updates (33% → 66% → 100%)</li>
+        <li>✅ Form validation works</li>
+        <li>✅ Theme selection shows previews</li>
+        <li>✅ Save button shows loading animation</li>
+        <li>✅ Data saves to localStorage</li>
+        <li>✅ Main dashboard loads with complete content</li>
+    </ul>
+    
+    <script>
+        function clearStorage() {
+            localStorage.removeItem('cst-setup-complete');
+            localStorage.removeItem('cst_setup_completed');
+            localStorage.removeItem('cst_setup_data');
+            addResult('✅ localStorage cleared - setup wizard will show on next visit', 'pass');
+        }
+        
+        function openApp() {
+            window.open('http://cst-smartdesk-app-1756806160.s3-website-us-east-1.amazonaws.com/', '_blank');
+            addResult('🌐 Application opened in new tab', 'info');
+        }
+        
+        function addResult(message, type) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        // Run automatic tests
+        window.onload = function() {
+            addResult('🚀 Test environment ready', 'info');
+            addResult('📋 Follow the manual test steps above', 'info');
+        };
+    </script>
+</body>
+</html>

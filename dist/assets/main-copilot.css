@@ -1,0 +1,529 @@
+/* Main Copilot Interface Styles */
+
+.main-copilot-container {
+  background: white;
+  border-radius: 16px;
+  margin: 32px 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d2d2d7;
+  overflow: hidden;
+}
+
+/* Header Bar */
+.copilot-header-bar {
+  background: linear-gradient(135deg, #007aff, #5856d6);
+  color: white;
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copilot-branding {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.copilot-logo {
+  font-size: 32px;
+}
+
+.copilot-branding h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.expert-name {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.copilot-status {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.aht-display, .energy-display {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Dual Chat Workspace */
+.dual-chat-workspace {
+  padding: 24px 32px;
+}
+
+.chat-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.chat-tab {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #f5f5f7;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-tab.active {
+  background: #007aff;
+  color: white;
+}
+
+.chat-tab:not(.active):hover {
+  background: #e8e8ed;
+}
+
+.speed-mode-btn, .calm-mode-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.speed-mode-btn {
+  background: #ff3b30;
+  color: white;
+}
+
+.calm-mode-btn {
+  background: #34c759;
+  color: white;
+}
+
+.speed-mode-btn.active, .calm-mode-btn.active {
+  animation: pulse 2s infinite;
+}
+
+/* Chat Workspace */
+.chat-workspace {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.chat-panel {
+  display: none;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e8e8ed;
+}
+
+.chat-panel.active {
+  display: block;
+}
+
+/* When both chats are active */
+.chat-workspace:has(.chat-panel.active:nth-child(1).active:nth-child(2)) .chat-panel {
+  display: block;
+}
+
+/* Chat Info */
+.chat-info {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8e8ed;
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.customer-icon {
+  font-size: 18px;
+}
+
+.customer-info input {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  outline: none;
+}
+
+.customer-info input:focus {
+  background: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.issue-separator {
+  color: #86868b;
+  font-weight: 500;
+}
+
+.chat-metrics {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #86868b;
+}
+
+.chat-timer {
+  font-weight: 600;
+}
+
+/* Input Section */
+.chat-input-section {
+  margin-bottom: 16px;
+}
+
+.mode-selector {
+  margin-bottom: 12px;
+}
+
+.mode-selector select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+}
+
+.input-area textarea {
+  width: 100%;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.input-area textarea:focus {
+  border-color: #007aff;
+  outline: none;
+}
+
+.input-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.voice-btn, .generate-btn, .clear-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.voice-btn {
+  background: #5856d6;
+  color: white;
+}
+
+.voice-btn.recording {
+  background: #ff3b30;
+  animation: pulse 1s infinite;
+}
+
+.generate-btn {
+  background: #007aff;
+  color: white;
+  flex: 1;
+}
+
+.clear-btn {
+  background: #86868b;
+  color: white;
+}
+
+.voice-btn:hover, .generate-btn:hover, .clear-btn:hover {
+  opacity: 0.8;
+}
+
+/* Response Section */
+.response-section {
+  margin-bottom: 16px;
+}
+
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.response-header span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.response-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.response-controls button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  transition: background 0.2s;
+}
+
+.response-controls button:hover {
+  background: #e8e8ed;
+}
+
+.response-section textarea {
+  width: 100%;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  font-family: 'SF Mono', Monaco, monospace;
+  background: white;
+  resize: vertical;
+}
+
+/* Resolution Tracking */
+.resolution-tracking {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resolution-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.resolution-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.resolution-btn.resolved {
+  background: #34c759;
+  color: white;
+}
+
+.resolution-btn.takeover {
+  background: #ff3b30;
+  color: white;
+}
+
+.resolution-btn:hover {
+  opacity: 0.8;
+}
+
+/* Quick Tools Section */
+.quick-tools-section {
+  background: #f5f5f7;
+  padding: 24px 32px;
+  border-top: 1px solid #e8e8ed;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.quick-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #d2d2d7;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-btn:hover {
+  background: #007aff;
+  color: white;
+  border-color: #007aff;
+}
+
+.examples-section {
+  margin-top: 16px;
+}
+
+.example-prompts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.examples-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.example-chip {
+  background: white;
+  border: 1px solid #d2d2d7;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.example-chip:hover {
+  background: #007aff;
+  color: white;
+  border-color: #007aff;
+}
+
+/* Performance Dashboard */
+.performance-dashboard {
+  background: #fafafa;
+  padding: 24px 32px;
+  border-top: 1px solid #e8e8ed;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e8e8ed;
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #86868b;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.learning-insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.insight-card {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e8e8ed;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.insight-icon {
+  font-size: 20px;
+}
+
+.insight-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .chat-workspace {
+    grid-template-columns: 1fr;
+  }
+  
+  .copilot-header-bar {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .copilot-status {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-copilot-container {
+    margin: 16px 0;
+  }
+  
+  .dual-chat-workspace {
+    padding: 16px 20px;
+  }
+  
+  .copilot-header-bar {
+    padding: 16px 20px;
+  }
+  
+  .quick-tools-section, .performance-dashboard {
+    padding: 16px 20px;
+  }
+  
+  .chat-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .quick-actions {
+    justify-content: center;
+  }
+  
+  .example-prompts {
+    justify-content: center;
+  }
+}

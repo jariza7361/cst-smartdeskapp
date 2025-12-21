@@ -1,3 +1,24 @@
 {
-    "terminal.integrated.sendKeybindingsToShell": false
+  "markdownlint.config": {
+    "MD007": { "indent": 2 },
+    "MD013": { "line_length": 120 }
+  },
+  "files.exclude": {
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/node_modules/**": true
+  },
+  "markdownlint.ignore": [
+    "**/node_modules/**"
+  ],
+  "axe-linter.exclude": [
+    "**/node_modules/**"
+  ],
+  "axe-linter.enable": false,
+  "json.validate.enable": true,
+  "json.schemas": [],
+  "files.associations": {
+    "**/node_modules/**/package.json": "json"
+  }
 }

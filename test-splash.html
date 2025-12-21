@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Splash Test</title>
+</head>
+<body style="margin:0;padding:0;">
+    <div id="splash" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-family:Arial;z-index:9999;">
+        <div style="text-align:center;">
+            <h1>CST SmartDesk</h1>
+            <p>This is where white glove service comes to life.</p>
+        </div>
+    </div>
+    <div style="padding:20px;display:none;" id="main">
+        <h1>Main App</h1>
+        <p>This appears after splash</p>
+    </div>
+    <script>
+        setTimeout(() => {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main').style.display = 'block';
+        }, 3000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#663399">
+    <title>CST SmartDesk - Browser Compatibility Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: linear-gradient(135deg, #663399, #8A2BE2);
+            color: white;
+            min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .status-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .status-success {
+            background: rgba(52, 199, 89, 0.3);
+            border: 1px solid rgba(52, 199, 89, 0.5);
+        }
+        
+        .status-warning {
+            background: rgba(255, 149, 0, 0.3);
+            border: 1px solid rgba(255, 149, 0, 0.5);
+        }
+        
+        .status-error {
+            background: rgba(255, 59, 48, 0.3);
+            border: 1px solid rgba(255, 59, 48, 0.5);
+        }
+        
+        .browser-info {
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 8px 0;
+        }
+        
+        .test-button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 8px 0;
+            transition: all 0.2s;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+        
+        .test-button:hover {
+            background: #0056cc;
+            transform: translateY(-1px);
+        }
+        
+        .test-button:active {
+            transform: translateY(0);
+        }
+        
+        .feature-test {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .feature-test:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-name {
+            font-weight: 500;
+        }
+        
+        .feature-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .supported {
+            background: rgba(52, 199, 89, 0.3);
+            color: #34c759;
+        }
+        
+        .not-supported {
+            background: rgba(255, 59, 48, 0.3);
+            color: #ff3b30;
+        }
+        
+        .partial {
+            background: rgba(255, 149, 0, 0.3);
+            color: #ff9500;
+        }
+        
+        .url-list {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        
+        .url-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .url-item:last-child {
+            border-bottom: none;
+        }
+        
+        .url-link {
+            color: #64d2ff;
+            text-decoration: none;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .url-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            
+            .test-card {
+                padding: 16px;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .url-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-card">
+            <h1>🚀 CST SmartDesk</h1>
+            <h2>Browser Compatibility Test</h2>
+            <p>Testing your device and browser compatibility with CST SmartDesk application.</p>
+        </div>
+
+        <div class="test-card">
+            <h3>📱 Device Information</h3>
+            <div class="browser-info">
+                <div><strong>Browser:</strong> <span id="browserName"></span></div>
+                <div><strong>Platform:</strong> <span id="platform"></span></div>
+                <div><strong>Screen:</strong> <span id="screenSize"></span></div>
+                <div><strong>Viewport:</strong> <span id="viewportSize"></span></div>
+                <div><strong>User Agent:</strong> <span id="userAgent"></span></div>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>✅ Compatibility Status</h3>
+            <div class="status-grid">
+                <div class="status-item" id="overallStatus">
+                    <div><strong>Overall</strong></div>
+                    <div id="overallResult">Testing...</div>
+                </div>
+                <div class="status-item" id="cssStatus">
+                    <div><strong>CSS</strong></div>
+                    <div id="cssResult">Testing...</div>
+                </div>
+                <div class="status-item" id="jsStatus">
+                    <div><strong>JavaScript</strong></div>
+                    <div id="jsResult">✓ Working</div>
+                </div>
+                <div class="status-item" id="touchStatus">
+                    <div><strong>Touch</strong></div>
+                    <div id="touchResult">Testing...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>🔧 Feature Support</h3>
+            <div id="featureTests"></div>
+        </div>
+
+        <div class="test-card">
+            <h3>🌐 Available URLs</h3>
+            <p>Try these URLs in order of compatibility:</p>
+            <div class="url-list">
+                <div class="url-item">
+                    <a href="https://d2yytpg4rjp1p3.cloudfront.net" class="url-link" target="_blank">
+                        https://d2yytpg4rjp1p3.cloudfront.net
+                    </a>
+                    <span class="url-type">HTTPS (Best)</span>
+                </div>
+                <div class="url-item">
+                    <a href="http://cst-smartdesk-app-1756806160.s3-website-us-east-1.amazonaws.com/simple.html" class="url-link" target="_blank">
+                        Simple Test Page
+                    </a>
+                    <span class="url-type">HTTP</span>
+                </div>
+                <div class="url-item">
+                    <a href="http://cst-smartdesk-app-1756806160.s3-website-us-east-1.amazonaws.com" class="url-link" target="_blank">
+                        Full Application
+                    </a>
+                    <span class="url-type">HTTP</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>🧪 Interactive Tests</h3>
+            <button class="test-button" onclick="testTouch()">Test Touch/Click</button>
+            <button class="test-button" onclick="testLocalStorage()">Test Local Storage</button>
+            <button class="test-button" onclick="testNetwork()">Test Network Connection</button>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <script>
+        // Browser Detection
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            
+            if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+            else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Edg')) browser = 'Edge';
+            else if (ua.includes('Opera')) browser = 'Opera';
+            
+            return browser;
+        }
+
+        function detectPlatform() {
+            const ua = navigator.userAgent;
+            if (ua.includes('iPhone')) return 'iPhone';
+            if (ua.includes('iPad')) return 'iPad';
+            if (ua.includes('Android')) return 'Android';
+            if (ua.includes('Mac')) return 'macOS';
+            if (ua.includes('Windows')) return 'Windows';
+            if (ua.includes('Linux')) return 'Linux';
+            return 'Unknown';
+        }
+
+        // Feature Tests
+        function testFeatures() {
+            const features = [
+                { name: 'CSS Grid', test: () => CSS.supports('display', 'grid') },
+                { name: 'CSS Flexbox', test: () => CSS.supports('display', 'flex') },
+                { name: 'Backdrop Filter', test: () => CSS.supports('backdrop-filter', 'blur(10px)') || CSS.supports('-webkit-backdrop-filter', 'blur(10px)') },
+                { name: 'Touch Events', test: () => 'ontouchstart' in window },
+                { name: 'Local Storage', test: () => typeof Storage !== 'undefined' },
+                { name: 'Service Worker', test: () => 'serviceWorker' in navigator },
+                { name: 'WebGL', test: () => !!window.WebGLRenderingContext },
+                { name: 'Geolocation', test: () => 'geolocation' in navigator },
+                { name: 'Camera', test: () => 'mediaDevices' in navigator },
+                { name: 'Notifications', test: () => 'Notification' in window }
+            ];
+
+            const container = document.getElementById('featureTests');
+            features.forEach(feature => {
+                const div = document.createElement('div');
+                div.className = 'feature-test';
+                
+                let status, className;
+                try {
+                    const supported = feature.test();
+                    status = supported ? '✓ Supported' : '✗ Not Supported';
+                    className = supported ? 'supported' : 'not-supported';
+                } catch (e) {
+                    status = '? Unknown';
+                    className = 'partial';
+                }
+                
+                div.innerHTML = `
+                    <span class="feature-name">${feature.name}</span>
+                    <span class="feature-status ${className}">${status}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Interactive Tests
+        function testTouch() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<div style="background: rgba(52, 199, 89, 0.3); padding: 12px; border-radius: 8px; margin: 8px 0;">✓ Touch/Click test successful!</div>';
+        }
+
+        function testLocalStorage() {
+            const results = document.getElementById('testResults');
+            try {
+                localStorage.setItem('test', 'value');
+                localStorage.removeItem('test');
+                results.innerHTML = '<div style="background: rgba(52, 199, 89, 0.3); padding: 12px; border-radius: 8px; margin: 8px 0;">✓ Local Storage working!</div>';
+            } catch (e) {
+                results.innerHTML = '<div style="background: rgba(255, 59, 48, 0.3); padding: 12px; border-radius: 8px; margin: 8px 0;">✗ Local Storage blocked</div>';
+            }
+        }
+
+        function testNetwork() {
+            const results = document.getElementById('testResults');
+            fetch('https://httpbin.org/get')
+                .then(response => response.json())
+                .then(() => {
+                    results.innerHTML = '<div style="background: rgba(52, 199, 89, 0.3); padding: 12px; border-radius: 8px; margin: 8px 0;">✓ Network connection working!</div>';
+                })
+                .catch(() => {
+                    results.innerHTML = '<div style="background: rgba(255, 149, 0, 0.3); padding: 12px; border-radius: 8px; margin: 8px 0;">⚠ Network test failed (may be blocked)</div>';
+                });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fill device info
+            document.getElementById('browserName').textContent = detectBrowser();
+            document.getElementById('platform').textContent = detectPlatform();
+            document.getElementById('screenSize').textContent = `${screen.width} × ${screen.height}`;
+            document.getElementById('viewportSize').textContent = `${window.innerWidth} × ${window.innerHeight}`;
+            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 100) + '...';
+
+            // Test features
+            testFeatures();
+
+            // Update status indicators
+            document.getElementById('jsResult').textContent = '✓ Working';
+            document.getElementById('jsResult').parentElement.className = 'status-item status-success';
+
+            document.getElementById('cssResult').textContent = '✓ Working';
+            document.getElementById('cssResult').parentElement.className = 'status-item status-success';
+
+            const touchSupported = 'ontouchstart' in window;
+            document.getElementById('touchResult').textContent = touchSupported ? '✓ Supported' : '✗ Not Supported';
+            document.getElementById('touchResult').parentElement.className = `status-item ${touchSupported ? 'status-success' : 'status-warning'}`;
+
+            // Overall status
+            const browser = detectBrowser();
+            const platform = detectPlatform();
+            let overallStatus = 'Compatible';
+            let statusClass = 'status-success';
+
+            if (browser === 'Unknown' || platform === 'Unknown') {
+                overallStatus = 'Partial';
+                statusClass = 'status-warning';
+            }
+
+            document.getElementById('overallResult').textContent = `✓ ${overallStatus}`;
+            document.getElementById('overallResult').parentElement.className = `status-item ${statusClass}`;
+
+            console.log('Browser compatibility test completed');
+            console.log('Browser:', browser, 'Platform:', platform);
+        });
+    </script>
+</body>
+</html>
