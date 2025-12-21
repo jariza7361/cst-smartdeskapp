@@ -60,7 +60,7 @@ All critical and high-severity vulnerabilities have been resolved:
 ## 📦 Deployment Architecture
 
 ### AWS S3 Configuration
-- **Bucket**: `cst-smartdesk-app-1756634334`
+- **Bucket**: `cst-smartdesk-app-1756806160`
 - **Access**: Private with pre-signed URLs
 - **Security**: Public access blocked, temporary signed URLs (24h expiry)
 - **Distribution**: Ready for CloudFront CDN integration
@@ -71,7 +71,7 @@ All critical and high-severity vulnerabilities have been resolved:
 ./access-app.sh
 
 # Manual access generation
-aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400
+aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400
 ```
 
 ## 🛠️ Development Workflow

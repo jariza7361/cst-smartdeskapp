@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "build": "vite build",
+    "deploy": "npm run build && node scripts/aws-sync.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "doctor": "node scripts/doctor.mjs",
     "parity:smoke": "node scripts/parity-smoke.mjs",

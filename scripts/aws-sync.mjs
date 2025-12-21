@@ -1,19 +1,32 @@
 import fs from 'fs';
-import { spawnSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 
+const DEPLOY_BUCKET = 'cst-smartdesk-app-1756806160';
+const EXPECTED_ACCOUNT = '782683897569';
 const outputsFile = 'infra/cdk-outputs.json';
 
-if (!fs.existsSync(outputsFile)) {
-  console.error('❌ CDK outputs file not found. Run aws:deploy first.');
+let bucketName;
+if (fs.existsSync(outputsFile)) {
+  const outputs = JSON.parse(fs.readFileSync(outputsFile, 'utf8'));
+  bucketName = outputs.CstSmartdeskStack?.BucketName;
+}
+
+if (bucketName && bucketName !== DEPLOY_BUCKET) {
+  throw new Error(`Refusing to deploy. Expected bucket ${DEPLOY_BUCKET} but got ${bucketName}`);
+}
+bucketName = DEPLOY_BUCKET;
+
+let accountId;
+try {
+  const ident = JSON.parse(execSync('aws sts get-caller-identity', { encoding: 'utf8' }));
+  accountId = ident?.Account;
+} catch (error) {
+  console.error('❌ Unable to verify AWS account. Is AWS CLI configured?');
   process.exit(1);
 }
 
-const outputs = JSON.parse(fs.readFileSync(outputsFile, 'utf8'));
-const bucketName = outputs.CstSmartdeskStack?.BucketName;
-
-if (!bucketName) {
-  console.error('❌ Bucket name not found in CDK outputs');
-  process.exit(1);
+if (accountId !== EXPECTED_ACCOUNT) {
+  throw new Error(`Refusing to deploy. Expected AWS account ${EXPECTED_ACCOUNT} but got ${accountId}`);
 }
 
 console.log(`🚀 Syncing dist/ to s3://${bucketName}`);

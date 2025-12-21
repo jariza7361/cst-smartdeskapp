@@ -6,7 +6,7 @@ Your CST SmartDesk application is **already deployed** and ready for use!
 
 ### Current Deployment Status
 - ✅ **Deployed to**: AWS S3 (Private Bucket)
-- ✅ **Bucket Name**: `cst-smartdesk-app-1756634334`
+- ✅ **Bucket Name**: `cst-smartdesk-app-1756806160`
 - ✅ **Access Method**: Pre-signed URLs (24-hour expiry)
 - ✅ **Security**: Private access with temporary signed links
 
@@ -20,19 +20,19 @@ cd /Users/jesusariza/Documents/GitHub1/cst-smartdeskapp
 
 ### Method 2: Manual AWS CLI
 ```bash
-aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400
+aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400
 ```
 
 ### Method 3: Generate New Links
 ```bash
 # 24-hour access (recommended)
-aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400
+aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400
 
 # 1-hour access (high security)
-aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 3600
+aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 3600
 
 # 1-week access (team sharing)
-aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 604800
+aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 604800
 ```
 
 ## 🔄 Update Deployment
@@ -43,7 +43,7 @@ aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 604800
 npm run build
 
 # Deploy to S3
-aws s3 sync dist/ s3://cst-smartdesk-app-1756634334/ --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160/ --delete
 
 # Generate new access link
 ./access-app.sh
@@ -62,11 +62,11 @@ npm run build
 
 # Deploy to S3
 echo "☁️ Uploading to S3..."
-aws s3 sync dist/ s3://cst-smartdesk-app-1756634334/ --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160/ --delete
 
 # Generate access link
 echo "🔗 Generating access link..."
-ACCESS_URL=$(aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400)
+ACCESS_URL=$(aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400)
 
 echo "✅ Deployment complete!"
 echo "🔗 Access URL: $ACCESS_URL"
@@ -84,10 +84,10 @@ echo "⏰ Link expires in 24 hours"
 ### Verify Security Status
 ```bash
 # Check public access block
-aws s3api get-public-access-block --bucket cst-smartdesk-app-1756634334
+aws s3api get-public-access-block --bucket cst-smartdesk-app-1756806160
 
 # Verify no bucket policy exists
-aws s3api get-bucket-policy --bucket cst-smartdesk-app-1756634334
+aws s3api get-bucket-policy --bucket cst-smartdesk-app-1756806160
 ```
 
 ## 🌐 Advanced Deployment Options
@@ -121,7 +121,7 @@ aws elbv2 create-load-balancer --name cst-smartdesk-lb
 # Generate team access links
 for i in {1..5}; do
   echo "Team Member $i:"
-  aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400
+  aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400
   echo ""
 done
 ```
@@ -149,7 +149,7 @@ aws s3 mb s3://cst-smartdesk-logs-$(date +%s)
 
 # Enable access logging
 aws s3api put-bucket-logging \
-  --bucket cst-smartdesk-app-1756634334 \
+  --bucket cst-smartdesk-app-1756806160 \
   --bucket-logging-status file://logging-config.json
 ```
 
@@ -168,13 +168,13 @@ aws cloudwatch put-dashboard \
 #### Issue: Access Denied Error
 ```bash
 # Solution: Generate new pre-signed URL
-aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400
+aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400
 ```
 
 #### Issue: Files Not Loading
 ```bash
 # Solution: Check S3 sync and regenerate
-aws s3 sync dist/ s3://cst-smartdesk-app-1756634334/ --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160/ --delete
 ```
 
 #### Issue: Expired Links
@@ -186,13 +186,13 @@ aws s3 sync dist/ s3://cst-smartdesk-app-1756634334/ --delete
 ### Diagnostic Commands
 ```bash
 # Check bucket contents
-aws s3 ls s3://cst-smartdesk-app-1756634334/
+aws s3 ls s3://cst-smartdesk-app-1756806160/
 
 # Verify file accessibility
-aws s3 cp s3://cst-smartdesk-app-1756634334/index.html /tmp/test.html
+aws s3 cp s3://cst-smartdesk-app-1756806160/index.html /tmp/test.html
 
 # Check bucket permissions
-aws s3api get-bucket-acl --bucket cst-smartdesk-app-1756634334
+aws s3api get-bucket-acl --bucket cst-smartdesk-app-1756806160
 ```
 
 ## 📋 Deployment Checklist
@@ -221,16 +221,16 @@ aws s3api get-bucket-acl --bucket cst-smartdesk-app-1756634334
 ```bash
 # Enable S3 versioning for rollback capability
 aws s3api put-bucket-versioning \
-  --bucket cst-smartdesk-app-1756634334 \
+  --bucket cst-smartdesk-app-1756806160 \
   --versioning-configuration Status=Enabled
 
 # List object versions
-aws s3api list-object-versions --bucket cst-smartdesk-app-1756634334
+aws s3api list-object-versions --bucket cst-smartdesk-app-1756806160
 
 # Restore previous version
 aws s3api copy-object \
-  --copy-source cst-smartdesk-app-1756634334/index.html?versionId=VERSION_ID \
-  --bucket cst-smartdesk-app-1756634334 \
+  --copy-source cst-smartdesk-app-1756806160/index.html?versionId=VERSION_ID \
+  --bucket cst-smartdesk-app-1756806160 \
   --key index.html
 ```
 
@@ -238,7 +238,7 @@ aws s3api copy-object \
 ```bash
 # Immediately disable all access
 aws s3api put-public-access-block \
-  --bucket cst-smartdesk-app-1756634334 \
+  --bucket cst-smartdesk-app-1756806160 \
   --public-access-block-configuration \
   BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
 
