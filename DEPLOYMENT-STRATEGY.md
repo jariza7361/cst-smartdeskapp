@@ -28,7 +28,7 @@ cst-smartdeskapp/
 ## AWS DEPLOYMENT COMMAND
 
 ```bash
-aws s3 sync dist/ s3://your-bucket-name --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160 --delete
 ```
 
 ## RULES

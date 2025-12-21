@@ -5,7 +5,7 @@
 echo "🚀 CST SmartDesk - Generating Access Link..."
 
 # Generate 24-hour access link
-ACCESS_URL=$(aws s3 presign s3://cst-smartdesk-app-1756634334/index.html --expires-in 86400)
+ACCESS_URL=$(aws s3 presign s3://cst-smartdesk-app-1756806160/index.html --expires-in 86400)
 
 echo "✅ Access link generated (expires in 24 hours):"
 echo "$ACCESS_URL"

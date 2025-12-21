@@ -74,8 +74,8 @@ npm run preview      # Preview production build
 
 ```bash
 # Deploy to AWS S3
-aws s3 sync dist/ s3://your-bucket-name --delete
-aws s3 website s3://your-bucket-name --index-document index.html
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160 --delete
+aws s3 website s3://cst-smartdesk-app-1756806160 --index-document index.html
 ```
 
 ### Quality Assurance

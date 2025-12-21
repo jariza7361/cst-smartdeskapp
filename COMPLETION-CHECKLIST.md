@@ -30,15 +30,15 @@ cd /Users/jesusariza/Documents/GitHub1/cst-smartdeskapp
 aws s3 mb s3://cst-smartdesk-app-$(date +%s) --region us-east-1
 
 # Deploy application
-aws s3 sync dist/ s3://your-bucket-name --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160 --delete
 
 # Configure static website hosting
-aws s3 website s3://your-bucket-name --index-document index.html
+aws s3 website s3://cst-smartdesk-app-1756806160 --index-document index.html
 ```
 
 ### Step 3: Verify Live Deployment (1 minute)
 
-1. Visit your AWS deployment URL: `http://your-bucket-name.s3-website-us-east-1.amazonaws.com`
+1. Visit your AWS deployment URL: `http://cst-smartdesk-app-1756806160.s3-website-us-east-1.amazonaws.com`
 2. Confirm premium splash screen shows for 5 seconds
 3. Verify SmartDrop OCR card appears in dashboard
 4. Test file upload and text extraction functionality

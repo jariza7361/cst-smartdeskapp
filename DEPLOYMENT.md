@@ -13,28 +13,28 @@
 #### 1. Create S3 Bucket
 
 ```bash
-aws s3 mb s3://cst-smartdesk-app-$(date +%s) --region us-east-1
+aws s3 ls s3://cst-smartdesk-app-1756806160
 ```
 
 #### 2. Deploy Application Files
 
 ```bash
 # Sync all files from dist folder
-aws s3 sync dist/ s3://your-bucket-name --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160 --delete
 
 # Configure static website hosting
-aws s3 website s3://your-bucket-name --index-document index.html --error-document index.html
+aws s3 website s3://cst-smartdesk-app-1756806160 --index-document index.html --error-document index.html
 ```
 
 #### 3. Configure Public Access
 
 ```bash
 # Disable block public access
-aws s3api put-public-access-block --bucket your-bucket-name \
+aws s3api put-public-access-block --bucket cst-smartdesk-app-1756806160 \
   --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
 
 # Apply bucket policy for public read access
-aws s3api put-bucket-policy --bucket your-bucket-name --policy '{
+aws s3api put-bucket-policy --bucket cst-smartdesk-app-1756806160 --policy '{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -42,7 +42,7 @@ aws s3api put-bucket-policy --bucket your-bucket-name --policy '{
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::your-bucket-name/*"
+      "Resource": "arn:aws:s3:::cst-smartdesk-app-1756806160/*"
     }
   ]
 }'
@@ -52,7 +52,7 @@ aws s3api put-bucket-policy --bucket your-bucket-name --policy '{
 
 Your CST SmartDesk application will be available at:
 ```
-http://your-bucket-name.s3-website-us-east-1.amazonaws.com
+http://cst-smartdesk-app-1756806160.s3-website-us-east-1.amazonaws.com
 ```
 
 ### Features Deployed
@@ -99,7 +99,7 @@ http://your-bucket-name.s3-website-us-east-1.amazonaws.com
 npm run build
 
 # Deploy updates
-aws s3 sync dist/ s3://your-bucket-name --delete
+aws s3 sync dist/ s3://cst-smartdesk-app-1756806160 --delete
 ```
 
 #### Monitoring

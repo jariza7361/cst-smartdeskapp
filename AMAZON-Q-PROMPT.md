@@ -27,7 +27,7 @@ Please help me complete the final testing and deployment steps.
 
 - **Main file**: `dist/index.html`
 - **Functionality**: `dist/utils/smart-panels.js`  
-- **Deploy command**: `aws s3 sync dist/ s3://your-bucket-name --delete`
+- **Deploy command**: `aws s3 sync dist/ s3://cst-smartdesk-app-1756806160 --delete`
 - **Test locally**: Open `dist/index.html` in browser
 - **Features**: SmartDrop OCR + Enhanced Copilot + ARIA compliance
 
