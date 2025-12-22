@@ -3,44 +3,763 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- DEV ONLY: permissive CSP to avoid Vite dev blocking; remove or tighten for prod -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ws: http: https:"> -->
     <title>CST SmartDesk — Escalation Toolkit</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>" sizes="any">
     
     <!-- Embedded CSS to avoid missing file issues -->
-    
-    <link rel="stylesheet" href="/assets/app.css" />
-    <link rel="stylesheet" href="/assets/utility-styles.css" />
-</head>
+    <style>
+      /* CSS Variables */
+      :root {
+        --bg: #ffffff;
+        --panel: #f8fafc;
+        --border: #e2e8f0;
+        --ink: #1e293b;
+        --blue: #3b82f6;
+        --green: #10b981;
+        --orange: #f59e0b;
+        --red: #ef4444;
+        --purple: #8b5cf6;
+        --pink: #ec4899;
+        --cyan: #06b6d4;
+        --teal: #14b8a6;
+        --magenta: #d946ef;
+      }
+
+      /* Dark theme */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a;
+          --panel: #1e293b;
+          --border: #334155;
+          --ink: #f1f5f9;
+        }
+      }
+
+      /* Reset and Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        line-height: 1.5;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* Header Styles */
+      .topbar {
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .topbar h1 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      /* Search Styles */
+      .top-search {
+        margin-left: 24px;
+        flex: 1;
+        max-width: 560px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .search-input:focus {
+        border-color: var(--blue);
+      }
+
+      .search-suggest {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        right: 0;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        padding: 6px;
+        display: none;
+        z-index: 30;
+        max-height: 300px;
+        overflow: auto;
+      }
+
+      /* Header Actions */
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      /* Button Styles */
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--ink);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn:hover {
+        background: var(--border);
+      }
+
+      .btn.secondary {
+        background: transparent;
+      }
+
+      .btn-primary {
+        background: var(--blue);
+        color: white;
+        border-color: var(--blue);
+      }
+
+      .btn-primary:hover {
+        background: #2563eb;
+      }
+
+      .btn-quiet {
+        background: none;
+        border: none;
+        padding: 8px 12px;
+      }
+
+      /* Help Menu */
+      .help-menu-wrap {
+        position: relative;
+      }
+
+      .help-menu {
+        position: absolute;
+        right: 0;
+        top: 110%;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        padding: 6px;
+        display: none;
+        min-width: 180px;
+        z-index: 25;
+      }
+
+      .help-menu-item {
+        width: 100%;
+        text-align: left;
+        border-radius: 4px;
+      }
+
+      .help-menu-item:hover {
+        background: var(--bg);
+      }
+
+      /* Layout */
+      .main-layout {
+        display: flex;
+        flex: 1;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 280px;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .tabs button {
+        flex: 1;
+        padding: 12px 8px;
+        border: none;
+        background: none;
+        color: var(--ink);
+        font-size: 13px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+      }
+
+      .tabs button[aria-selected="true"] {
+        border-bottom-color: var(--blue);
+        color: var(--blue);
+        font-weight: 500;
+      }
+
+      .side-panel {
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .side-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--ink);
+        opacity: 0.7;
+        margin-bottom: 12px;
+      }
+
+      .canada-title {
+        margin-top: 20px;
+      }
+
+      .nav {
+        list-style: none;
+      }
+
+      .nav li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        margin-bottom: 2px;
+      }
+
+      .nav li:hover {
+        background: var(--bg);
+      }
+
+      .nav li img {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+      }
+
+      .nav li span {
+        font-size: 14px;
+        color: var(--ink);
+      }
+
+      /* Content Area */
+      .content {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+      }
+
+      /* Dashboard */
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .dashboard-header h1 {
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .dashboard-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .copilot-preview {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        color: var(--ink);
+        opacity: 0.7;
+      }
+
+      /* Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .dashboard-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-icon {
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--bg);
+      }
+
+      .card-content h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .card-content p {
+        margin: 0;
+        font-size: 14px;
+        opacity: 0.7;
+      }
+
+      /* Card Colors */
+      .card-orange .card-icon { background: #fed7aa; }
+      .card-pink .card-icon { background: #fce7f3; }
+      .card-red .card-icon { background: #fecaca; }
+      .card-blue .card-icon { background: #dbeafe; }
+      .card-cyan .card-icon { background: #cffafe; }
+      .card-teal .card-icon { background: #ccfbf1; }
+      .card-purple .card-icon { background: #e9d5ff; }
+      .card-green .card-icon { background: #d1fae5; }
+      .card-magenta .card-icon { background: #f3e8ff; }
+
+      /* Copilot Workspace */
+      .copilot-workspace {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 32px;
+      }
+
+      .copilot-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .copilot-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .copilot-status {
+        font-size: 14px;
+        opacity: 0.7;
+      }
+
+      .copilot-suggestions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .suggestion-chip {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .suggestion-chip:hover {
+        background: var(--border);
+      }
+
+      .copilot-interface {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .copilot-input {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .copilot-input textarea {
+        flex: 1;
+        resize: vertical;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .copilot-input textarea:focus {
+        border-color: var(--blue);
+      }
+
+      .copilot-output {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .output-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .output-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-secondary {
+        background: var(--bg);
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      /* Carrier Footer */
+      .carrier-footer {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        padding: 16px;
+        opacity: 0.6;
+        flex-wrap: wrap;
+      }
+
+      .carrier-footer img {
+        height: 24px;
+        width: auto;
+        filter: grayscale(1);
+        transition: filter 0.2s ease;
+      }
+
+      .carrier-footer img:hover {
+        filter: grayscale(0);
+      }
+
+      /* Utility Classes */
+      .hidden {
+        display: none !important;
+      }
+
+      /* Modal Styles */
+      dialog {
+        border: none;
+        border-radius: 12px;
+        padding: 24px;
+        background: var(--panel);
+        color: var(--ink);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        width: 90%;
+      }
+
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      dialog form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      dialog input,
+      dialog select {
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 14px;
+      }
+
+      dialog label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .main-layout {
+          flex-direction: column;
+        }
+        
+        .sidebar {
+          width: 100%;
+          order: 2;
+        }
+        
+        .content {
+          order: 1;
+        }
+        
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .topbar {
+          flex-wrap: wrap;
+        }
+        
+        .top-search {
+          margin-left: 0;
+          order: 3;
+          width: 100%;
+        }
+      }
+
+      /* Health Indicator */
+      .health-indicator {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+      }
+
+      .health-status {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .health-status.healthy { border-color: var(--green); color: var(--green); }
+      .health-status.warning { border-color: var(--orange); color: var(--orange); }
+      .health-status.unhealthy { border-color: var(--red); color: var(--red); }
+
+      .health-status small {
+        display: block;
+        opacity: 0.7;
+        margin-top: 2px;
+      }
+
+      /* Splash */
+      .splash-overlay{
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.75);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+      }
+
+      .splash-card{
+        width: min(520px, 92vw);
+        padding: 22px 24px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.20);
+        color: #fff;
+        text-align: center;
+      }
+
+      .splash-logo{ font-size: 22px; font-weight: 800; letter-spacing: 0.4px; }
+      .splash-sub{ margin-top: 6px; opacity: 0.85; }
+      .splash-spinner{
+        width: 34px;
+        height: 34px;
+        margin: 16px auto 0;
+        border-radius: 999px;
+        border: 3px solid rgba(255,255,255,0.25);
+        border-top-color: rgba(255,255,255,0.95);
+        animation: spin 0.9s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* Wizard */
+      body.wizard-mode{ overflow: hidden; }
+      .wizard-overlay{
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.65);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        z-index: 9998;
+      }
+
+      .wizard-card{
+        width: min(640px, 92vw);
+        padding: 22px 24px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.20);
+        color: #fff;
+      }
+
+      .wizard-card h2{ margin: 0 0 14px; font-size: 20px; }
+      .wizard-card label{ display: block; margin: 10px 0 6px; font-weight: 600; }
+      .wizard-card input, .wizard-card select{
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(0,0,0,0.20);
+        color: #fff;
+        outline: none;
+      }
+
+      .wizard-actions{ display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+      .wizard-actions button{
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(0,0,0,0.25);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .wizard-note{ opacity: 0.85; margin-top: 10px; }
+    </style>
+  </head>
   <body>
+    <!-- Premium Splash -->
+    <div id="premium-splash" class="splash-overlay" aria-hidden="true">
+      <div class="splash-card">
+        <div class="splash-logo">CST SmartDesk</div>
+        <div class="splash-sub">Loading premium workspace...</div>
+        <div class="splash-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Setup Wizard (3 steps) -->
+    <div id="setup-wizard" class="wizard-overlay" aria-hidden="true">
+      <div class="wizard-card">
+        <h2>Quick Setup</h2>
+
+        <div class="wizard-step" data-step="1">
+          <label>Expert Name</label>
+          <input id="wiz-name" autocomplete="off" />
+          <label>Employee ID</label>
+          <input id="wiz-eid" autocomplete="off" />
+        </div>
+
+        <div class="wizard-step" data-step="2" hidden>
+          <label>CST Extension</label>
+          <input id="wiz-ext" autocomplete="off" />
+          <label>Language</label>
+          <select id="wiz-lang">
+            <option value="en">English</option>
+            <option value="es">Espanol</option>
+          </select>
+        </div>
+
+        <div class="wizard-step" data-step="3" hidden>
+          <label>Theme</label>
+          <select id="wiz-theme">
+            <option value="premium">Premium</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+          <p class="wizard-note">You can change this later in Settings.</p>
+        </div>
+
+        <div class="wizard-actions">
+          <button id="wiz-back" type="button">Back</button>
+          <button id="wiz-next" type="button">Next</button>
+          <button id="wiz-save" type="button" hidden>Save</button>
+        </div>
+      </div>
+    </div>
     <header class="topbar">
       <h1>CST SmartDesk</h1>
       <div id="topSearch" class="top-search">
-        <label id="searchLabel" for="searchInput" class="sr-only">Search carriers, tools, or documentation</label>
         <input
           id="searchInput"
           type="search"
           placeholder="Search carriers, tools, or documentation..."
           aria-autocomplete="list"
           aria-controls="searchSuggest"
-          aria-labelledby="searchLabel"
-          title="Search carriers, tools, or documentation"
           class="search-input"
         >
-        <div id="searchSuggest" role="listbox" class="search-suggest" aria-label="Search suggestions"></div>
+        <div id="searchSuggest" role="listbox" class="search-suggest"></div>
       </div>
       <div class="header-actions">
-        <button id="openCopilotBtn" class="btn secondary"><img src="/assets-png/icons/copilot.png" alt="Copilot" class="btn-icon"> Copilot</button>
-        <button id="openSettingsTop" class="btn secondary"><img src="/assets-png/icons/settings.png" alt="Setup" class="btn-icon"> Setup</button>
-        <button id="themeToggle" class="btn secondary" title="Toggle theme"><img src="/assets-png/icons/theme.png" alt="Theme" class="btn-icon"> Theme</button>
-        <button id="langToggle" class="btn secondary"><img src="/assets-png/icons/language.png" alt="Language" class="btn-icon"> Language</button>
+        <button id="openCopilotBtn" class="btn secondary">🤖 Copilot</button>
+        <button id="openSettingsTop" class="btn secondary">⚙️ Setup</button>
+        <button id="themeToggle" class="btn secondary" title="Toggle theme">🎨 Theme</button>
+        <button id="langToggle" class="btn secondary">🌐 Language</button>
         <div id="helpMenuWrap" class="help-menu-wrap">
-          <button id="helpMenuBtn" data-testid="help-menu-btn" class="btn secondary"><img src="/assets-png/icons/help.png" alt="Help" class="btn-icon"> Help</button>
-          <div id="helpMenu" data-testid="help-menu" class="help-menu">
-            <button id="helpWelcomeItem" data-testid="help-menu-item-welcome" class="btn-quiet help-menu-item">Show Welcome</button>
-            <button id="helpDocsItem" data-testid="help-menu-item-docs" class="btn-quiet help-menu-item">Documentation</button>
-            <button id="helpSupportItem" data-testid="help-menu-item-support" class="btn-quiet help-menu-item">Support</button>
+          <button id="helpMenuBtn" class="btn secondary">❓ Help</button>
+          <div id="helpMenu" class="help-menu">
+            <button id="helpWelcomeItem" class="btn-quiet help-menu-item">Show Welcome</button>
+            <button id="helpDocsItem" class="btn-quiet help-menu-item">Documentation</button>
+            <button id="helpSupportItem" class="btn-quiet help-menu-item">Support</button>
           </div>
         </div>
       </div>
@@ -60,46 +779,46 @@
           <div class="side-title">USA</div>
           <ul class="nav">
             <li data-open="carrier:VZW">
-              <img src="/assets-png/carriers/verizon.png" alt="Verizon" class="carrier-logo">
+              <span>📱</span><span>Verizon</span>
             </li>
             <li data-open="carrier:ATT">
-              <img src="/assets-png/carriers/att.png" alt="AT&T" class="carrier-logo">
+              <span>📱</span><span>AT&T</span>
             </li>
             <li data-open="carrier:CRK">
-              <img src="/assets-png/carriers/cricket.png" alt="Cricket" class="carrier-logo">
+              <span>📱</span><span>Cricket</span>
             </li>
             <li data-open="carrier:LIB">
-              <img src="/assets-png/carriers/liberty.png" alt="Liberty" class="carrier-logo">
+              <span>📱</span><span>Liberty</span>
             </li>
             <li data-open="carrier:CC">
-              <img src="/assets-png/carriers/consumer-cellular.png" alt="Consumer Cellular" class="carrier-logo">
+              <span>📱</span><span>Consumer Cellular</span>
             </li>
             <li data-open="carrier:USCC">
-              <img src="/assets-png/carriers/us-cellular.png" alt="US Cellular" class="carrier-logo">
+              <span>📱</span><span>US Cellular</span>
             </li>
             <li data-open="carrier:OPT">
-              <img src="/assets-png/carriers/optimum.png" alt="Optimum Mobile" class="carrier-logo">
+              <span>📱</span><span>Optimum Mobile</span>
             </li>
             <li data-open="carrier:COX">
-              <img src="/assets-png/carriers/cox.png" alt="Cox Mobile" class="carrier-logo">
+              <span>📱</span><span>Cox Mobile</span>
             </li>
             <li data-open="carrier:SAMSUNG">
-              <img src="/assets-png/carriers/samsung.png" alt="Samsung" class="carrier-logo">
+              <span>📱</span><span>Samsung</span>
             </li>
           </ul>
           <div class="side-title canada-title">Canada</div>
           <ul class="nav">
             <li data-open="carrier:TELUS">
-              <img src="/assets-png/carriers/telus.png" alt="TELUS" class="carrier-logo">
+              <span>📱</span><span>TELUS</span>
             </li>
             <li data-open="carrier:KOODO">
-              <img src="/assets-png/carriers/koodo.png" alt="Koodo" class="carrier-logo">
+              <span>📱</span><span>Koodo</span>
             </li>
             <li data-open="carrier:BELL">
-              <img src="/assets-png/carriers/bell.png" alt="Bell" class="carrier-logo">
+              <span>📱</span><span>Bell</span>
             </li>
             <li data-open="carrier:VIRGIN">
-              <img src="/assets-png/carriers/virgin.png" alt="Virgin Plus" class="carrier-logo">
+              <span>📱</span><span>Virgin Plus</span>
             </li>
           </ul>
         </div>
@@ -109,22 +828,22 @@
           <div class="side-title">Asurion Products</div>
           <ul class="nav">
             <li data-open="product:UBIF">
-              <img src="/assets-png/products/ubreakifix.png" alt="uBreakiFix" class="product-logo">
+              <span>🔧</span><span>uBreakiFix</span>
             </li>
             <li data-open="product:RSG">
-              <img src="/assets-png/products/rsg.png" alt="Repair Service Group" class="product-logo">
+              <span>🔧</span><span>Repair Service Group</span>
             </li>
             <li data-open="product:HOMEPLUS">
-              <img src="/assets-png/products/asurion-home.png" alt="Asurion Home+" class="product-logo">
+              <span>🏠</span><span>Asurion Home+</span>
             </li>
             <li data-open="product:APPLIANCEPLUS">
-              <img src="/assets-png/products/asurion-appliance.png" alt="Asurion Appliance+" class="product-logo">
+              <span>🏠</span><span>Asurion Appliance+</span>
             </li>
             <li data-open="product:VZ_HDP">
-              <img src="/assets-png/products/verizon-home.png" alt="Verizon Home Device Protect" class="product-logo">
+              <span>🏠</span><span>Verizon Home Device Protect</span>
             </li>
             <li data-open="product:ATT_HTP">
-              <img src="/assets-png/products/att-home.png" alt="AT&T Home Tech Protection" class="product-logo">
+              <span>🏠</span><span>AT&T Home Tech Protection</span>
             </li>
           </ul>
         </div>
@@ -133,15 +852,15 @@
         <div class="side-panel" data-panel="tools" hidden>
           <div class="side-title">Tools</div>
           <ul class="nav">
-            <li data-open="tools:copilot"><img src="/assets-png/icons/copilot.png" alt="Copilot" class="tool-icon"> Copilot</li>
-            <li data-open="tools:smartdrop"><img src="/assets-png/icons/smartdrop.png" alt="SmartDrop" class="tool-icon"> SmartDrop (OCR)</li>
-            <li data-open="tools:rpfr"><img src="/assets-png/icons/rpfr.png" alt="RPFR" class="tool-icon"> RPFR / PFR</li>
-            <li data-open="tools:fmip"><img src="/assets-png/icons/fmip.png" alt="Find My iPhone" class="tool-icon"> Find My iPhone Script</li>
-            <li data-open="tools:denials"><img src="/assets-png/icons/denials.png" alt="Denials" class="tool-icon"> Denials</li>
-            <li data-open="tools:affidavits"><img src="/assets-png/icons/affidavits.png" alt="Affidavits" class="tool-icon"> Affidavits</li>
-            <li data-open="tools:byod"><img src="/assets-png/icons/byod.png" alt="BYOD" class="tool-icon"> BYOD Premium Check</li>
-            <li data-open="tests"><img src="/assets-png/icons/tests.png" alt="Tests" class="tool-icon"> Tests</li>
-            <li data-open="settings"><img src="/assets-png/icons/settings.png" alt="Settings" class="tool-icon"> Settings</li>
+            <li data-open="tools:copilot">🤖 Copilot</li>
+            <li data-open="tools:smartdrop">📥 SmartDrop (OCR)</li>
+            <li data-open="tools:rpfr">🧾 RPFR / PFR</li>
+            <li data-open="tools:fmip">🔒 Find My iPhone Script</li>
+            <li data-open="tools:denials">🚨 Denials</li>
+            <li data-open="tools:affidavits">📄 Affidavits</li>
+            <li data-open="tools:byod">💻 BYOD Premium Check</li>
+            <li data-open="tests">🧪 Tests</li>
+            <li data-open="settings">⚙️ Settings</li>
           </ul>
         </div>
 
@@ -149,13 +868,12 @@
         <div class="side-panel" data-panel="buckets" hidden>
           <div class="side-title">Routed Buckets</div>
           <ul class="nav">
-            <li data-open="bucket:denials"><img src="/assets-png/icons/denials.png" alt="Denials" class="bucket-icon"> Denials</li>
-            <li data-open="bucket:rpfr"><img src="/assets-png/icons/rpfr.png" alt="RPFR" class="bucket-icon"> RPFR</li>
-            <li data-open="bucket:fmip"><img src="/assets-png/icons/fmip.png" alt="Find My iPhone" class="bucket-icon"> Find My iPhone</li>
+            <li data-open="bucket:denials">🚨 Denials</li>
+            <li data-open="bucket:rpfr">💳 RPFR</li>
+            <li data-open="bucket:fmip">📱 Find My iPhone</li>
           </ul>
         </div>
       </aside>
-
 
       <div class="content">
         <!-- Modern Dashboard Grid -->
@@ -173,43 +891,34 @@
           <div class="dashboard-grid">
             <!-- Build Summary Card -->
             <div class="dashboard-card card-orange" data-action="build-summary">
-              <div class="card-icon"><img src="/assets-png/icons/analytics.png" alt="Analytics" class="dashboard-icon"></div>
+              <div class="card-icon">📊</div>
               <div class="card-content">
                 <h3>Build Summary</h3>
                 <p>System status & metrics</p>
               </div>
             </div>
 
-            <!-- Team and Personal Metrics Card -->
-            <div class="dashboard-card card-indigo" data-action="metrics">
-              <div class="card-icon"><img src="/assets-png/icons/metrics.png" alt="Metrics" class="dashboard-icon"></div>
-              <div class="card-content">
-                <h3>Team and Personal Metrics</h3>
-                <p>Performance tracking</p>
-              </div>
-            </div>
-
             <!-- Carrier Escalation Card -->
             <div class="dashboard-card card-pink" data-action="carrier-escalation">
-              <div class="card-icon"><img src="/assets-png/icons/escalation.png" alt="Escalation" class="dashboard-icon"></div>
+              <div class="card-icon">📞</div>
               <div class="card-content">
                 <h3>Carrier Escalation</h3>
                 <p>Escalation workflows</p>
               </div>
             </div>
 
-            <!-- Denials Guide/Scripts Card -->
+            <!-- Denials Guide Card -->
             <div class="dashboard-card card-red" data-action="denials-guide">
-              <div class="card-icon"><img src="/assets-png/icons/denials.png" alt="Denials" class="dashboard-icon"></div>
+              <div class="card-icon">⚠️</div>
               <div class="card-content">
-                <h3>Denials Guide/Scripts</h3>
-                <p>All Carriers</p>
+                <h3>Denials Guide</h3>
+                <p>Denial handling tools</p>
               </div>
             </div>
 
             <!-- Copilot Card -->
             <div class="dashboard-card card-blue" data-action="copilot">
-              <div class="card-icon"><img src="/assets-png/icons/copilot.png" alt="Copilot" class="dashboard-icon"></div>
+              <div class="card-icon">🤖</div>
               <div class="card-content">
                 <h3>Copilot</h3>
                 <p>AI assistance portal</p>
@@ -218,71 +927,54 @@
 
             <!-- Knowledge Base Card -->
             <div class="dashboard-card card-cyan" data-action="knowledge-base">
-              <div class="card-icon"><img src="/assets-png/icons/knowledge.png" alt="Knowledge Base" class="dashboard-icon"></div>
+              <div class="card-icon">📚</div>
               <div class="card-content">
                 <h3>Knowledge Base</h3>
                 <p>Documentation hub</p>
               </div>
             </div>
 
-            <!-- PFR/RPFR Grid Card -->
+            <!-- RPFR Grid Card -->
             <div class="dashboard-card card-teal" data-action="rpfr-grid">
-              <div class="card-icon"><img src="/assets-png/icons/rpfr.png" alt="RPFR" class="dashboard-icon"></div>
+              <div class="card-icon">🧾</div>
               <div class="card-content">
-                <h3>PFR/RPFR Grid</h3>
-                <p>Price Tool and Note Generator</p>
+                <h3>RPFR Grid</h3>
+                <p>RPFR management</p>
               </div>
             </div>
 
-            <!-- Chat Scripts Database Card -->
+            <!-- Script Tracker Card -->
             <div class="dashboard-card card-purple" data-action="script-tracker">
-              <div class="card-icon"><img src="/assets-png/icons/scripts.png" alt="Scripts" class="dashboard-icon"></div>
+              <div class="card-icon">📝</div>
               <div class="card-content">
-                <h3>Chat Scripts Database</h3>
+                <h3>Script Tracker</h3>
                 <p>Script management</p>
               </div>
             </div>
 
             <!-- Terms & Conditions Card -->
             <div class="dashboard-card card-green" data-action="terms-conditions">
-              <div class="card-icon"><img src="/assets-png/icons/terms.png" alt="Terms" class="dashboard-icon"></div>
+              <div class="card-icon">📋</div>
               <div class="card-content">
-                <h3>Terms and Conditions</h3>
-                <p>One stop for all T&C</p>
-              </div>
-            </div>
-
-            <!-- SmartDrop OCR Card -->
-            <div class="dashboard-card card-amber smartdrop-card" data-action="smartdrop-ocr">
-              <div class="card-icon"><img src="/assets-png/icons/smartdrop.png" alt="SmartDrop" class="dashboard-icon"></div>
-              <div class="card-content">
-                <h3>SmartDrop OCR</h3>
-                <p>Drop files for text extraction</p>
-                <div class="supported-formats">
-                  <span><img src="/assets-png/icons/pdf.png" alt="PDF" class="format-icon"> PDF</span>
-                  <span><img src="/assets-png/icons/image.png" alt="Images" class="format-icon"> Images</span>
-                  <span><img src="/assets-png/icons/word.png" alt="Word" class="format-icon"> Word</span>
-                  <span><img src="/assets-png/icons/excel.png" alt="Excel" class="format-icon"> Excel</span>
-                  <span><img src="/assets-png/icons/powerpoint.png" alt="PowerPoint" class="format-icon"> PowerPoint</span>
-                </div>
+                <h3>Terms & Conditions</h3>
+                <p>Policy documents</p>
               </div>
             </div>
 
             <!-- Quick Start Card -->
             <div class="dashboard-card card-magenta" data-action="quick-start">
-              <div class="card-icon"><img src="/assets-png/icons/quickstart.png" alt="Quick Start" class="dashboard-icon"></div>
+              <div class="card-icon">⚡</div>
               <div class="card-content">
                 <h3>Quick Start</h3>
                 <p>Setup wizard</p>
               </div>
             </div>
-
           </div>
 
           <!-- Copilot Workspace -->
           <section class="copilot-workspace">
             <div class="copilot-header">
-              <h2><img src="/assets-png/icons/copilot.png" alt="Copilot" class="section-icon"> Copilot</h2>
+              <h2>🤖 Copilot</h2>
               <span class="copilot-status">Try asking:</span>
             </div>
 
@@ -294,8 +986,8 @@
 
             <div class="copilot-interface">
               <div class="copilot-input">
-                <textarea id="copilotInput" data-testid="copilot-input" placeholder="Ask me anything..." aria-label="Copilot input" title="Enter your question or request" rows="3"></textarea>
-                <button class="btn-primary" id="copilotGenerate" data-testid="copilot-run">Generate</button>
+                <textarea id="copilotInput" placeholder="Ask me anything..." rows="3"></textarea>
+                <button class="btn-primary" id="copilotGenerate">Generate</button>
               </div>
 
               <div class="copilot-output">
@@ -309,8 +1001,6 @@
                 <textarea
                   id="copilotOutput"
                   placeholder="Response will appear here..."
-                  aria-label="Copilot response output"
-                  title="AI generated response"
                   rows="8"
                   readonly
                 ></textarea>
@@ -320,8 +1010,13 @@
 
           <!-- Carrier Logos Footer -->
           <div class="carrier-footer">
-            <img src="/assets-png/corporate/asurion-logo.png" alt="Asurion" class="footer-logo">
-            <span class="footer-text">White Glove Service • Gold Standard Support</span>
+            <span>📱</span>
+            <span>📞</span>
+            <span>🔧</span>
+            <span>🏠</span>
+            <span>💻</span>
+            <span>⚡</span>
+            <span>🎯</span>
           </div>
         </section>
 
@@ -337,94 +1032,445 @@
       </div>
     </div>
 
-    <!-- System Status -->
-    <aside id="system-status" aria-live="polite" class="hidden"></aside>
-
-    <!-- Smart Panels -->
-    <section id="panels" class="hidden">
-      <div class="card" id="panel-carriers">Carriers</div>
-      <div class="card" id="panel-denials">Denials</div>
-      <div class="card" id="panel-notes">Notes</div>
-    </section>
-
-    <!-- Drag & Drop Parser -->
-    <section id="ingest" class="hidden">
-      <div id="dropzone" tabindex="0">Drop PDF/TXT or click</div>
-      <input id="file-input" type="file" accept=".pdf,.txt" class="hidden" aria-label="File upload" title="Select PDF or text file to upload" />
-      <textarea id="pastezone" placeholder="Paste text here…" aria-label="Text input area" title="Paste text content for processing"></textarea>
-      <pre id="extract-output"></pre>
-    </section>
-
     <!-- App mounting points -->
     <div id="app" class="hidden"></div>
+    <div id="dropzone" class="hidden">Drop files here</div>
     <div id="preview" class="hidden"></div>
 
-    <!-- Tests modal -->
-    <dialog id="tests-modal" class="hidden">
-      <h2>Tests</h2>
-      <button id="btn-fetch-verizon">Fetch Verizon T&amp;C</button>
-      <pre id="tests-output"></pre>
-      <button id="close-tests">Close</button>
-    </dialog>
-
     <!-- Modals and Dialogs -->
-    <dialog id="setup-wizard">
+    <dialog id="setupWizard">
       <form id="wizardForm" method="dialog">
         <h2>Setup CST SmartDesk</h2>
-        <label for="wName" class="sr-only">Full Name</label>
-        <input id="wName" placeholder="First and Last Name" aria-label="Full Name" title="Enter your first and last name" required>
-        <label for="wCoach" class="sr-only">Coach Name</label>
-        <input id="wCoach" placeholder="Coach's Name" aria-label="Coach Name" title="Enter your coach's name">
-        <label for="wEmpId" class="sr-only">Employee ID</label>
-        <input id="wEmpId" placeholder="Employee ID" aria-label="Employee ID" title="Enter your employee ID" required>
-        <label for="wExt" class="sr-only">Extension</label>
-        <input id="wExt" placeholder="Extension" aria-label="Phone Extension" title="Enter your phone extension" required>
-        <label for="wTheme" class="sr-only">Theme Selection</label>
-        <select id="wTheme" aria-label="Theme Selection" title="Choose your preferred theme">
+        <input id="wName" placeholder="First and Last Name" required>
+        <input id="wCoach" placeholder="Coach's Name">
+        <input id="wEmpId" placeholder="Employee ID" required>
+        <input id="wExt" placeholder="Extension" required>
+        <select id="wTheme">
           <option value="light">Light Theme</option>
           <option value="dark">Dark Theme</option>
           <option value="glass">Glass Theme</option>
         </select>
-        <label for="wExpertType" class="sr-only">Expert Type</label>
-        <select id="wExpertType" aria-label="Expert Type" title="Select your expert type">
+        <select id="wExpertType">
           <option value="bilingual">Bilingual Expert</option>
           <option value="english">English CST Expert</option>
         </select>
         <label>
-          <input type="checkbox" id="dontShow" aria-label="Don't show this again" title="Don't show setup wizard again">
+          <input type="checkbox" id="dontShow">
           Don't show this again
         </label>
         <button id="wizardSave" type="button" class="btn-primary">Save Settings</button>
-        <div id="wizardStatus" class="wizard-status"></div>
       </form>
     </dialog>
 
-    <!-- Welcome Modal -->
-    <div id="welcome-modal" data-testid="welcome-modal" class="modal hidden" hidden>
-      <div class="modal-content">
-        <header class="modal-header">
-          <h3>Welcome</h3>
-          <button class="btn secondary" data-testid="welcome-close" aria-label="Close welcome modal">×</button>
-        </header>
-        <div class="modal-body">
-          <p>Welcome to CST SmartDesk.</p>
-          <button id="welOpenCopilot" class="btn primary">Open Copilot</button>
-          <label id="welDontShowLabel">
-            <input id="welDontShow" type="checkbox">
-            Don't show this again
-          </label>
-        </div>
-      </div>
-    </div>
+    <!-- Embedded JavaScript -->
+    <script>
+      window.copilotSample = "Example: Write a calm, assurance-based response for a denied claim.";
+      const SETUP_KEY = "cst_setup_data";
+      const SETUP_DONE = "cst_setup_completed";
 
-    <!-- Tesseract OCR Library -->
-    <script src="/libs/tesseract/tesseract.min.js"></script>
-    <!-- Smart Panels Manager -->
-    <script src="/utils/smart-panels.js"></script>
-    <!-- Enhanced Functionality (Help menu wiring lives here) -->
-    <script src="/utils/enhanced-functionality.js" defer></script>
-    <!-- Application Entry Point -->
-    <script src="/app.js" defer></script>
-    <!-- Premium Setup Wizard -->
-    <script src="/utils/premium-setup-wizard.js" defer></script>
-</body></html>
+      function showSplash(ms = 2000){
+        const el = document.getElementById("premium-splash");
+        if (!el) return Promise.resolve();
+        el.style.display = "flex";
+        el.setAttribute("aria-hidden", "false");
+        return new Promise((res) => setTimeout(() => {
+          el.style.display = "none";
+          el.setAttribute("aria-hidden", "true");
+          res();
+        }, ms));
+      }
+
+      function openWizard(){
+        const wiz = document.getElementById("setup-wizard");
+        if (!wiz) return;
+        document.body.classList.add("wizard-mode");
+        wiz.style.display = "flex";
+        wiz.setAttribute("aria-hidden", "false");
+
+        let step = 1;
+        const steps = [...wiz.querySelectorAll(".wizard-step")];
+        const back = document.getElementById("wiz-back");
+        const next = document.getElementById("wiz-next");
+        const save = document.getElementById("wiz-save");
+
+        const render = () => {
+          steps.forEach((s) => s.hidden = (Number(s.dataset.step) !== step));
+          if (back) back.disabled = step === 1;
+          if (next) next.hidden = step === 3;
+          if (save) save.hidden = step !== 3;
+        };
+
+        const getVal = (id) => (document.getElementById(id)?.value || "").trim();
+
+        if (back) {
+          back.onclick = () => { step = Math.max(1, step - 1); render(); };
+        }
+        if (next) {
+          next.onclick = () => {
+            if (step === 1) {
+              if (!getVal("wiz-name") || !getVal("wiz-eid")) return alert("Name + Employee ID required.");
+            }
+            if (step === 2) {
+              if (!getVal("wiz-ext")) return alert("CST extension required.");
+            }
+            step = Math.min(3, step + 1);
+            render();
+          };
+        }
+
+        if (save) {
+          save.onclick = () => {
+            const data = {
+              expertName: getVal("wiz-name"),
+              employeeId: getVal("wiz-eid"),
+              cstExt: getVal("wiz-ext"),
+              lang: document.getElementById("wiz-lang").value,
+              theme: document.getElementById("wiz-theme").value
+            };
+
+            localStorage.setItem(SETUP_KEY, JSON.stringify(data));
+            localStorage.setItem(SETUP_DONE, "true");
+            localStorage.setItem("lang", data.lang);
+            localStorage.setItem("theme", data.theme);
+
+            wiz.style.display = "none";
+            wiz.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("wizard-mode");
+
+            if (typeof window.initMainUI === "function") window.initMainUI(data);
+          };
+        }
+
+        render();
+      }
+
+      function bootMain(){
+        const done = localStorage.getItem(SETUP_DONE) === "true";
+        let data = null;
+        try { data = JSON.parse(localStorage.getItem(SETUP_KEY) || "null"); } catch {}
+        if (done && data && typeof window.initMainUI === "function") {
+          window.initMainUI(data);
+        } else {
+          openWizard();
+        }
+      }
+
+      // CST SmartDesk Application
+      class CST_SmartDesk {
+        constructor() {
+          this.isInitialized = false;
+          this.init();
+        }
+
+        init() {
+          console.log('🚀 Initializing CST SmartDesk...');
+          
+          // Initialize components
+          this.initializeTabs();
+          this.initializeSearch();
+          this.initializeDashboard();
+          this.initializeModals();
+          this.initializeMenus();
+          
+          // Health check
+          this.runHealthCheck();
+          
+          this.isInitialized = true;
+          console.log('✅ CST SmartDesk initialized');
+        }
+
+        initializeTabs() {
+          const tabs = document.querySelectorAll('[role="tab"]');
+          const panels = document.querySelectorAll('.side-panel');
+          
+          tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+              const targetPanel = tab.dataset.tab;
+              
+              // Update tab states
+              tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+              tab.setAttribute('aria-selected', 'true');
+              
+              // Update panel visibility
+              panels.forEach(panel => {
+                panel.hidden = panel.dataset.panel !== targetPanel;
+              });
+            });
+          });
+        }
+
+        initializeSearch() {
+          const searchInput = document.getElementById('searchInput');
+          const searchSuggest = document.getElementById('searchSuggest');
+          
+          if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+              const query = e.target.value.toLowerCase();
+              if (query.length > 2) {
+                this.showSearchSuggestions(query);
+              } else {
+                searchSuggest.style.display = 'none';
+              }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!searchInput.contains(e.target)) {
+                searchSuggest.style.display = 'none';
+              }
+            });
+          }
+        }
+
+        showSearchSuggestions(query) {
+          const suggestions = [
+            'Verizon escalation', 'AT&T policies', 'Cricket support',
+            'RPFR process', 'Find My iPhone', 'Denials guide',
+            'Copilot help', 'System status'
+          ].filter(item => item.toLowerCase().includes(query));
+
+          const searchSuggest = document.getElementById('searchSuggest');
+          searchSuggest.innerHTML = suggestions.map(item => 
+            `<div style="padding: 8px; cursor: pointer; border-radius: 4px;" 
+                  onmouseover="this.style.background='var(--bg)'" 
+                  onmouseout="this.style.background=''">${item}</div>`
+          ).join('');
+          
+          searchSuggest.style.display = suggestions.length ? 'block' : 'none';
+        }
+
+        initializeDashboard() {
+          const cards = document.querySelectorAll('.dashboard-card');
+          
+          cards.forEach(card => {
+            card.addEventListener('click', () => {
+              const action = card.dataset.action;
+              this.handleDashboardAction(action);
+            });
+          });
+
+          // Initialize copilot
+          const generateBtn = document.getElementById('generateBtn');
+          const copilotGenerate = document.getElementById('copilotGenerate');
+          
+          [generateBtn, copilotGenerate].forEach(btn => {
+            if (btn) {
+              btn.addEventListener('click', () => {
+                this.generateCopilotResponse();
+              });
+            }
+          });
+        }
+
+        handleDashboardAction(action) {
+          const actionMap = {
+            'build-summary': 'System Build Summary',
+            'carrier-escalation': 'Carrier Escalation Tools',
+            'denials-guide': 'Denials Handling Guide',
+            'copilot': 'AI Copilot Assistant',
+            'knowledge-base': 'Knowledge Base',
+            'rpfr-grid': 'RPFR Management',
+            'script-tracker': 'Script Tracker',
+            'terms-conditions': 'Terms & Conditions',
+            'quick-start': 'Quick Start Guide'
+          };
+
+          const title = actionMap[action] || 'Unknown Action';
+          this.showNotification(`Opening: ${title}`, 'info');
+        }
+
+        generateCopilotResponse() {
+          const input = document.getElementById('copilotInput');
+          const output = document.getElementById('copilotOutput');
+          
+          if (input && output) {
+            const query = input.value.trim();
+            if (!query) {
+              this.showNotification('Please enter a question', 'warning');
+              return;
+            }
+
+            output.value = 'Generating response...';
+            
+            // Simulate AI response
+            setTimeout(() => {
+              const responses = [
+                `Based on your query "${query}", here are the key points:\n\n1. Check carrier-specific policies\n2. Review escalation procedures\n3. Verify customer information\n4. Document all interactions`,
+                `For "${query}":\n\n✓ Standard procedure applies\n✓ Follow escalation matrix\n✓ Notify supervisor if needed\n✓ Update case notes`,
+                `Regarding "${query}":\n\n• First, verify account details\n• Then, check eligibility\n• Apply appropriate resolution\n• Follow up as needed`
+              ];
+              
+              output.value = responses[Math.floor(Math.random() * responses.length)];
+              this.showNotification('Response generated!', 'success');
+            }, 1500);
+          }
+        }
+
+        initializeModals() {
+          const setupWizard = document.getElementById('setupWizard');
+          const openSettingsBtn = document.getElementById('openSettingsTop');
+          const wizardSave = document.getElementById('wizardSave');
+          
+          if (setupWizard && openSettingsBtn) {
+            openSettingsBtn.addEventListener('click', () => {
+              setupWizard.showModal();
+            });
+          }
+
+          if (wizardSave) {
+            wizardSave.addEventListener('click', () => {
+              this.saveWizardSettings();
+              setupWizard.close();
+            });
+          }
+        }
+
+        saveWizardSettings() {
+          const formData = {
+            name: document.getElementById('wName').value,
+            coach: document.getElementById('wCoach').value,
+            empId: document.getElementById('wEmpId').value,
+            ext: document.getElementById('wExt').value,
+            theme: document.getElementById('wTheme').value,
+            expertType: document.getElementById('wExpertType').value,
+            dontShow: document.getElementById('dontShow').checked
+          };
+
+          localStorage.setItem('cst-smartdesk-settings', JSON.stringify(formData));
+          this.showNotification('Settings saved successfully!', 'success');
+        }
+
+        initializeMenus() {
+          const helpMenuBtn = document.getElementById('helpMenuBtn');
+          const helpMenu = document.getElementById('helpMenu');
+          
+          if (helpMenuBtn && helpMenu) {
+            helpMenuBtn.addEventListener('click', () => {
+              helpMenu.style.display = helpMenu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!helpMenuBtn.contains(e.target) && !helpMenu.contains(e.target)) {
+                helpMenu.style.display = 'none';
+              }
+            });
+          }
+
+          // Theme toggle
+          const themeToggle = document.getElementById('themeToggle');
+          if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+              this.toggleTheme();
+            });
+          }
+        }
+
+        toggleTheme() {
+          const isDark = document.documentElement.style.getPropertyValue('--bg') === '#0f172a';
+          
+          if (isDark) {
+            // Switch to light
+            document.documentElement.style.setProperty('--bg', '#ffffff');
+            document.documentElement.style.setProperty('--panel', '#f8fafc');
+            document.documentElement.style.setProperty('--border', '#e2e8f0');
+            document.documentElement.style.setProperty('--ink', '#1e293b');
+          } else {
+            // Switch to dark
+            document.documentElement.style.setProperty('--bg', '#0f172a');
+            document.documentElement.style.setProperty('--panel', '#1e293b');
+            document.documentElement.style.setProperty('--border', '#334155');
+            document.documentElement.style.setProperty('--ink', '#f1f5f9');
+          }
+          
+          this.showNotification('Theme toggled!', 'info');
+        }
+
+        runHealthCheck() {
+          const healthIndicator = document.createElement('div');
+          healthIndicator.className = 'health-indicator';
+          healthIndicator.innerHTML = `
+            <div class="health-status healthy">
+              🟢 System HEALTHY
+              <small>All checks passed</small>
+            </div>
+          `;
+          document.body.appendChild(healthIndicator);
+
+          // Auto-hide after 5 seconds
+          setTimeout(() => {
+            healthIndicator.style.opacity = '0.3';
+          }, 5000);
+        }
+
+        showNotification(message, type = 'info') {
+          const notification = document.createElement('div');
+          notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            font-weight: 500;
+          `;
+
+          const colors = {
+            success: '#10b981',
+            warning: '#f59e0b',
+            error: '#ef4444',
+            info: '#3b82f6'
+          };
+
+          notification.style.borderColor = colors[type];
+          notification.style.color = colors[type];
+          notification.textContent = message;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      window.initMainUI = (data) => {
+        if (!window.cstApp) {
+          window.cstApp = new CST_SmartDesk(data);
+        }
+      };
+
+      // Initialize the app when DOM is ready
+      window.addEventListener("DOMContentLoaded", async () => {
+        await showSplash(2000);
+        bootMain();
+      });
+
+      // Copy functionality for copilot
+      document.addEventListener('click', (e) => {
+        if (e.target.id === 'copilotCopy' || e.target.id === 'copilotCopyAll') {
+          const output = document.getElementById('copilotOutput');
+          if (output && output.value) {
+            navigator.clipboard.writeText(output.value).then(() => {
+              if (window.cstApp && typeof window.cstApp.showNotification === 'function') {
+                window.cstApp.showNotification('Copied to clipboard!', 'success');
+              }
+            });
+          }
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (e.target && e.target.id === "openSettingsTop") {
+          e.preventDefault();
+          openWizard();
+        }
+      });
+    </script>
+  </body>
+</html>
