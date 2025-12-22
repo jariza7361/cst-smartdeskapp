@@ -1308,16 +1308,21 @@
 
         initializeModals() {
           const setupWizard = document.getElementById('setupWizard');
+          const premiumWizard = document.getElementById('setup-wizard');
           const openSettingsBtn = document.getElementById('openSettingsTop');
           const wizardSave = document.getElementById('wizardSave');
           
-          if (setupWizard && openSettingsBtn) {
+          if (openSettingsBtn) {
             openSettingsBtn.addEventListener('click', () => {
-              setupWizard.showModal();
+              if (premiumWizard) {
+                openWizard();
+                return;
+              }
+              if (setupWizard) setupWizard.showModal();
             });
           }
 
-          if (wizardSave) {
+          if (wizardSave && setupWizard && !premiumWizard) {
             wizardSave.addEventListener('click', () => {
               this.saveWizardSettings();
               setupWizard.close();
