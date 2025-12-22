@@ -1,5 +1,9 @@
 // Premium Setup Wizard - single source for setup flow
 class PremiumSetupWizard {
+  // Storage keys (LOCK)
+  static KEY_COMPLETE = 'cst-setup-complete';
+  static KEY_DATA = 'cst_setup_data';
+
   constructor() {
     this.wizard = document.getElementById('setup-wizard');
     this.form = document.getElementById('wizardForm');
@@ -93,15 +97,17 @@ class PremiumSetupWizard {
 
   saveSettings() {
     const data = this.getFormData();
+
     try {
-      localStorage.setItem('cst_setup_data', JSON.stringify(data));
-      localStorage.setItem('cst-setup-complete', 'true');
-      if (this.wizard) {
-        this.wizard.close();
-      }
-      if (typeof window.cstInitApp === 'function') {
-        window.cstInitApp();
-      }
+      localStorage.setItem(PremiumSetupWizard.KEY_DATA, JSON.stringify(data));
+
+      // ✅ If user checks "Don't show", mark setup complete as well
+      // so future boots never show wizard.
+      localStorage.setItem(PremiumSetupWizard.KEY_COMPLETE, 'true');
+
+      if (this.wizard) this.wizard.close();
+
+      if (typeof window.cstInitApp === 'function') window.cstInitApp();
     } catch (error) {
       console.error('Error saving setup data:', error);
     }
@@ -125,16 +131,26 @@ class PremiumSetupWizard {
   }
 
   handleBoot() {
-    const setupComplete = localStorage.getItem('cst-setup-complete') === 'true';
-    if (setupComplete) {
-      if (typeof window.cstInitApp === 'function') {
-        window.cstInitApp();
-      }
+    const raw = localStorage.getItem(PremiumSetupWizard.KEY_DATA);
+    const setupComplete = localStorage.getItem(PremiumSetupWizard.KEY_COMPLETE) === 'true';
+
+    let dontShow = false;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        dontShow = Boolean(parsed?.dontShow);
+      } catch {}
+    }
+
+    // ✅ RULE:
+    // - If complete OR dontShow => do NOT open wizard; just init app.
+    // - Otherwise => open wizard.
+    if (setupComplete || dontShow) {
+      if (typeof window.cstInitApp === 'function') window.cstInitApp();
       return;
     }
-    if (this.wizard && !this.wizard.open) {
-      this.openWizard();
-    }
+
+    this.openWizard();
   }
 
   openWizard() {

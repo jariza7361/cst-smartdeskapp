@@ -10,7 +10,7 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run doctor
-      - run: npm run build && npm run parity:smoke
+      - run: npm run parity:smoke:ci
       - run: npm test
       - run: npm run e2e
         continue-on-error: true

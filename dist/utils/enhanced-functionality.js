@@ -477,7 +477,107 @@ class EnhancedFunctionality {
   }
 }
 
+function initHelpMenuWiring() {
+  const btn = document.getElementById('helpMenuBtn') || document.querySelector('[data-testid="help-menu-btn"]');
+  const menu = document.getElementById('helpMenu') || document.querySelector('[data-testid="help-menu"]');
+  const welcomeBtn = document.getElementById('helpWelcomeItem') || document.querySelector('[data-testid="help-menu-item-welcome"]');
+  const welcomeModal = document.getElementById('welcome-modal') || document.querySelector('[data-testid="welcome-modal"]');
+
+  if (!btn || !menu) return;
+  if (btn.dataset.wired === '1' || menu.dataset.wired === '1') return;
+  btn.dataset.wired = '1';
+  menu.dataset.wired = '1';
+
+  const closeMenu = () => {
+    menu.classList.remove('open');
+    menu.hidden = true;
+    menu.setAttribute('hidden', '');
+    menu.style.display = 'none';
+  };
+
+  const openMenu = () => {
+    menu.hidden = false;
+    menu.removeAttribute('hidden');
+    menu.style.display = 'block';
+    menu.classList.add('open');
+  };
+
+  // Start closed (safe)
+  closeMenu();
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isHidden = menu.hidden || menu.hasAttribute('hidden') || menu.style.display === 'none';
+    if (isHidden) openMenu();
+    else closeMenu();
+  });
+
+  // Clicking inside the menu should NOT close it
+  menu.addEventListener('click', (e) => e.stopPropagation());
+
+  // Click outside closes
+  document.addEventListener('click', (e) => {
+    const target = e.target;
+    if (target && !menu.contains(target) && !btn.contains(target)) {
+      closeMenu();
+    }
+  });
+
+  // Escape closes
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  if (welcomeBtn && welcomeModal) {
+    if (welcomeModal.dataset.wired !== '1') {
+      welcomeModal.dataset.wired = '1';
+      const closeWelcome = () => {
+        welcomeModal.classList.add('hidden');
+        welcomeModal.hidden = true;
+        welcomeModal.setAttribute('hidden', '');
+        welcomeModal.style.display = 'none';
+      };
+      const openWelcome = () => {
+        welcomeModal.hidden = false;
+        welcomeModal.removeAttribute('hidden');
+        welcomeModal.style.display = 'block';
+        welcomeModal.classList.remove('hidden');
+      };
+
+      closeWelcome();
+
+      welcomeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMenu();
+        openWelcome();
+      });
+
+      const closeBtn = welcomeModal.querySelector('[data-testid="welcome-close"]');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeWelcome();
+        });
+      }
+
+      welcomeModal.addEventListener('click', (e) => {
+        if (e.target === welcomeModal) {
+          closeWelcome();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeWelcome();
+      });
+    }
+  }
+}
+
 // Initialize enhanced functionality
 document.addEventListener('DOMContentLoaded', () => {
   window.enhancedFunctionality = new EnhancedFunctionality();
+  initHelpMenuWiring();
 });

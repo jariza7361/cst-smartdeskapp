@@ -38,9 +38,9 @@
         <div id="helpMenuWrap" class="help-menu-wrap">
           <button id="helpMenuBtn" data-testid="help-menu-btn" class="btn secondary"><img src="/assets-png/icons/help.png" alt="Help" class="btn-icon"> Help</button>
           <div id="helpMenu" data-testid="help-menu" class="help-menu">
-            <button id="helpWelcomeItem" class="btn-quiet help-menu-item">Show Welcome</button>
-            <button id="helpDocsItem" class="btn-quiet help-menu-item">Documentation</button>
-            <button id="helpSupportItem" class="btn-quiet help-menu-item">Support</button>
+            <button id="helpWelcomeItem" data-testid="help-menu-item-welcome" class="btn-quiet help-menu-item">Show Welcome</button>
+            <button id="helpDocsItem" data-testid="help-menu-item-docs" class="btn-quiet help-menu-item">Documentation</button>
+            <button id="helpSupportItem" data-testid="help-menu-item-support" class="btn-quiet help-menu-item">Support</button>
           </div>
         </div>
       </div>
@@ -399,10 +399,30 @@
       </form>
     </dialog>
 
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" data-testid="welcome-modal" class="modal hidden" hidden>
+      <div class="modal-content">
+        <header class="modal-header">
+          <h3>Welcome</h3>
+          <button class="btn secondary" data-testid="welcome-close" aria-label="Close welcome modal">×</button>
+        </header>
+        <div class="modal-body">
+          <p>Welcome to CST SmartDesk.</p>
+          <button id="welOpenCopilot" class="btn primary">Open Copilot</button>
+          <label id="welDontShowLabel">
+            <input id="welDontShow" type="checkbox">
+            Don't show this again
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- Tesseract OCR Library -->
     <script src="/libs/tesseract/tesseract.min.js"></script>
     <!-- Smart Panels Manager -->
     <script src="/utils/smart-panels.js"></script>
+    <!-- Enhanced Functionality (Help menu wiring lives here) -->
+    <script src="/utils/enhanced-functionality.js" defer></script>
     <!-- Application Entry Point -->
     <script src="/app.js" defer></script>
     <!-- Premium Setup Wizard -->

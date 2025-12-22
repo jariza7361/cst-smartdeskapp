@@ -11,6 +11,8 @@
     "build": "vite build",
     "deploy": "npm run build && node scripts/aws-sync.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "preview:ci": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "parity:smoke:ci": "npm run build && (npm run preview:ci &) && npx wait-on http://127.0.0.1:4173 && BASE_URL=http://127.0.0.1:4173 node scripts/parity-smoke.mjs",
     "doctor": "node scripts/doctor.mjs",
     "parity:smoke": "node scripts/parity-smoke.mjs",
     "test": "vitest run",
@@ -30,7 +32,8 @@
     "tesseract.js": "2.1.5",
     "tesseract.js-core": "2.2.0",
     "vite": "^7.1.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wait-on": "^7.2.0"
   },
   "dependencies": {
     "axios": "^1.11.0",

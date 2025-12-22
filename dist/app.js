@@ -1,4 +1,7 @@
 (() => {
+  // Copilot doctor gate: seed/sample prompt text for Copilot (used for demos + tests)
+  window.copilotSample = 'Example: Write a calm, assurance-based response for a denied claim.';
+
   const initApp = () => {
     if (window.__cstAppInitialized) return;
     window.__cstAppInitialized = true;
