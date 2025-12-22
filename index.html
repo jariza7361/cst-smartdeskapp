@@ -543,6 +543,10 @@
         font-size: 14px;
       }
 
+      body.wizard-mode {
+        overflow: hidden;
+      }
+
       /* Responsive Design */
       @media (max-width: 768px) {
         .main-layout {
@@ -602,140 +606,9 @@
         margin-top: 2px;
       }
 
-      /* Splash */
-      .splash-overlay{
-        position: fixed;
-        inset: 0;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(15, 23, 42, 0.75);
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        z-index: 9999;
-      }
-
-      .splash-card{
-        width: min(520px, 92vw);
-        padding: 22px 24px;
-        border-radius: 16px;
-        background: rgba(255,255,255,0.10);
-        border: 1px solid rgba(255,255,255,0.20);
-        color: #fff;
-        text-align: center;
-      }
-
-      .splash-logo{ font-size: 22px; font-weight: 800; letter-spacing: 0.4px; }
-      .splash-sub{ margin-top: 6px; opacity: 0.85; }
-      .splash-spinner{
-        width: 34px;
-        height: 34px;
-        margin: 16px auto 0;
-        border-radius: 999px;
-        border: 3px solid rgba(255,255,255,0.25);
-        border-top-color: rgba(255,255,255,0.95);
-        animation: spin 0.9s linear infinite;
-      }
-
-      @keyframes spin { to { transform: rotate(360deg); } }
-
-      /* Wizard */
-      body.wizard-mode{ overflow: hidden; }
-      .wizard-overlay{
-        position: fixed;
-        inset: 0;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(15, 23, 42, 0.65);
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        z-index: 9998;
-      }
-
-      .wizard-card{
-        width: min(640px, 92vw);
-        padding: 22px 24px;
-        border-radius: 16px;
-        background: rgba(255,255,255,0.10);
-        border: 1px solid rgba(255,255,255,0.20);
-        color: #fff;
-      }
-
-      .wizard-card h2{ margin: 0 0 14px; font-size: 20px; }
-      .wizard-card label{ display: block; margin: 10px 0 6px; font-weight: 600; }
-      .wizard-card input, .wizard-card select{
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.18);
-        background: rgba(0,0,0,0.20);
-        color: #fff;
-        outline: none;
-      }
-
-      .wizard-actions{ display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
-      .wizard-actions button{
-        padding: 10px 14px;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.18);
-        background: rgba(0,0,0,0.25);
-        color: #fff;
-        cursor: pointer;
-      }
-
-      .wizard-note{ opacity: 0.85; margin-top: 10px; }
     </style>
   </head>
   <body>
-    <!-- Premium Splash -->
-    <div id="premium-splash" class="splash-overlay" aria-hidden="true">
-      <div class="splash-card">
-        <div class="splash-logo">CST SmartDesk</div>
-        <div class="splash-sub">Loading premium workspace...</div>
-        <div class="splash-spinner"></div>
-      </div>
-    </div>
-
-    <!-- Setup Wizard (3 steps) -->
-    <div id="setup-wizard" class="wizard-overlay" aria-hidden="true">
-      <div class="wizard-card">
-        <h2>Quick Setup</h2>
-
-        <div class="wizard-step" data-step="1">
-          <label>Expert Name</label>
-          <input id="wiz-name" autocomplete="off" />
-          <label>Employee ID</label>
-          <input id="wiz-eid" autocomplete="off" />
-        </div>
-
-        <div class="wizard-step" data-step="2" hidden>
-          <label>CST Extension</label>
-          <input id="wiz-ext" autocomplete="off" />
-          <label>Language</label>
-          <select id="wiz-lang">
-            <option value="en">English</option>
-            <option value="es">Espanol</option>
-          </select>
-        </div>
-
-        <div class="wizard-step" data-step="3" hidden>
-          <label>Theme</label>
-          <select id="wiz-theme">
-            <option value="premium">Premium</option>
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-          <p class="wizard-note">You can change this later in Settings.</p>
-        </div>
-
-        <div class="wizard-actions">
-          <button id="wiz-back" type="button">Back</button>
-          <button id="wiz-next" type="button">Next</button>
-          <button id="wiz-save" type="button" hidden>Save</button>
-        </div>
-      </div>
-    </div>
     <header class="topbar">
       <h1>CST SmartDesk</h1>
       <div id="topSearch" class="top-search">
@@ -1038,7 +911,7 @@
     <div id="preview" class="hidden"></div>
 
     <!-- Modals and Dialogs -->
-    <dialog id="setupWizard">
+    <dialog id="setup-wizard">
       <form id="wizardForm" method="dialog">
         <h2>Setup CST SmartDesk</h2>
         <input id="wName" placeholder="First and Last Name" required>
@@ -1065,95 +938,6 @@
     <!-- Embedded JavaScript -->
     <script>
       window.copilotSample = "Example: Write a calm, assurance-based response for a denied claim.";
-      const SETUP_KEY = "cst_setup_data";
-      const SETUP_DONE = "cst_setup_completed";
-
-      function showSplash(ms = 2000){
-        const el = document.getElementById("premium-splash");
-        if (!el) return Promise.resolve();
-        el.style.display = "flex";
-        el.setAttribute("aria-hidden", "false");
-        return new Promise((res) => setTimeout(() => {
-          el.style.display = "none";
-          el.setAttribute("aria-hidden", "true");
-          res();
-        }, ms));
-      }
-
-      function openWizard(){
-        const wiz = document.getElementById("setup-wizard");
-        if (!wiz) return;
-        document.body.classList.add("wizard-mode");
-        wiz.style.display = "flex";
-        wiz.setAttribute("aria-hidden", "false");
-
-        let step = 1;
-        const steps = [...wiz.querySelectorAll(".wizard-step")];
-        const back = document.getElementById("wiz-back");
-        const next = document.getElementById("wiz-next");
-        const save = document.getElementById("wiz-save");
-
-        const render = () => {
-          steps.forEach((s) => s.hidden = (Number(s.dataset.step) !== step));
-          if (back) back.disabled = step === 1;
-          if (next) next.hidden = step === 3;
-          if (save) save.hidden = step !== 3;
-        };
-
-        const getVal = (id) => (document.getElementById(id)?.value || "").trim();
-
-        if (back) {
-          back.onclick = () => { step = Math.max(1, step - 1); render(); };
-        }
-        if (next) {
-          next.onclick = () => {
-            if (step === 1) {
-              if (!getVal("wiz-name") || !getVal("wiz-eid")) return alert("Name + Employee ID required.");
-            }
-            if (step === 2) {
-              if (!getVal("wiz-ext")) return alert("CST extension required.");
-            }
-            step = Math.min(3, step + 1);
-            render();
-          };
-        }
-
-        if (save) {
-          save.onclick = () => {
-            const data = {
-              expertName: getVal("wiz-name"),
-              employeeId: getVal("wiz-eid"),
-              cstExt: getVal("wiz-ext"),
-              lang: document.getElementById("wiz-lang").value,
-              theme: document.getElementById("wiz-theme").value
-            };
-
-            localStorage.setItem(SETUP_KEY, JSON.stringify(data));
-            localStorage.setItem(SETUP_DONE, "true");
-            localStorage.setItem("lang", data.lang);
-            localStorage.setItem("theme", data.theme);
-
-            wiz.style.display = "none";
-            wiz.setAttribute("aria-hidden", "true");
-            document.body.classList.remove("wizard-mode");
-
-            if (typeof window.initMainUI === "function") window.initMainUI(data);
-          };
-        }
-
-        render();
-      }
-
-      function bootMain(){
-        const done = localStorage.getItem(SETUP_DONE) === "true";
-        let data = null;
-        try { data = JSON.parse(localStorage.getItem(SETUP_KEY) || "null"); } catch {}
-        if (done && data && typeof window.initMainUI === "function") {
-          window.initMainUI(data);
-        } else {
-          openWizard();
-        }
-      }
 
       // CST SmartDesk Application
       class CST_SmartDesk {
@@ -1307,27 +1091,7 @@
         }
 
         initializeModals() {
-          const setupWizard = document.getElementById('setupWizard');
-          const premiumWizard = document.getElementById('setup-wizard');
-          const openSettingsBtn = document.getElementById('openSettingsTop');
-          const wizardSave = document.getElementById('wizardSave');
-          
-          if (openSettingsBtn) {
-            openSettingsBtn.addEventListener('click', () => {
-              if (premiumWizard) {
-                openWizard();
-                return;
-              }
-              if (setupWizard) setupWizard.showModal();
-            });
-          }
-
-          if (wizardSave && setupWizard && !premiumWizard) {
-            wizardSave.addEventListener('click', () => {
-              this.saveWizardSettings();
-              setupWizard.close();
-            });
-          }
+          // Setup wizard is handled by premium-setup-wizard.js
         }
 
         saveWizardSettings() {
@@ -1444,17 +1208,11 @@
         }
       }
 
-      window.initMainUI = (data) => {
+      window.cstInitApp = (data) => {
         if (!window.cstApp) {
           window.cstApp = new CST_SmartDesk(data);
         }
       };
-
-      // Initialize the app when DOM is ready
-      window.addEventListener("DOMContentLoaded", async () => {
-        await showSplash(2000);
-        bootMain();
-      });
 
       // Copy functionality for copilot
       document.addEventListener('click', (e) => {
@@ -1470,12 +1228,9 @@
         }
       });
 
-      document.addEventListener("click", (e) => {
-        if (e.target && e.target.id === "openSettingsTop") {
-          e.preventDefault();
-          openWizard();
-        }
-      });
     </script>
+
+    <script src="/utils/splash-screen.js" defer></script>
+    <script src="/utils/premium-setup-wizard.js" defer></script>
   </body>
 </html>

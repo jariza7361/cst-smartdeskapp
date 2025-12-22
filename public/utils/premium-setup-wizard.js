@@ -1,7 +1,7 @@
 // Premium Setup Wizard - single source for setup flow
 class PremiumSetupWizard {
   // Storage keys (LOCK)
-  static KEY_COMPLETE = 'cst-setup-complete';
+  static KEY_COMPLETE = 'cst_setup_completed';
   static KEY_DATA = 'cst_setup_data';
 
   constructor() {
@@ -14,6 +14,7 @@ class PremiumSetupWizard {
 
   init() {
     this.migrateLegacyProfile();
+    this.migrateLegacyComplete();
     this.bindEvents();
     this.loadSavedData();
     this.handleBoot();
@@ -63,6 +64,13 @@ class PremiumSetupWizard {
     }
   }
 
+  migrateLegacyComplete() {
+    const legacyComplete = localStorage.getItem('cst-setup-complete');
+    if (legacyComplete === 'true' && !localStorage.getItem(PremiumSetupWizard.KEY_COMPLETE)) {
+      localStorage.setItem(PremiumSetupWizard.KEY_COMPLETE, 'true');
+    }
+  }
+
   loadSavedData() {
     const saved = localStorage.getItem('cst_setup_data');
     if (!saved) return;
@@ -106,8 +114,11 @@ class PremiumSetupWizard {
       localStorage.setItem(PremiumSetupWizard.KEY_COMPLETE, 'true');
 
       if (this.wizard) this.wizard.close();
+      if (window.cstSplash && typeof window.cstSplash.hide === 'function') {
+        window.cstSplash.hide();
+      }
 
-      if (typeof window.cstInitApp === 'function') window.cstInitApp();
+      if (typeof window.cstInitApp === 'function') window.cstInitApp(data);
     } catch (error) {
       console.error('Error saving setup data:', error);
     }
@@ -146,6 +157,9 @@ class PremiumSetupWizard {
     // - If complete OR dontShow => do NOT open wizard; just init app.
     // - Otherwise => open wizard.
     if (setupComplete || dontShow) {
+      if (window.cstSplash && typeof window.cstSplash.hide === 'function') {
+        window.cstSplash.hide();
+      }
       if (typeof window.cstInitApp === 'function') window.cstInitApp();
       return;
     }
@@ -155,6 +169,9 @@ class PremiumSetupWizard {
 
   openWizard() {
     if (!this.wizard) return;
+    if (window.cstSplash && typeof window.cstSplash.hide === 'function') {
+      window.cstSplash.hide();
+    }
     this.applyWizardStyles();
     try {
       this.wizard.showModal();
