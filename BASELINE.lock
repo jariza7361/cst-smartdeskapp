@@ -1,0 +1,16 @@
+CST SmartDesk — GOLD BASELINE
+
+Tag: CST-GOLD-BASELINE-UI
+Branch: restore-premium
+
+This baseline represents:
+- Premium UI restored from a45601b
+- Splash handled by splash-screen.js
+- Wizard handled by premium-setup-wizard.js
+- AWS S3 deployment parity verified
+
+DO NOT MODIFY UI STRUCTURE
+until Folder Authority Audit is complete.
+
+If broken, restore using:
+git checkout CST-GOLD-BASELINE-UI

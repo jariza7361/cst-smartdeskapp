@@ -5,3 +5,6 @@ node_modules
 cdk.out/
 *.tmp
 *.temp
+
+# Local archive of unused files
+/_archive/
