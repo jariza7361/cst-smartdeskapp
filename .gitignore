@@ -8,3 +8,6 @@ cdk.out/
 
 # Local archive of unused files
 /_archive/
+
+/dist/
+/_vault/
