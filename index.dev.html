@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CST SmartDesk — LOCAL DEV</title>
+
+    <!-- Local (non-hashed) styles -->
+    <link rel="stylesheet" href="/assets/app.css" />
+    <link rel="stylesheet" href="/assets/utility-styles.css" />
+    <link rel="stylesheet" href="/assets/main-copilot.css" />
+    <link rel="stylesheet" href="/assets/floating-copilot.css" />
+    <link rel="stylesheet" href="/assets/enhanced-search.css" />
+  </head>
+
+  <body>
+    <!-- IMPORTANT:
+      This file is ONLY for local preview/dev.
+      Do not deploy index.dev.html to S3.
+    -->
+<header class="topbar">
+      <h1>CST SmartDesk</h1>
+      <div id="topSearch" class="top-search">
+        <label id="searchLabel" for="searchInput" class="sr-only">Search carriers, tools, or documentation</label>
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search carriers, tools, or documentation..."
+          aria-autocomplete="list"
+          aria-controls="searchSuggest"
+          aria-labelledby="searchLabel"
+          title="Search carriers, tools, or documentation"
+          class="search-input"
+        >
+        <div id="searchSuggest" role="listbox" class="search-suggest" aria-label="Search suggestions"></div>
+      </div>
+      <div class="header-actions">
+        <button id="openCopilotBtn" class="btn secondary"><img src="/assets-png/icons/copilot.png" alt="Copilot" class="btn-icon"> Copilot</button>
+        <button id="openSettingsTop" class="btn secondary"><img src="/assets-png/icons/settings.png" alt="Setup" class="btn-icon"> Setup</button>
+        <button id="themeToggle" class="btn secondary" title="Toggle theme"><img src="/assets-png/icons/theme.png" alt="Theme" class="btn-icon"> Theme</button>
+        <button id="langToggle" class="btn secondary"><img src="/assets-png/icons/language.png" alt="Language" class="btn-icon"> Language</button>
+        <div id="helpMenuWrap" class="help-menu-wrap">
+          <button id="helpMenuBtn" data-testid="help-menu-btn" class="btn secondary"><img src="/assets-png/icons/help.png" alt="Help" class="btn-icon"> Help</button>
+          <div id="helpMenu" data-testid="help-menu" class="help-menu">
+            <button id="helpWelcomeItem" data-testid="help-menu-item-welcome" class="btn-quiet help-menu-item">Show Welcome</button>
+            <button id="helpDocsItem" data-testid="help-menu-item-docs" class="btn-quiet help-menu-item">Documentation</button>
+            <button id="helpSupportItem" data-testid="help-menu-item-support" class="btn-quiet help-menu-item">Support</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="tabs" role="tablist" aria-label="Navigation">
+          <button role="tab" aria-selected="true" data-tab="carriers">Carriers</button>
+          <button role="tab" aria-selected="false" data-tab="products">Products</button>
+          <button role="tab" aria-selected="false" data-tab="tools">Tools</button>
+          <button role="tab" aria-selected="false" data-tab="buckets">Buckets</button>
+        </div>
+
+        <!-- Carriers Panel -->
+        <div class="side-panel" data-panel="carriers">
+          <div class="side-title">USA</div>
+          <ul class="nav">
+            <li data-open="carrier:VZW">
+              <img src="/assets-png/carriers/verizon.png" alt="Verizon" class="carrier-logo">
+            </li>
+            <li data-open="carrier:ATT">
+              <img src="/assets-png/carriers/att.png" alt="AT&T" class="carrier-logo">
+            </li>
+            <li data-open="carrier:CRK">
+              <img src="/assets-png/carriers/cricket.png" alt="Cricket" class="carrier-logo">
+            </li>
+            <li data-open="carrier:LIB">
+              <img src="/assets-png/carriers/liberty.png" alt="Liberty" class="carrier-logo">
+            </li>
+            <li data-open="carrier:CC">
+              <img src="/assets-png/carriers/consumer-cellular.png" alt="Consumer Cellular" class="carrier-logo">
+            </li>
+            <li data-open="carrier:USCC">
+              <img src="/assets-png/carriers/us-cellular.png" alt="US Cellular" class="carrier-logo">
+            </li>
+            <li data-open="carrier:OPT">
+              <img src="/assets-png/carriers/optimum.png" alt="Optimum Mobile" class="carrier-logo">
+            </li>
+            <li data-open="carrier:COX">
+              <img src="/assets-png/carriers/cox.png" alt="Cox Mobile" class="carrier-logo">
+            </li>
+            <li data-open="carrier:SAMSUNG">
+              <img src="/assets-png/carriers/samsung.png" alt="Samsung" class="carrier-logo">
+            </li>
+          </ul>
+          <div class="side-title canada-title">Canada</div>
+          <ul class="nav">
+            <li data-open="carrier:TELUS">
+              <img src="/assets-png/carriers/telus.png" alt="TELUS" class="carrier-logo">
+            </li>
+            <li data-open="carrier:KOODO">
+              <img src="/assets-png/carriers/koodo.png" alt="Koodo" class="carrier-logo">
+            </li>
+            <li data-open="carrier:BELL">
+              <img src="/assets-png/carriers/bell.png" alt="Bell" class="carrier-logo">
+            </li>
+            <li data-open="carrier:VIRGIN">
+              <img src="/assets-png/carriers/virgin.png" alt="Virgin Plus" class="carrier-logo">
+            </li>
+          </ul>
+        </div>
+
+        <!-- Products Panel -->
+        <div class="side-panel" data-panel="products" hidden>
+          <div class="side-title">Asurion Products</div>
+          <ul class="nav">
+            <li data-open="product:UBIF">
+              <img src="/assets-png/products/ubreakifix.png" alt="uBreakiFix" class="product-logo">
+            </li>
+            <li data-open="product:RSG">
+              <img src="/assets-png/products/rsg.png" alt="Repair Service Group" class="product-logo">
+            </li>
+            <li data-open="product:HOMEPLUS">
+              <img src="/assets-png/products/asurion-home.png" alt="Asurion Home+" class="product-logo">
+            </li>
+            <li data-open="product:APPLIANCEPLUS">
+              <img src="/assets-png/products/asurion-appliance.png" alt="Asurion Appliance+" class="product-logo">
+            </li>
+            <li data-open="product:VZ_HDP">
+              <img src="/assets-png/products/verizon-home.png" alt="Verizon Home Device Protect" class="product-logo">
+            </li>
+            <li data-open="product:ATT_HTP">
+              <img src="/assets-png/products/att-home.png" alt="AT&T Home Tech Protection" class="product-logo">
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tools Panel -->
+        <div class="side-panel" data-panel="tools" hidden>
+          <div class="side-title">Tools</div>
+          <ul class="nav">
+            <li data-open="tools:copilot"><img src="/assets-png/icons/copilot.png" alt="Copilot" class="tool-icon"> Copilot</li>
+            <li data-open="tools:smartdrop"><img src="/assets-png/icons/smartdrop.png" alt="SmartDrop" class="tool-icon"> SmartDrop (OCR)</li>
+            <li data-open="tools:rpfr"><img src="/assets-png/icons/rpfr.png" alt="RPFR" class="tool-icon"> RPFR / PFR</li>
+            <li data-open="tools:fmip"><img src="/assets-png/icons/fmip.png" alt="Find My iPhone" class="tool-icon"> Find My iPhone Script</li>
+            <li data-open="tools:denials"><img src="/assets-png/icons/denials.png" alt="Denials" class="tool-icon"> Denials</li>
+            <li data-open="tools:affidavits"><img src="/assets-png/icons/affidavits.png" alt="Affidavits" class="tool-icon"> Affidavits</li>
+            <li data-open="tools:byod"><img src="/assets-png/icons/byod.png" alt="BYOD" class="tool-icon"> BYOD Premium Check</li>
+            <li data-open="tests"><img src="/assets-png/icons/tests.png" alt="Tests" class="tool-icon"> Tests</li>
+            <li data-open="settings"><img src="/assets-png/icons/settings.png" alt="Settings" class="tool-icon"> Settings</li>
+          </ul>
+        </div>
+
+        <!-- Buckets Panel -->
+        <div class="side-panel" data-panel="buckets" hidden>
+          <div class="side-title">Routed Buckets</div>
+          <ul class="nav">
+            <li data-open="bucket:denials"><img src="/assets-png/icons/denials.png" alt="Denials" class="bucket-icon"> Denials</li>
+            <li data-open="bucket:rpfr"><img src="/assets-png/icons/rpfr.png" alt="RPFR" class="bucket-icon"> RPFR</li>
+            <li data-open="bucket:fmip"><img src="/assets-png/icons/fmip.png" alt="Find My iPhone" class="bucket-icon"> Find My iPhone</li>
+          </ul>
+        </div>
+      </aside>
+
+
+      <div class="content">
+        <!-- Modern Dashboard Grid -->
+        <section class="dashboard">
+          <div class="dashboard-header">
+            <h1>My Toolkit</h1>
+            <div class="dashboard-actions">
+              <div class="copilot-preview">
+                <span>Ask me anything...</span>
+                <button class="btn-primary" id="generateBtn">Generate</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Build Summary Card -->
+            <div class="dashboard-card card-orange" data-action="build-summary">
+              <div class="card-icon"><img src="/assets-png/icons/analytics.png" alt="Analytics" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Build Summary</h3>
+                <p>System status & metrics</p>
+              </div>
+            </div>
+
+            <!-- Team and Personal Metrics Card -->
+            <div class="dashboard-card card-indigo" data-action="metrics">
+              <div class="card-icon"><img src="/assets-png/icons/metrics.png" alt="Metrics" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Team and Personal Metrics</h3>
+                <p>Performance tracking</p>
+              </div>
+            </div>
+
+            <!-- Carrier Escalation Card -->
+            <div class="dashboard-card card-pink" data-action="carrier-escalation">
+              <div class="card-icon"><img src="/assets-png/icons/escalation.png" alt="Escalation" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Carrier Escalation</h3>
+                <p>Escalation workflows</p>
+              </div>
+            </div>
+
+            <!-- Denials Guide/Scripts Card -->
+            <div class="dashboard-card card-red" data-action="denials-guide">
+              <div class="card-icon"><img src="/assets-png/icons/denials.png" alt="Denials" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Denials Guide/Scripts</h3>
+                <p>All Carriers</p>
+              </div>
+            </div>
+
+            <!-- Copilot Card -->
+            <div class="dashboard-card card-blue" data-action="copilot">
+              <div class="card-icon"><img src="/assets-png/icons/copilot.png" alt="Copilot" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Copilot</h3>
+                <p>AI assistance portal</p>
+              </div>
+            </div>
+
+            <!-- Knowledge Base Card -->
+            <div class="dashboard-card card-cyan" data-action="knowledge-base">
+              <div class="card-icon"><img src="/assets-png/icons/knowledge.png" alt="Knowledge Base" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Knowledge Base</h3>
+                <p>Documentation hub</p>
+              </div>
+            </div>
+
+            <!-- PFR/RPFR Grid Card -->
+            <div class="dashboard-card card-teal" data-action="rpfr-grid">
+              <div class="card-icon"><img src="/assets-png/icons/rpfr.png" alt="RPFR" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>PFR/RPFR Grid</h3>
+                <p>Price Tool and Note Generator</p>
+              </div>
+            </div>
+
+            <!-- Chat Scripts Database Card -->
+            <div class="dashboard-card card-purple" data-action="script-tracker">
+              <div class="card-icon"><img src="/assets-png/icons/scripts.png" alt="Scripts" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Chat Scripts Database</h3>
+                <p>Script management</p>
+              </div>
+            </div>
+
+            <!-- Terms & Conditions Card -->
+            <div class="dashboard-card card-green" data-action="terms-conditions">
+              <div class="card-icon"><img src="/assets-png/icons/terms.png" alt="Terms" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Terms and Conditions</h3>
+                <p>One stop for all T&C</p>
+              </div>
+            </div>
+
+            <!-- SmartDrop OCR Card -->
+            <div class="dashboard-card card-amber smartdrop-card" data-action="smartdrop-ocr">
+              <div class="card-icon"><img src="/assets-png/icons/smartdrop.png" alt="SmartDrop" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>SmartDrop OCR</h3>
+                <p>Drop files for text extraction</p>
+                <div class="supported-formats">
+                  <span><img src="/assets-png/icons/pdf.png" alt="PDF" class="format-icon"> PDF</span>
+                  <span><img src="/assets-png/icons/image.png" alt="Images" class="format-icon"> Images</span>
+                  <span><img src="/assets-png/icons/word.png" alt="Word" class="format-icon"> Word</span>
+                  <span><img src="/assets-png/icons/excel.png" alt="Excel" class="format-icon"> Excel</span>
+                  <span><img src="/assets-png/icons/powerpoint.png" alt="PowerPoint" class="format-icon"> PowerPoint</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Start Card -->
+            <div class="dashboard-card card-magenta" data-action="quick-start">
+              <div class="card-icon"><img src="/assets-png/icons/quickstart.png" alt="Quick Start" class="dashboard-icon"></div>
+              <div class="card-content">
+                <h3>Quick Start</h3>
+                <p>Setup wizard</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Copilot Workspace -->
+          <section class="copilot-workspace">
+            <div class="copilot-header">
+              <h2><img src="/assets-png/icons/copilot.png" alt="Copilot" class="section-icon"> Copilot</h2>
+              <span class="copilot-status">Try asking:</span>
+            </div>
+
+            <div class="copilot-suggestions">
+              <button class="suggestion-chip">Generate a specific escalation script</button>
+              <button class="suggestion-chip">What is the deductible for plan X?</button>
+              <button class="suggestion-chip">Show me device claim denials</button>
+            </div>
+
+            <div class="copilot-interface">
+              <div class="copilot-input">
+                <textarea id="copilotInput" data-testid="copilot-input" placeholder="Ask me anything..." aria-label="Copilot input" title="Enter your question or request" rows="3"></textarea>
+                <button class="btn-primary" id="copilotGenerate" data-testid="copilot-run">Generate</button>
+              </div>
+
+              <div class="copilot-output">
+                <div class="output-header">
+                  <span>Response</span>
+                  <div class="output-actions">
+                    <button class="btn-secondary" id="copilotCopy">Copy</button>
+                    <button class="btn-secondary" id="copilotCopyAll">Copy EN+ES</button>
+                  </div>
+                </div>
+                <textarea
+                  id="copilotOutput"
+                  placeholder="Response will appear here..."
+                  aria-label="Copilot response output"
+                  title="AI generated response"
+                  rows="8"
+                  readonly
+                ></textarea>
+              </div>
+            </div>
+          </section>
+
+          <!-- Carrier Logos Footer -->
+          <div class="carrier-footer">
+            <img src="/assets-png/corporate/asurion-logo.png" alt="Asurion" class="footer-logo">
+            <span class="footer-text">White Glove Service • Gold Standard Support</span>
+          </div>
+        </section>
+
+        <!-- Legacy content -->
+        <section id="systemStatusSection" class="hidden">
+          <h2>System Status</h2>
+          <ul id="statusList"></ul>
+        </section>
+        <section id="highlights" class="hidden">
+          <h2>Highlights</h2>
+          <div id="highlightsList" class="cards"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- System Status -->
+    <aside id="system-status" aria-live="polite" class="hidden"></aside>
+
+    <!-- Smart Panels -->
+    <section id="panels" class="hidden">
+      <div class="card" id="panel-carriers">Carriers</div>
+      <div class="card" id="panel-denials">Denials</div>
+      <div class="card" id="panel-notes">Notes</div>
+    </section>
+
+    <!-- Drag & Drop Parser -->
+    <section id="ingest" class="hidden">
+      <div id="dropzone" tabindex="0">Drop PDF/TXT or click</div>
+      <input id="file-input" type="file" accept=".pdf,.txt" class="hidden" aria-label="File upload" title="Select PDF or text file to upload" />
+      <textarea id="pastezone" placeholder="Paste text here…" aria-label="Text input area" title="Paste text content for processing"></textarea>
+      <pre id="extract-output"></pre>
+    </section>
+
+    <!-- App mounting points -->
+    <div id="app" class="hidden"></div>
+    <div id="preview" class="hidden"></div>
+
+    <!-- Tests modal -->
+    <dialog id="tests-modal" class="hidden">
+      <h2>Tests</h2>
+      <button id="btn-fetch-verizon">Fetch Verizon T&amp;C</button>
+      <pre id="tests-output"></pre>
+      <button id="close-tests">Close</button>
+    </dialog>
+
+    <!-- Modals and Dialogs -->
+    <dialog id="setup-wizard">
+      <form id="wizardForm" method="dialog">
+        <h2>Setup CST SmartDesk</h2>
+        <label for="wName" class="sr-only">Full Name</label>
+        <input id="wName" placeholder="First and Last Name" aria-label="Full Name" title="Enter your first and last name" required>
+        <label for="wCoach" class="sr-only">Coach Name</label>
+        <input id="wCoach" placeholder="Coach's Name" aria-label="Coach Name" title="Enter your coach's name">
+        <label for="wEmpId" class="sr-only">Employee ID</label>
+        <input id="wEmpId" placeholder="Employee ID" aria-label="Employee ID" title="Enter your employee ID" required>
+        <label for="wExt" class="sr-only">Extension</label>
+        <input id="wExt" placeholder="Extension" aria-label="Phone Extension" title="Enter your phone extension" required>
+        <label for="wTheme" class="sr-only">Theme Selection</label>
+        <select id="wTheme" aria-label="Theme Selection" title="Choose your preferred theme">
+          <option value="light">Light Theme</option>
+          <option value="dark">Dark Theme</option>
+          <option value="glass">Glass Theme</option>
+        </select>
+        <label for="wExpertType" class="sr-only">Expert Type</label>
+        <select id="wExpertType" aria-label="Expert Type" title="Select your expert type">
+          <option value="bilingual">Bilingual Expert</option>
+          <option value="english">English CST Expert</option>
+        </select>
+        <label>
+          <input type="checkbox" id="dontShow" aria-label="Don't show this again" title="Don't show setup wizard again">
+          Don't show this again
+        </label>
+        <button id="wizardSave" type="button" class="btn-primary">Save Settings</button>
+        <div id="wizardStatus" class="wizard-status"></div>
+      </form>
+    </dialog>
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" data-testid="welcome-modal" class="modal hidden" hidden>
+      <div class="modal-content">
+        <header class="modal-header">
+          <h3>Welcome</h3>
+          <button class="btn secondary" data-testid="welcome-close" aria-label="Close welcome modal">×</button>
+        </header>
+        <div class="modal-body">
+          <p>Welcome to CST SmartDesk.</p>
+          <button id="welOpenCopilot" class="btn primary">Open Copilot</button>
+          <label id="welDontShowLabel">
+            <input id="welDontShow" type="checkbox">
+            Don't show this again
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tesseract OCR Library -->
+    
+    <!-- Smart Panels Manager -->
+    
+    <!-- Enhanced Functionality (Help menu wiring lives here) -->
+    
+    <!-- Application Entry Point -->
+    
+    <!-- Premium Setup Wizard -->
+    <!-- Boot the app (local dev entry) -->
+    <script type="module" src="/app.js"></script>
+
+    <!-- OPTIONAL: one-click reset for splash/wizard testing -->
+    <script>
+      // Uncomment when you want to force wizard + splash again:
+      // localStorage.removeItem('cst_setup_completed');
+      // localStorage.removeItem('cst_setup_data');
+    </script>
+  </body>
+</html>
