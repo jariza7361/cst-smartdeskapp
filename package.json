@@ -11,6 +11,7 @@
     "build": "vite build",
     "deploy": "npm run build && node scripts/aws-sync.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "preview:local": "vite preview --host 127.0.0.1 --port 4174 --strictPort",
     "preview:ci": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "parity:smoke:ci": "npm run build && (npm run preview:ci &) && npx wait-on http://127.0.0.1:4173 && BASE_URL=http://127.0.0.1:4173 node scripts/parity-smoke.mjs",
     "doctor": "node scripts/doctor.mjs",
