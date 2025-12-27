@@ -423,16 +423,18 @@
     </div>
 
     <!-- Tesseract OCR Library -->
-    
-    <!-- Smart Panels Manager -->
-    
-    <!-- Enhanced Functionality (Help menu wiring lives here) -->
-    
+    <script src="/libs/tesseract/tesseract.min.js" defer></script>
+
+    <!-- Runtime utilities -->
+    <script src="/utils/smart-panels.js" defer></script>
+    <script src="/utils/enhanced-functionality.js" defer></script>
+    <script src="/utils/splash-screen.js" defer></script>
+
     <!-- Application Entry Point -->
-    
+    <script src="/app.js" defer></script>
+
     <!-- Premium Setup Wizard -->
-    <!-- Boot the app (local dev entry) -->
-    <script type="module" src="/app.js"></script>
+    <script src="/utils/premium-setup-wizard.js" defer></script>
 
     <!-- OPTIONAL: one-click reset for splash/wizard testing -->
     <script>
