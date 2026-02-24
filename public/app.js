@@ -72,25 +72,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // theme + listeners...
   applyTheme(loadSettings()?.theme || 'light');
-  const langToggle = document.getElementById('langToggle');
-  langToggle?.addEventListener('click', toggleLang);
+  document.getElementById('langToggle').addEventListener('click', toggleLang);
 
   // setup wizard
   const wiz = document.getElementById('setupWizard');
-  const openSettings = document.getElementById('openSettings');
-  openSettings?.addEventListener('click', () => wiz?.showModal());
-  const wizardSave = document.getElementById('wizardSave');
-  wizardSave?.addEventListener('click', onSaveWizard);
+  document.getElementById('openSettings').addEventListener('click', () => wiz.showModal());
+  document.getElementById('wizardSave').addEventListener('click', onSaveWizard);
   state.settings = loadSettings();
 
   // tests modal
   const testsModal = document.getElementById('testsModal');
-  const openTests = document.getElementById('openTests');
-  openTests?.addEventListener('click', () => testsModal?.showModal());
-  const testsClose = document.getElementById('testsClose');
-  testsClose?.addEventListener('click', () => testsModal?.close());
-  const testsFetchBtn = document.getElementById('testsFetchBtn');
-  testsFetchBtn?.addEventListener('click', runFetchTest);
+  document.getElementById('openTests').addEventListener('click', () => testsModal.showModal());
+  document.getElementById('testsClose').addEventListener('click', () => testsModal.close());
+  document.getElementById('testsFetchBtn').addEventListener('click', runFetchTest);
 
   // Load copilot prompts (best-effort), then seed if none
   try {
@@ -105,14 +99,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // drag & drop / paste
   const dz = document.getElementById('dropzone');
-  if (dz) {
-    dz.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dz.classList.add('hover');
-    });
-    dz.addEventListener('dragleave', () => dz.classList.remove('hover'));
-    dz.addEventListener('drop', onDrop);
-  }
+  dz.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dz.classList.add('hover');
+  });
+  dz.addEventListener('dragleave', () => dz.classList.remove('hover'));
+  dz.addEventListener('drop', onDrop);
   document.addEventListener('paste', onPaste);
 
   // CSP violations
