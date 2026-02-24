@@ -88,6 +88,39 @@ npm run pr-prep          # Prepare final PR
 npm run pr-setup         # GitHub CLI setup
 ```
 
+## 🔀 Creating a separate copy or new repository
+
+If you want this project to live in its own repository (or keep it isolated from your current clone), you can duplicate it without
+losing history in the original remote.
+
+### Option A: Clone into a fresh folder with a new remote
+1. Clone the current repo into a new directory:
+   ```bash
+   git clone <existing-repo-url> my-new-smartdeskapp
+   cd my-new-smartdeskapp
+   ```
+2. Point the new clone at a different remote (e.g., GitHub or S3-backed Git):
+   ```bash
+   git remote remove origin
+   git remote add origin <new-repo-url>
+   git push -u origin main
+   ```
+
+### Option B: Reinitialize only selected folders
+1. Copy the folders you want to reuse (for example `public/`, `src/`, `api/`, `vercel.json`, `package.json`, and `package-lock.json`)
+   into an empty directory.
+2. Initialize a new Git history there and push to your preferred remote:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial import from SmartDesk"
+   git remote add origin <new-repo-url>
+   git push -u origin main
+   ```
+
+Either path keeps this project separate while preserving the same structure expected by the build (frontend in `/public`, assets in
+`/src/public/assets`, and serverless endpoints in `/api`).
+
 ## 📖 Documentation
 
 - **[CI/CD Improvements](./CI-IMPROVEMENTS.md)**: Complete pipeline documentation
